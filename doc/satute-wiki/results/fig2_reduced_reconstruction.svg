@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="470" viewBox="0 0 1160 470">
+<rect width="1160" height="470" fill="#ffffff"/>
+<text x="580" y="28" text-anchor="middle" font-size="19" font-weight="700">Reduced reconstruction of the SatuTe simulation design</text>
+<g transform="translate(0,0)">
+<text x="273.0" y="60" text-anchor="middle" font-size="16" font-weight="600">a) five-taxon external branch</text>
+<rect x="78" y="78" width="390" height="250" fill="white" stroke="#333" stroke-width="1"/>
+<line x1="78" x2="468" y1="328.00" y2="328.00" stroke="#e8e8e8" stroke-width="1"/>
+<text x="70" y="332.00" text-anchor="end" font-size="11">0</text>
+<line x1="78" x2="468" y1="265.50" y2="265.50" stroke="#e8e8e8" stroke-width="1"/>
+<text x="70" y="269.50" text-anchor="end" font-size="11">0.25</text>
+<line x1="78" x2="468" y1="203.00" y2="203.00" stroke="#e8e8e8" stroke-width="1"/>
+<text x="70" y="207.00" text-anchor="end" font-size="11">0.5</text>
+<line x1="78" x2="468" y1="140.50" y2="140.50" stroke="#e8e8e8" stroke-width="1"/>
+<text x="70" y="144.50" text-anchor="end" font-size="11">0.75</text>
+<line x1="78" x2="468" y1="78.00" y2="78.00" stroke="#e8e8e8" stroke-width="1"/>
+<text x="70" y="82.00" text-anchor="end" font-size="11">1</text>
+<line x1="78.00" x2="78.00" y1="78" y2="328" stroke="#f0f0f0" stroke-width="1"/>
+<text x="78.00" y="346" text-anchor="middle" font-size="11">0.1</text>
+<line x1="307.55" x2="307.55" y1="78" y2="328" stroke="#f0f0f0" stroke-width="1"/>
+<text x="307.55" y="346" text-anchor="middle" font-size="11">1</text>
+<line x1="468.00" x2="468.00" y1="78" y2="328" stroke="#f0f0f0" stroke-width="1"/>
+<text x="468.00" y="346" text-anchor="middle" font-size="11">5</text>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 328.00" fill="none" stroke="#d95f8d" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="328.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 328.00" fill="none" stroke="#d95f8d" stroke-width="2.4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="328.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 328.00" fill="none" stroke="#7b3294" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="328.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 328.00" fill="none" stroke="#7b3294" stroke-width="2.4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="328.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 203.00" fill="none" stroke="#2c7fb8" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="203.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 328.00" fill="none" stroke="#2c7fb8" stroke-width="2.4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="328.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 328.00" fill="none" stroke="#1a9850" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="328.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<path d="M 78.00 78.00 L 307.55 78.00 L 468.00 328.00" fill="none" stroke="#1a9850" stroke-width="2.4"/>
+<circle cx="78.00" cy="78.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="307.55" cy="78.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="468.00" cy="328.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<text x="273.0" y="370" text-anchor="middle" font-size="12">branch length AB, log scale</text>
+<text x="30" y="203.0" text-anchor="middle" font-size="12" transform="rotate(-90 30 203.0)">fraction informative</text>
+</g>
+<g transform="translate(0,0)">
+<text x="750.0" y="60" text-anchor="middle" font-size="16" font-weight="600">b) 16-taxon internal branch</text>
+<rect x="555" y="78" width="390" height="250" fill="white" stroke="#333" stroke-width="1"/>
+<line x1="555" x2="945" y1="328.00" y2="328.00" stroke="#e8e8e8" stroke-width="1"/>
+<text x="547" y="332.00" text-anchor="end" font-size="11">0</text>
+<line x1="555" x2="945" y1="265.50" y2="265.50" stroke="#e8e8e8" stroke-width="1"/>
+<text x="547" y="269.50" text-anchor="end" font-size="11">0.25</text>
+<line x1="555" x2="945" y1="203.00" y2="203.00" stroke="#e8e8e8" stroke-width="1"/>
+<text x="547" y="207.00" text-anchor="end" font-size="11">0.5</text>
+<line x1="555" x2="945" y1="140.50" y2="140.50" stroke="#e8e8e8" stroke-width="1"/>
+<text x="547" y="144.50" text-anchor="end" font-size="11">0.75</text>
+<line x1="555" x2="945" y1="78.00" y2="78.00" stroke="#e8e8e8" stroke-width="1"/>
+<text x="547" y="82.00" text-anchor="end" font-size="11">1</text>
+<line x1="555.00" x2="555.00" y1="78" y2="328" stroke="#f0f0f0" stroke-width="1"/>
+<text x="555.00" y="346" text-anchor="middle" font-size="11">0.1</text>
+<line x1="784.55" x2="784.55" y1="78" y2="328" stroke="#f0f0f0" stroke-width="1"/>
+<text x="784.55" y="346" text-anchor="middle" font-size="11">1</text>
+<line x1="945.00" x2="945.00" y1="78" y2="328" stroke="#f0f0f0" stroke-width="1"/>
+<text x="945.00" y="346" text-anchor="middle" font-size="11">5</text>
+<path d="M 555.00 78.00 L 784.55 203.00 L 945.00 203.00" fill="none" stroke="#d95f8d" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="203.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="203.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<path d="M 555.00 78.00 L 784.55 78.00 L 945.00 328.00" fill="none" stroke="#d95f8d" stroke-width="2.4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="78.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="328.00" r="3" fill="#d95f8d" stroke="white" stroke-width="1"/>
+<path d="M 555.00 78.00 L 784.55 203.00 L 945.00 203.00" fill="none" stroke="#7b3294" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="203.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="203.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<path d="M 555.00 78.00 L 784.55 78.00 L 945.00 328.00" fill="none" stroke="#7b3294" stroke-width="2.4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="78.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="328.00" r="3" fill="#7b3294" stroke="white" stroke-width="1"/>
+<path d="M 555.00 78.00 L 784.55 78.00 L 945.00 78.00" fill="none" stroke="#2c7fb8" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<path d="M 555.00 78.00 L 784.55 78.00 L 945.00 203.00" fill="none" stroke="#2c7fb8" stroke-width="2.4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="78.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="203.00" r="3" fill="#2c7fb8" stroke="white" stroke-width="1"/>
+<path d="M 555.00 78.00 L 784.55 203.00 L 945.00 328.00" fill="none" stroke="#1a9850" stroke-width="2.4" stroke-dasharray="6,4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="203.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="328.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<path d="M 555.00 78.00 L 784.55 78.00 L 945.00 328.00" fill="none" stroke="#1a9850" stroke-width="2.4"/>
+<circle cx="555.00" cy="78.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="784.55" cy="78.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<circle cx="945.00" cy="328.00" r="3" fill="#1a9850" stroke="white" stroke-width="1"/>
+<text x="750.0" y="370" text-anchor="middle" font-size="12">branch length AB, log scale</text>
+<text x="507" y="203.0" text-anchor="middle" font-size="12" transform="rotate(-90 507 203.0)">fraction informative</text>
+</g>
+<text x="975" y="92" font-size="14" font-weight="600">Scenario</text>
+<line x1="975" x2="1009" y1="114" y2="114" stroke="#d95f8d" stroke-width="3"/>
+<text x="1019" y="118" font-size="12">true tree, fixed lengths</text>
+<line x1="975" x2="1009" y1="136" y2="136" stroke="#7b3294" stroke-width="3"/>
+<text x="1019" y="140" font-size="12">true topology, ML lengths</text>
+<line x1="975" x2="1009" y1="158" y2="158" stroke="#2c7fb8" stroke-width="3"/>
+<text x="1019" y="162" font-size="12">ML tree, unadjusted</text>
+<line x1="975" x2="1009" y1="180" y2="180" stroke="#1a9850" stroke-width="3"/>
+<text x="1019" y="184" font-size="12">ML tree, Bonferroni</text>
+<text x="975" y="216" font-size="14" font-weight="600">Sequence length</text>
+<line x1="975" x2="1009" y1="238" y2="238" stroke="#222" stroke-width="2.4" stroke-dasharray="6,4"/>
+<text x="1019" y="242" font-size="12">100 sites</text>
+<line x1="975" x2="1009" y1="260" y2="260" stroke="#222" stroke-width="2.4"/>
+<text x="1019" y="264" font-size="12">1000 sites</text>
+<text x="78" y="445" font-size="11" fill="#555">Reduced run: 2 replicates per point; branch lengths 0.1, 1.0, 5.0; site lengths 100 and 1000. Use the reconstruction script with --paper-grid --reps 1000 for the full paper-scale grid.</text>
+</svg>

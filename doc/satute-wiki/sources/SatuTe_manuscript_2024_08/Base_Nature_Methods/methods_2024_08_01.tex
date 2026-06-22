@@ -1,0 +1,252 @@
+%\begin{refsection}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+\setlength{\parindent}{0pt}
+\specialsection{Methods}
+
+\subsection{Estimates for SatuTe}\label{msec:estimates}
+
+The formal proofs of this section are to be found in Supplementary Information \ref{suppsec:maths}. Here we consider first the JC model, which has only two eigenvalues, with the second largest — of particular interest — having a multiplicity of three, i.e. $\lambda_1=\lambda_2 =\lambda_3$. This case is analogous to the general case where the second largest eigenvalue has any multiplicity greater than one. For the JC model, the central equation Eq.\,\eqref{eq:centraleq} can be written as 
+
+\begin{equation} \label{eq:likelihood_branch_at_site_t33} \frac{\Prob(\partial \mid t)}{\Prob(\pred)\Prob(\pblue)} =  1 + \Big(\sum_{k=1}^3 \langle \tfrac{\va}{\Prob(\pred)},\bm{h_k}\rangle \langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_k}\rangle \Big) e^{\lambda_1 t}.
+\end{equation}
+Then the coherence coefficient corresponding to the second largest eigenvalue equals
+\begin{align*}
+    C_1^\partial =  \sum_{k=1}^3 \langle \tfrac{\va}{\Prob(\pred)},\bm{h_k}\rangle \langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_k}\rangle = \sum_{k=1}^3 C_{1,k}^\partial,
+\end{align*} where $\bm{h_k}$ are the left eigenvectors and  $C_{1,k}^\partial$ are the coherence coefficients corresponding to the eigenvectors. 
+
+\medskip
+
+Given an alignment with $n$ sites, we compute the empirical mean as an estimator for the random variable $C_1^\partial$,
+
+\begin{align} \label{eq:estimator_explicit}
+    \hat C_1 := \frac{1}{n}\sum_{s=1}^n C_{1}^{\partial_s} = \frac{1}{n}\sum_{s=1}^n C_{1,1}^{\partial_s}+C_{1,2}^{\partial_s}+C_{1,3}^{\partial_s}
+\end{align}
+
+From the theory (Supplementary Information C), we know that the expected value for the coherence coefficients $C_{1,k}^\partial$ is zero, under the null hypothesis of subtree independence. Due to the linearity of the expectation, this also holds for $C_1^\partial$, i.e. $\mathbb{E}[C_1^\partial] = 0$.
+
+\medskip
+
+It is well known that for a sum of random variables, the variance is equal to the sum of all pairwise covariances: 
+
+\begin{align*}
+    \mathrm{Var}[C^\partial_1] = \mathrm{Var}\Big[\sum_{k=1}^3 C_{1,k}^\partial\Big] = \sum_{i,j=1}^3 \mathrm{Cov}\big(C_{1,i}^\partial,\,C_{1,j}^\partial\big)
+\end{align*}
+
+Note that $\mathrm{Cov}\big(C_{1,i}^\partial,\,C_{1,i}^\partial\big) = \mathrm{Var}[C^\partial_{1,i}]$.  Furthermore,  the covariance of two random variables can be calculated as the expected value of their product minus the product of their expected values, i.e., for our case:
+
+\begin{align*}
+    \mathrm{Cov}\big(C_{1,i}^\partial,\,C_{1,j}^\partial\big) = \mathbb{E}\big[C_{1,i}^\partial\cdot C_{1,j}^\partial\big] - \underbrace{\mathbb{E}\big[C_{1,i}^\partial\big]}_{=0}\cdot \underbrace{\mathbb{E}\big[C_{1,j}^\partial\big]}_{=0}.
+\end{align*}
+
+Since we already know that the expected values of $C_{1,k}^\partial$ is zero, the last term in the above equation is zero. %Let us now look at the expected value of the product and plug in their definition. Then, by simply rearranging the factors and subsequently using subtree independence, we can obtain the following:
+To compute the expectation of the product of two coherence coefficients, we note under the null hypothesis of subtree independence that:
+%By leveraging subtree independence and recognizing the multiplicative nature of expectations under independence, we get:
+
+\begin{align*}
+\mathbb{E}\big[C_{1,i}^\partial\cdot C_{1,j}^\partial\big] &= \mathbb{E}\Big[\underbrace{\langle \tfrac{\va}{\Prob(\pred)},\bm{h_i}\rangle \langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_i}\rangle}_{=C_{1,i}^\partial} \cdot \underbrace{\langle \tfrac{\va}{\Prob(\pred)},\bm{h_j}\rangle \langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_j}\rangle}_{= C_{1,j}^\partial} \Big]\\
+&=\mathbb{E}\Big[\langle \tfrac{\va}{\Prob(\pred)},\bm{h_i}\rangle  \langle \tfrac{\va}{\Prob(\pred)},\bm{h_j}\rangle \cdot \langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_i}\rangle\langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_j}\rangle \Big]\\
+&=\underbrace{\mathbb{E}\Big[\langle \tfrac{\va}{\Prob(\pred)},\bm{h_i}\rangle  \langle \tfrac{\va}{\Prob(\pred)},\bm{h_j}\rangle \Big]}_{=\sigma^2_{A,i,j}}\cdot \underbrace{\mathbb{E}\Big[ \langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_i}\rangle\langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_j}\rangle \Big]}_{=\sigma^2_{B,i,j}},
+\end{align*}
+because the expected value is multiplicative under independence. Note that each expectation $\sigma^2_{A,i,j}$ and $\sigma^2_{B,i,j}$ is associated with one of the subtrees. 
+If a subtree, e.g. $\mathbb{T}_A$, consists of a single leaf, then $\sigma^2_{A,i,j}=\delta_{ij}$, where $\delta_{ij}$ is the Kronecker delta, defined as $\delta_{ij} = 1$ if $i=j$ and $0$ if $i \neq j$. Otherwise, the expectation $\sigma^2_{A,i,j}$ is estimated from the alignment using the empirical mean. 
+
+\medskip
+
+Therefore, the variance of the coherence coefficient  $\mathrm{Var}[C^\partial_1]$ can be estimated from the alignment as
+\begin{align}\label{variance_estimate}
+\hat\sigma_1^2= \sum_{i,j=1}^3 \hat\sigma^2_{A,i,j}\cdot \hat\sigma^2_{B,i,j}, 
+\end{align}
+where
+
+\begin{align*}
+    \hat{\sigma}^2_{A,i,j} :=
+    \begin{cases}
+    \frac{1}{n}\sum_{s=1}^n \,\langle \tfrac{\mathbf{L}(\partial_sA)}{\Prob(\partial_sA)},\bm{h_i}\rangle\langle \tfrac{\mathbf{L}(\partial_sA)}{\Prob(\partial_sA)},\bm{h_j}\rangle,  & \text{for internal node A},\\
+    \delta_{ij},&  \text{for leaf A},
+    \end{cases}
+\end{align*}
+and $\hat{\sigma}^2_{B,i,j}$ is constructed analogously.
+
+\medskip
+
+In contrast to the JC model, the second largest eigenvalue of a typical GTR model has multiplicity one, which leads to a variance of the coherence coefficient $C_1^\partial$ of
+
+\begin{align*} 
+\mathrm{Var}[C^\partial_1] = \mathbb{E}[(C^\partial_1)^2] - 0^2 = \mathbb{E}\Big[ \langle \frac{\va}{\Prob(\pred)}, \bm{h_1}\rangle^2 \Big] \cdot \mathbb{E} \Big[ \langle \frac{\vb}{\Prob(\pblue)},\bm{h_1}\rangle^2 \Big]
+\end{align*}
+
+and a simpler estimator of the form
+\begin{align} \label{varciance_estimate_multi1}
+  \hat \sigma_1^2 = \hat\sigma^2_{A,1} \cdot \hat\sigma^2_{B,1}
+\end{align}
+
+\begin{align*}
+    \hat{\sigma}^2_{A,1} :=
+    \begin{cases}
+    \frac{1}{n}\sum_{s=1}^n \,\langle \tfrac{\mathbf{L}(\partial_sA)}{\Prob(\partial_sA)},\bm{h_1}\rangle^2,  & \text{for internal node A},\\
+    \delta_{ij},&  \text{for leaf A},
+    \end{cases}
+\end{align*}
+and $\hat{\sigma}^2_{B,1}$ is constructed analogously.
+
+\medskip 
+
+Note that we have presented the estimators for the coherence coefficients with respect to the second largest eigenvalue $\lambda_1$. However, this can also be done for any other eigenvalue in the same way.
+
+\bigskip
+
+\subsection{The test for phylogenetic information}\label{msec:test}
+
+For a large alignment and independently evolving sites, our estimates are sufficiently accurate. According to the central limit theorem, $\hat C_1$ is normally distributed with an expectation of  0 and  a variance of $\hat\sigma^2_1/n$. As in a typical one-sided z-test, we reject the null hypothesis of independently evolving subalignments at a given significance level $\alpha$ if the z-score $Z$ satisfies
+\begin{equation} \label{eq:th_zscore}
+Z := \frac{\hat C_1 - 0}{\hat{\sigma}_1/\sqrt{n}} > z_\alpha,
+\end{equation}
+where $z_\alpha$ is the $\alpha$-quantile of the standard normal distribution, satisfying $\Pr(Z > z_\alpha) = \alpha$.
+
+\medskip
+
+If we reject independence, we conclude that the branch is phylogenetically informative, indicating that the subalignments share enough phylogenetic information to justify the connection in the tree. Otherwise, the branch is considered saturated. 
+
+
+\medskip
+
+The preceding theoretical results were derived under the assumption that the alignment and the placement of branch $AB$ are independent of each other. However, in practice, the placement is usually inferred from the alignment itself. To roughly correct for the double-dipping, we can apply the multiple-test Bonferroni correction to the number of pairs of leaves used to place branch $AB$. Specifically, we adjust the significance level $\alpha$ to \begin{equation} \label{eq:corrected_significance}
+\alpha_{adjust} =  \frac{\alpha}{m_A\cdot m_B}, 
+\end{equation}
+where $m_A$ and $m_B$ are the number of leaves in subtree  $\mathbb{T}_A$ and $\mathbb{T}_B$, respectively. 
+
+\bigskip
+
+\subsection{SatuTe with rate heterogeneity model}\label{msec:hetero}
+
+If an evolutionary model with rate heterogeneity is used, each site is assigned to the rate category with highest posterior probability \citepMeth{yang1994maximum}. Then, for each category $c$, SatuTe employs the test for phylogenetic information as described in Methods \ref{msec:test} on the rescaled phylogenetic tree  and the subalignment of the considered category. In this process, SatuTe determines for each category $c$  the variance estimator $\hat\sigma^2_{1,c}$ according to Eq.\, \eqref{variance_estimate}.
+
+\medskip 
+
+However, to  test  regions of  an alignment, such as in a sliding-window analysis, we need to calculate an global variance estimator because the regions consist of  sites belonging  to different categories. For simplicity, consider four rate categories. Each category $c$ has $n_c$ sites assigned. If the alignment has $n$ sites, the global variance can be calculated as weighted average of the category variance estimates:
+\begin{align}\label{eq:global_variance}
+\hat\sigma_1^2 := \sum_{ i= 1}^4\frac{n_{c_i}}{n}\cdot \hat\sigma^2_{1,{c_i}}.
+\end{align}
+
+For an alignment window of size $w$, we perform the test according to \ref{msec:test}, using the average of all coherence coefficients  over the $w$ sites within the window for the estimate $\hat C_1$ and  the standard error $\hat\sigma_1/\sqrt{w}$, where $\hat\sigma_1^2$ is obtained from Eq.\eqref{eq:global_variance}. 
+We recommend a minimal sliding-window size of 30 sites, to ensure that the Central Limit Theorem is applicable.
+
+\bigskip
+
+\subsection{SatuTe in simulations}\label{msec:simulations}
+
+We consider different simulation trees (see Table\,\ref{tab:Fig2}) with a branch $AB$ connecting the subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$. The branch length of $AB$ was varied among $\{0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 7.5, 10.0\}$. For each parameter combination, we simulated  $1000$ DNA alignments with sequence length ${n = 100, 1000, 10000}$ sites using Seq-Gen \citepMeth[v1.3.4;][]{Rambaut1997} under the JC model. Each alignment was evaluated using IQ-Tree2 \citepMeth{minh2020} and SatuTe with a significance level of $\alpha = 0.05$.
+
+
+\medskip
+\noindent The fraction of phylogenetically informative alignments (rejecting the independence of subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$) is plotted as a function of the branch length $AB$ in the simulation tree for four different analyses:
+
+\medskip
+
+\begin{enumerate}
+\item Applying the test for phylogenetic information on the true simulation tree with fixed true branch lengths ({\color{truetree}pink}), assuming the JC model for each alignment. (First scenario)
+\item Applying the test for phylogenetic information on the true tree topology with ML-estimated branch lengths ({\color{truetreeML} purple}), assuming the JC model for each alignment. (Second scenario)
+\item Applying the test for phylogenetic information on the ML-inferred tree with estimated branch lengths ({\color{MLtree} blue}), assuming the JC model for each alignment. (Third scenario) 
+\item Using the  Bonferroni correction $\alpha_{adjust}$ (see Eq. \eqref{eq:corrected_significance}) to correct the test results of the third scenario. ({\color{MLtreeBonferroni} green})
+\end{enumerate}
+
+\medskip
+
+The following table summarises the most important aspects and differences of the simulation study for Fig.\,\ref{fig:simulation}:
+
+\begin{longtable}{|p{.34\textwidth}|p{0.30\textwidth}|p{0.30\textwidth}|}
+\hline
+   & \textbf{Fig.\,\ref{fig:simulation}a}&  \textbf{Fig.\,\ref{fig:simulation}b}\\
+      \hline
+      \hline
+      \multicolumn{3}{|c|}{\textbf{simulation}}\\
+      \hline
+     \textbf{tree:} & 5-taxon tree & 16-taxon tree\\\hline
+     \textbf{branch AB:} & 
+        external, see Fig.\,\ref{fig:simulation}a
+        & internal, see Fig.\,\ref{fig:simulation}b\\\hline
+     \textbf{branches in $\mathbb{T}_A$ \& $\mathbb{T}_B$:} & 
+      all 0.2 &
+      drawn from EvoNAPS\\
+      \hline
+     \textbf{\hspace{1em}with length range:} & NA & $0.04$ to $0.2$\\\hline
+     \textbf{substitution model:} & JC model & JC model \\\hline
+      \hline 
+      \multicolumn{3}{|c|}{\textbf{evaluation}}\\
+      \hline 
+     \textbf{substitution model:} & JC model & JC model \\\hline
+     \textbf{Bonferroni correction:} &  
+       $\alpha_{adjust} = 0.05/4$ & $\alpha_{adjust} = 0.05/64$\\
+   \hline
+   \caption{\textbf{Parameters used to analyse SatuTe in simulations.}}\label{tab:Fig2}
+\end{longtable}
+
+Branch lengths of the subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$ in the 16-taxon trees were drawn between $0.04$ and $0.2$ or between $1/\mbox{sequence-length}$  and $0.2$ from the distributions of internal and external branch lengths, respectively  (see Supplementary Fig.\,\ref{suppfig:EvoNAPS_branch_distribution}), as stored in the EvoNAPS database \citepMeth[\url{http://evonaps.cibiv.univie.ac.at}]{reden2023}. 
+
+\medskip
+
+\noindent Furthermore, each datapoint in Fig.\,\ref{fig:simulation}b has been computed from an independent set of $1000$ alignments. In the rare cases where the inferred ML-tree did not recover the split induced by branch $AB$ (i.e., the taxa of $\mathbb{T}_A$ did not split from the taxa of $\mathbb{T}_B$), the ML-tree was discarded. This determination of splits was done using TreeShredder \citepMeth{bader2023}. Such removals occurred in only $13$ of the $2000$ simulated alignments with $n=100$ and an $AB$ branch length $0.1$, specifically in $7$ {\color{MLtree} blue} and $6$ {\color{MLtreeBonferroni}green} instances.
+
+\bigskip
+
+
+\subsection{SatuTe and Tree of Life}\label{msec:ToL}
+
+% Fig 3
+\subsubsection*{Protocol for Fig.\,\ref{fig:EUK}}
+\label{msec:protocol_sliding_window_analysis}
+
+\citetMeth{Hug2016}  employed RAxML for tree reconstruction, using the LG+G4 model for the protein-based 2D tree (Fig.\,\ref{fig:EUK}a) and the GTRCAT+G4 model for the rRNA-based 3D tree (Fig.\,\ref{fig:EUK}d). For both alignments and corresponding trees, we  used IQ-Tree2 to infer the branch lengths, using the LG+G4 model for the protein alignment and the GTR+G4 model for the 16S rRNA gene alignment. Note that the second largest eigenvalues of both substitution models have multiplicity $1$.  In both trees, we focused on the internal branch leading to Eukaryota and the external branch leading to yeast (\textit{S. cerevisiae}).
+
+\medskip
+\noindent \textbf{Fig.\,\ref{fig:EUK}b, e:}
+First,  each site is assigned to the rate category with the highest posterior probability. The four subalignments resulting from the four categories where then tested for saturation. On average, sites associated to one category represent $25\%$ of the alignment and may influence the tree reconstruction significantly. Thus we used a conservative Bonferroni-corrected threshold $z_{\alpha_{adjust}}$. 
+
+\medskip
+\noindent \textbf{Fig.\,\ref{fig:EUK}c, f:}
+Using the rate category assignment, SatuTe computed the coherence coefficient $C^\partial_1$ of each site and the variance $\hat\sigma_1^2$ as described in section \ref{msec:hetero}. For each window, we perform the test according to \ref{msec:test}, using the  average of all coherence coefficients  over the 36 sites within the window. Since each 36-site window accounts for less than 2\% of the total alignment, we did not consider the Bonferroni-correction necessary. %This decision is based on the rationale that such a small fraction of sites would have a negligible impact on the maximum likelihood estimate of branch placement.
+
+\medskip
+\noindent \textbf{Fig.\,\ref{fig:EUK}c:}
+For the annotation of the 16S rRNA gene alignment, we used the bacterial hypervariable regions annotated by \citepMeth{baker2004} and the small bacterial conserved regions annotated by \citepMeth{yang2016}. Both annotations were initially based on \textit{E. coli} reference sequences. We mapped these annotations to our alignment by accounting for the gaped sites present our dataset.
+
+
+
+\bigskip
+
+% Fig 4
+\subsubsection*{Protocol for Fig.\,\ref{fig:z-score_differences}}
+
+To investigate the impact of different tree topologies the phylogenetic information of protein sequence alignment, we focus on the branch leading to Eukaryota within both the 2D (Fig.\,\ref{fig:EUK}a) and the rearranged 3D tree (Fig.\,\ref{fig:z-score_differences}a). Using SatuTe, we analyse these branches with the ribosomal protein alignment and each respective tree. The evolutionary model applied throughout is LG+G4 model. SatuTe outputs the calculation of z-scores for various proteins across both tree configurations and all four rate categories, with each protein region defined by an annotation file. These calculations follow the protocol detailed for Fig.\,\ref{fig:EUK}c, and results are summarised in Supplementary Table \ref{supptab:protein_2D_3D}. Explicitly,  $\hat{C}_1$ is computed using the $n_P$ sites of the tested protein, while $\hat\sigma^2_1$ is the global estimated variance described in Eq. \eqref{eq:global_variance}. We calculated the differences in the z-scores. 
+
+\medskip
+
+The 16S rRNA gene alignment was divided into nine distinct rRNA regions, as detailed in Supplementary Table \ref{supptab:rRNA_2D_3D}. For each rRNA region, we performed a similar analysis as for the protein alignment, focusing on the branch leading to Eukaryota within both the 3D (Fig.\,\ref{fig:EUK}d) and the rearranged 2D tree (Fig.\,\ref{fig:z-score_differences}c).
+
+\bigskip
+
+
+\bmhead{Data and code availability} The implementation of SatuTe is available at GitHub: \url{https://github.com/Elli-ellgard/SatuTe}. Additionally, all auxiliary scripts used for the various analyses are available in a separate GitHub repository, \url{https://github.com/Elli-ellgard/SatuTe-example-analyses}. Please note that the alignments were published previously and can be accessed through the original publications.
+
+
+%\renewcommand\refname{Bibliography}
+\bibliographystyleMeth{apalike}
+\bibliographyMeth{biblio.bib}
+%\printbibliography[heading=subbibintoc]
+%\end{refsection}
+
+\vspace{0.25cm}
+
+\bmhead{Acknowledgments} This work was supported by the Austrian Science Fund (FWF, grant number I-1824-B22) to Arndt von Haeseler. We would like to thank Franziska Reden for providing EvoNAPS branch length data.
+
+\bmhead{Author contributions} {Without the individual contributions of each author, this manuscript would have never been written, so we refrain from itemising the contributions. After all, the whole is more than the sum of its parts.}
+
+\bmhead{Competing interests}
+Authors declare that they have no competing interests.
+
+\bmhead{Supplementary information} 
+The supplementary information of this work
+includes  Protocols, Supplementary Figures and Tables for the simulated data and the Tree of Life analyses, and additional theoretical results for the test for phylogenetic information.
+
+
+\resetsections 

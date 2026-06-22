@@ -1,0 +1,715 @@
+\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
+\begin{appendices}
+\renewcommand\thefigure{S\arabic{figure}} % modify \thefigure, *not* \figurename
+\newcounter{myfig} 
+
+\renewcommand\thetable{S\arabic{table}} % modify \thefigure, *not* \figurename
+\newcounter{mytable} 
+    
+\etocsetnexttocdepth{3}
+\etocsettocstyle{\section*{Extended Data and Supplementary Information}}{}
+%\cftsubsubsecindent 0pt
+\tableofcontents
+
+
+\clearpage
+
+\section{SatuTe applied to simulated data}
+\subsection{Branch length estimates}
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{branch-length-estimates-true-tree-A8+B8-JC-min4percent_1000bp.pdf}
+    \vspace{0.25cm}
+    \caption{\textbf{Branch length estimates of the simulations for the 16-taxon tree in the  true-tree topology with ML-estimated branch lengths scenario ({\color{truetreeML} dark red}).} The figure shows all $1000$ ML-estimated branch lengths for each branch length parameter of the considered branch
+$AB$ of simulation tree  as box plots. The solid line represents the identity function.}
+    \label{suppfig:branchlengths_scenario2}
+\end{figure}
+
+\noindent\textbf{Protocol for Supplementary Fig.\,\ref{suppfig:branchlengths_scenario2}:} This protocol follows the Protocol for Fig.\,\ref{fig:simulation}b, see Methods \ref{sec:protocol_simulation_16taxa}. For the second scenario (true-tree topology with ML-estimated branch lengths, {\color{truetreeML} dark red}), we additionally extracted the  ML-estimated branch lengths for each alignment of length $1000$bp. The $1000$ ML-estimated branch lengths for each branch length parameter of
+$AB$ in the simulation tree are presented as box plots. 
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{branch-length-estimates-ML-tree-A8+B8-JC-min4percent_1000bp.pdf}
+    \vspace{0.25cm}
+    \caption{\textbf{Branch length estimates of the simulations for the 16-taxon tree in the  ML-tree scenario ({\color{MLtree} light green}).} The figure shows the branch length estimates of the inferred ML-trees that contain a branch splitting the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$.  These estimates, for each branch length parameter of the considered branch $AB$ in the simulation tree, are presented as box plots. The solid line represents the identity function.}
+    \label{suppfig:branchlengths_scenario3}
+\end{figure}
+\noindent\textbf{Protocol for Supplementary Fig.\,\ref{suppfig:branchlengths_scenario3}:} This protocol follows the protocol described for Fig.\,\ref{fig:simulation}b, see Methods \ref{sec:protocol_simulation_16taxa}. For third scenario (ML-tree, {\color{MLtree} light green}), we additionally extracted the branch length estimates of the inferred ML-trees for each alignment of length $1000$bp, provided the ML-tree contains a branch that splits the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$. The  branch lengths estimates (up to $1000$) for each branch length parameter of $AB$ in the simulation tree are presented as box plots.
+\bigskip
+
+\subsection{Effect of short branches}
+% currently Fig S2 (A8-B8, min blen 1/seqlen)
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{supplementary_figure_effect_short_branches.pdf}
+    \vspace{0.25cm}
+           \caption{\textbf{Effect of short branches on the test for phylogenetic information.}
+           The fraction of phylogenetic informative instances (rejecting the independence of subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$ ) is plotted as a function of the length of branch $AB$ in the true tree in various scenarios: the true-tree ({\color{truetree}light red}), the true-tree topology with ML-estimated branch lengths ({\color{truetreeML} dark red}), and the inferred ML-tree including branch lengths ({\color{MLtree} light green}). The {\color{MLtreeBonferroni} dark green} curves represent the percentage of informative instances after applying the Bonferroni correction to the light green instances. Dashed, solid and alternating dashed lines represent the results for alignment lengths $100, 1000$ and $10000$, respectively. If many of the branch lengths of the tree are close to zero, then the test with Bonferroni correction becomes conservative and the rejection level falls below $5\%$.}
+	\label{suppfig:simulation_shortBranches}
+\end{figure}
+
+
+\textbf{Protocol for Supplementary Fig.\,\ref{suppfig:simulation_shortBranches}:} We closely followed the Protocol for Fig.\,\ref{fig:simulation}b, see Methods \ref{sec:protocol_simulation_16taxa}. The only difference was that,  the internal and external branch lengths was drawn from the distributions (Fig.\,\ref{suppfig:EvoNAPS_branch_distribution}) of all internal and external branch lengths, respectively, as stored in the EvoNAPS database \citepSupp[\url{http://evonaps.cibiv.univie.ac.at}]{reden2023} for the sources OrthoMaM, Lanfear and TreeBase with a lower minimum length of $1/n$ (instead of $0.04$), where $n$ is the  alignment length.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{EvoNAPS_branch_length_distribution.pdf}
+    \vspace{0.25cm}
+    \caption{\textbf{Empirical branch length distribution from EvoNAPS:} The figure shows the distributions of all internal and external branch lengths, respectively, as stored in the EvoNAPS database for the sources OrthoMaM, Lanfear and TreeBase.}
+    \label{suppfig:EvoNAPS_branch_distribution}
+\end{figure}
+
+\medskip
+
+%%% Tab. Bootstrap values %%%
+\subsection{Bootstrap support values}
+\begin{table}[hb]
+    \centering
+    \begin{tabular}{|c|r|r|r|r|}
+\hline
+simulation branch & $AB$ split & Average  & Minimum & Informative\\
+length of $AB$& contained   & BS value & BS value & instances (\%) \\
+\hline
+0.1 &  993 &  93.32 &  14 & 100   \\
+0.2 &  999 &  99.19 &  74 & 100  \\
+0.3 & 1000 &  99.86 &  87 & 100   \\
+0.4 & 1000 &  99.95 &  93 & 100 \\
+0.5 & 1000 &  99.99 &  97 & 100   \\
+0.8 & 1000 & 100  & 100 &  99.1 \\
+1   & 1000 & 100  & 100 &  92.4 \\
+1.5 & 1000 & 100  & 100 &  49.7 \\
+2   & 1000 & 100  & 100 &  21.6 \\
+2.5 & 1000 & 100  & 100 &   9.6 \\
+3   & 1000 & 100  & 100 &   5.9 \\
+3.5 & 1000 & 100  & 100 &   4.3 \\
+4   & 1000 & 100  & 100 &   4.6 \\
+5   & 1000 & 100  & 100 &   3.8 \\
+7.5 & 1000 & 100  & 100 &   3.5 \\
+10  & 1000 & 100  & 100 &   4.3 \\
+\hline
+    \end{tabular}
+    \vspace{0.25cm}
+    \caption{
+        \textbf{Bootstrap support (BS) values of the simulations for the 16-taxon tree.} For each branch length of $AB$ in the simulation tree as shown in Fig.\,\ref{fig:simulation}b, $1000$ DNA alignments with sequence length of $100$bp were simulated under JC model. For each alignment, we conducted a bootstrap analysis with 100 replicates. The table summarizes the number of inferred ML-trees containing a branch that splits the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$ ($AB$ split contained), along with the average  and minimum bootstrap support values over all $1000$ analyses.  For comparison, we include the fraction of informative instances of Fig.\,\ref{fig:simulation}b for an alignment length of $100$bp in the scenario  ML-tree \& Bonferroni correction (dashed line, {\color{MLtreeBonferroni} dark green}). 
+    }
+    \label{supptab:bootstrap}
+    \end{table}
+
+\noindent\textbf{Protocol for Table\,\ref{supptab:bootstrap}:} This protocol partially follows the one described for Fig.\,\ref{fig:simulation}b, see Methods \ref{sec:protocol_simulation_16taxa}.
+
+The considered simulation tree is the 16-taxon tree shown in Fig.\,\ref{fig:simulation}b. Our focus is on the internal branch $AB$, connecting the root $A$ of a balanced $8$-taxon subtree $\mathbb{T}_A$ was connected to the root $B$ of a balanced $8$-taxon subtree $\mathbb{T}_B$. All branch lengths in $\mathbb{T}_A$ and $\mathbb{T_B}$ were drawn between $0.04$ and $0.2$ from the distributions (see Supplementary Fig.\,\ref{suppfig:EvoNAPS_branch_distribution}) of all internal and external branch lengths, respectively, as stored in the EvoNAPS database \citepMeth[\url{http://evonaps.cibiv.univie.ac.at}]{reden2023} for the sources OrthoMaM, Lanfear and TreeBase. While the branch length of $AB$ varied among $\{0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 7.5, 10.0\}$. For each parameterization, we simulated sets of $1000$ DNA alignments with sequence length of $100$ sites using Seq-Gen \citepMeth[v1.3.4;][]{Rambaut1997} under the JC model. For each alignment, we conducted a bootstrap analysis with $100$ replicates using IQ-Tree \citepMeth[2.2.2.7;][]{minh2020}. For each of the $1000$ considered ML-tree, we determined if a branch exists that splits the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$ (i.e., $AB$ split contained). For the ML-trees containing this split, the bootstrap support value of branch $AB$ was computed using $100$ resamplings, allowing us to calculate the average and minimum BS values.
+
+
+For comparison, we include the fraction of informative instances of Fig.\,\ref{fig:simulation}b for an alignment length of $100$bp in the ML-tree \& Bonferroni correction scenario (dashed line, {\color{MLtreeBonferroni} dark green}). See  Protocol for Fig.\,\ref{fig:simulation}b (Methods \ref{sec:protocol_simulation_16taxa}).
+
+\medskip
+
+The cases of alignment lengths $n=1000$ and $n=10000$ sites are not represented because, for all simulation branch lengths of $AB$, the $1000$ ML-trees consistently contained the $AB$ split, and the branch $AB$ had a minimum BS value of $100$.
+
+\medskip
+
+\subsection{Placement of the considered branch in the ML-tree}
+
+
+\begin{table}[hb]
+    \centering
+    \begin{tabular}{|r|c|r|r|r|}
+\hline
+ &  &\multicolumn{3}{c|}{branch $AB$}\\
+alignment &simulation branch&   connecting  & connecting &  connecting\\
+length &length of $AB$ &     2 external & 1 external +  & 2 internal \\
+&&     branches & 1 internal branch & branches\\
+\hline
+100	&0.1	&  0	& 10 & 990 \\
+100	&0.2	&  1	& 44 & 955 \\
+100	&0.3	&  4	& 65 & 931 \\
+100	&0.4	& 10	&120 & 870 \\
+100	&0.5	& 29	&201 & 770 \\
+100	&0.8	&146	&464 & 390 \\
+100	&1   	&317	&442 & 241 \\
+100	&1.5	&601	&323  & 76 \\
+100	&2  	&736	&238  & 26 \\
+100	&2.5	&799	&190 &  11 \\
+100	&3  	&783	&206 &  11 \\
+100	&3.5	&812	&179 &   9 \\
+100	&4      &836	&159 &   5 \\
+100	&5  	&834	&160 &   6 \\
+100	&7.5	&844	&145 &  11 \\
+100	&10 	&828	&162 &  10 \\
+\hline
+    \end{tabular}
+    \vspace{0.25cm}
+    \caption{
+        \textbf{Placement of the  branch $AB$ in the ML-tree for the 16-taxon tree.}
+        For each parameterization of the 16-taxon tree, we simulated sets of $1000$ DNA alignments with a sequence length of $100$ sites under the JC model. For each alignment, the ML-tree was inferred under the JC model. All ML-trees included a branch that splits the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$. By examining the splits of the trees, we determined how many $AB$ branches connect either two external branches of the subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$, one external to one internal branch, or two internal branches.
+   }
+    \label{supptab:bonferroni_correction}
+    \end{table}\hfill\\
+
+\begin{table}[hb]
+    \centering
+    \begin{tabular}{|r|c|r|r|r|}
+\hline
+ &  &\multicolumn{3}{c|}{branch $AB$}\\
+alignment &simulation branch&   connecting  & connecting &  connecting\\
+length &length of $AB$ &     2 external & 1 external +  & 2 internal \\
+&&     branches & 1 internal branch & branches\\
+\hline
+1000	&0.1	&  0	& 0  & 1000 \\
+1000	&0.2	&  0	& 0  & 1000 \\
+1000	&0.3	&  0	& 0  & 1000 \\
+1000	&0.4	&  0	& 0  & 1000 \\
+1000	&0.5	&  0	& 0  & 1000 \\
+1000	&0.8	&  0   	& 0  & 1000 \\
+1000	&1   	& 0	    & 9  & 991 \\
+1000	&1.5	&50	    &266 & 684 \\
+1000	&2  	&386	&427 &187 \\
+1000	&2.5	&616	&330 &54 \\
+1000	&3  	&697	&279 &24 \\
+1000	&3.5	&752	&239 & 9 \\
+1000	&4      &771	&219 &10\\
+1000	&5  	&776	&211 &13 \\
+1000	&7.5	&776	&216 &8 \\
+1000	&10 	&809	&182 &9 \\
+\hline
+    \end{tabular}
+    \vspace{0.25cm}
+    \caption{
+        \textbf{Placement of the  branch $AB$ in the ML-tree for the 16-taxon tree.}
+        For each parameterization of the 16-taxon tree, we simulated sets of $1000$ DNA alignments with a sequence length of $1000$ sites under the JC model. For each alignment, the ML-tree was inferred under the JC model. All ML-trees included a branch that splits the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$. By examining the splits of the trees, we determined how many $AB$ branches connect either two external branches of the subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$, one external to one internal branch, or two internal branches.
+   }
+    \label{supptab:bonferroni_correction_1000}
+    \end{table}\hfill\\
+
+\begin{table}[hb]
+    \centering
+    \begin{tabular}{|r|c|r|r|r|}
+\hline
+      &  &\multicolumn{3}{c|}{branch $AB$}\\
+alignment &simulation branch&   connecting  & connecting &  connecting\\
+length &length of $AB$ &     2 external & 1 external +  & 2 internal \\
+&&     branches & 1 internal branch & branches\\
+\hline
+10000 &0.1	&  0	& 0  & 1000 \\
+10000 &0.2	&  0	& 0  & 1000 \\
+10000 &0.3	&  0	& 0  & 1000 \\
+10000 &0.4	&  0	& 0  & 1000 \\
+10000 &0.5	&  0	& 0  & 1000 \\
+10000 &0.8	&  0   	& 0  & 1000 \\
+10000 &1   	&  0   	& 0  & 1000 \\
+10000 &1.5	& 0   	& 0  & 1000 \\
+10000 &2  	& 1	    &22  &977 \\
+10000 &2.5	&80	    &352 &568 \\
+10000 &3  	&378	&475  &147 \\
+10000 &3.5	&556	&399  &45 \\
+10000 &4    &657	&317  &26\\
+10000 &5  	&699	&291  &10 \\
+10000 &7.5	&718	&274  & 8 \\
+10000 &10 	&722	&270  & 8\\
+\hline
+    \end{tabular}
+    \vspace{0.25cm}
+    \caption{
+        \textbf{Placement of the  branch $AB$ in the ML-tree for the 16-taxon tree.}
+        For each parameterization of the 16-taxon tree, we simulated sets of $1000$ DNA alignments with a sequence length of $10000$ sites under the JC model. For each alignment, the ML-tree was inferred under the JC model. All ML-trees included a branch that splits the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$. By examining the splits of the trees, we determined how many $AB$ branches connect either two external branches of the subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$, one external to one internal branch, or two internal branches.
+   }
+    \label{supptab:bonferroni_correction_10000}
+    \end{table}\hfill\\
+   
+\noindent\textbf{Protocol for Table\,\ref{supptab:bonferroni_correction}-\,\ref{supptab:bonferroni_correction_10000}:} This protocol partially follows the one described for Fig.\,\ref{fig:simulation}b, see Methods \ref{sec:protocol_simulation_16taxa}.
+
+The considered simulation tree is the 16-taxon tree shown in Fig.\,\ref{fig:simulation}b. Our focus is on the internal branch $AB$, connecting the root $A$ of a balanced $8$-taxon subtree $\mathbb{T}_A$ was connected to the root $B$ of a balanced $8$-taxon subtree $\mathbb{T}_B$. All branch lengths in $\mathbb{T}_A$ and $\mathbb{T_B}$ were drawn between $0.04$ and $0.2$ from the distributions (see Supplementary Fig.\,\ref{suppfig:EvoNAPS_branch_distribution}) of all internal and external branch lengths, respectively, as stored in the EvoNAPS database \citepMeth[\url{http://evonaps.cibiv.univie.ac.at}]{reden2023} for the sources OrthoMaM, Lanfear and TreeBase. While the branch length of $AB$ varied among $\{0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 7.5, 10.0\}$. For each parameterization, we simulated sets of $1000$ DNA alignments with sequence length of $100$, $1000$ and $10000$ sites using Seq-Gen \citepMeth[v1.3.4;][]{Rambaut1997} under the JC model. For each alignment, we conducted a bootstrap analysis with $100$ replicates using IQ-Tree \citepMeth[2.2.2.7;][]{minh2020}. 
+
+For each of the $1000$ considered ML-tree, we determined if a branch exists that splits the taxa of $\mathbb{T}_A$ and $\mathbb{T}_B$ (i.e.,  contains the $AB$ split). In this simulation, all ML-trees contained the $AB$ split. {\color{olive}Using TreeShredder \citepMeth{bader2023}} we checked for the existence of a split that contains either (a) all taxa of subtree $\mathbb{T}_A$ plus one taxon of subtree $\mathbb{T}_B$ or (b) all taxa of subtree $\mathbb{T}_B$ plus one taxon of subtree $\mathbb{T}_A$. If both cases (a) and (b) are fulfilled, the branch $AB$ connects two external branches of the subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$. If  either (a) or (b) is fulfilled, but not both, then  branch $AB$ connects an internal branch of one subtree with an external branch of the other subtree. Otherwise the branch $AB$ connects only internal branches of the subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$.
+\clearpage
+\bigskip
+    
+\subsection{Model misspecification simulations}
+%%% currently Fig S1. (model mis-specification) %%%
+\begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{figure_simulated_data_misspecification.pdf}
+             \caption{\textbf{Performance of SatuTe in presence of model misspecification.} The plot shows the fraction of informative instances when testing the depicted branch in absence of model misspecification (true-tree, {\color{truetreeNoMisspecification}gold}) and in various scenarios with model misspecification: true-tree ({\color{truetree}light red}), the true-tree topology with ML-estimated branch lengths ({\color{truetreeML} dark red}), and the inferred ML-tree including branch lengths with Bonferroni correction ({\color{MLtreeBonferroni} dark green}). In all cases the alignments were simulated with a GTR model, while reconstruction and testing under model misspecification was performed using the JC \textbf{(a,d)}, K2P \textbf{(b,e)} or F81 \textbf{(c,f)} models. The branches tested were \textbf{(a-c)} the external branch $AB$ of a $5$-taxon tree and \textbf{(d-f)} the central branch $AB$ of a balanced $16$-taxon tree. Dashed, solid and alternating dashed lines represent the results for alignments with $100, 1000$ and $10000$ number of sites, respectively. }
+	\label{suppfig:simulation_misspec}
+ \end{figure}
+
+\medskip
+
+%%%%% Fig S1a-c - model misspecification simulation A4-B1 %%%%%
+\noindent\textbf{Protocol for Supplementary Fig.\,\ref{suppfig:simulation_misspec}a-c:}\label{subsec:misspec_5tree} This protocol mostly follows the protocol of Fig.\,\ref{fig:simulation}a, see Methods \ref{sec:protocol_simulation_5taxa}.
+
+\medskip
+
+\noindent The considered simulation tree is the five-taxon tree shown in Fig.\,\ref{fig:simulation}a. Our focus is on the external branch $AB$, connecting taxon $B$ to the root $A$ of a balanced four-taxon subtree $\mathbb{T}_A$. All branch lengths in $\mathbb{T}_A$ were set to 0.2, while the branch length of $AB$ varied among $\{0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 7.5, 10.0\}$. For each parameterization, we simulated sets of $1000$ DNA alignments with sequence length ${n = 100, 1000, 10000}$ sites using Seq-Gen \citepMeth[v1.3.4;][]{Rambaut1997} under a GTR model with rates $AC=0.6676$, $AG=3.7807$, $AT=4.2833$, $CG=0.5354$, $CT=0.8718$ and $GT=1.0$ and nucleotide frequencies $\pi_A = 0.125$, $\pi_C = 0.436$, $\pi_G = 0.191$ and $\pi_T =0.245$, as estimated for the best-fit model for the dataset PF06346 stored in the EvoNAPS database \citepSupp[\url{http://evonaps.cibiv.univie.ac.at}]{reden2023}. Each alignment was evaluated using IQ-Tree \citepMeth[2.2.2.7;][]{minh2020} and SatuTe with a significance level of $\alpha = 0.05$ while specifying JC \textbf{(a)}, K2P \textbf{(b)} and F81 \textbf{(c)} as models of substitution instead of GTR. Missing model parameters are estimated from the alignments.
+
+
+\medskip
+The fraction of phylogenetic informative alignments (rejecting the independence of subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$) is plotted as a function of the branch length $AB$ in the simulation tree for four different analyses:
+
+\medskip
+
+\begin{enumerate}
+\item  Applying the test for phylogenetic information on the true simulation tree with fixed true branch lengths ({\color{truetreeNoMisspecification}gold}), assuming the GTR model of the simulation for each alignment. (Scenario 0, no model misspecification)
+\item Applying the test for phylogenetic information on the true simulation tree with fixed true branch lengths ({\color{truetree}light red}), assuming the JC \textbf{(a)}, K2P \textbf{(b)} and F81 \textbf{(c)} model for each alignment. (Scenario 1, model misspecification)
+\item Applying the test for phylogenetic information on the true tree topology with ML-estimated branch lengths ({\color{truetreeML} dark red}), assuming the JC \textbf{(a)}, K2P \textbf{(b)} and F81 \textbf{(c)} model for each alignment. (Scenario 2, model misspecification)
+\item Applying the test for phylogenetic information with the  Bonferroni correction $\alpha_{COR} = \alpha/4$ (see Eq.\,\eqref{eq:corrected_significance}) on the inferred ML-tree with estimated branch lengths ({\color{MLtreeBonferroni} dark green}), assuming the JC \textbf{(a)}, K2P \textbf{(b)} and F81 \textbf{(c)}  model for each alignment. (Scenario 3, model misspecification) 
+\end{enumerate}
+
+%Each datapoint is based on an independent set of $1000$ alignments.
+
+\medskip
+For the GTR model, the largest non-zero eigenvalue has a multiplicity of
+1, so we used statistic $\hat C = \hat{C}_1$. We followed the description in the Methods \ref{msec:test}. Note that Node $B$ is a leaf, so $\sigma_{B,1}=1$ (Prop.\,\ref{prop:memorySequence}).
+
+Since the JC model \textbf{(a)} and the F81 model \textbf{(c)} have a unique non-zero eigenvalue with multiplicity $3$, we used statistic $\hat{C} = \hat{C}_1+\hat{C}_2+\hat{C_3}$ (Supplementary Eq.\,\eqref{eq:dominant_coherence}).  Under the null hypothesis of independence, the expectation of $\hat{C}$ is zero. Note that Node $B$ is a leaf, so $\sigma_{B,k}=1$ (Prop.\,\ref{prop:memorySequence}). Therefore, the variance of $\hat C$ is:
+\begin{align*}
+  \hat{\sigma}^2_{\text{external}} =  \hat{\sigma}^2_{A,1}+\hat{\sigma}^2_{A,2}+\hat{\sigma}^2_{A,3}
+\end{align*}
+
+ For the K2P model \textbf{(b)}, the largest non-zero eigenvalue  has multiplicity $2$, so we used statistic $\hat{C} = \hat{C}_1+\hat{C}_2$ (Supplementary Eq.\,\eqref{eq:dominant_coherence}). Under the null hypothesis of independence, the expectation of $\hat{C}$ is zero. Similarly, the variance of $\hat C$ is:
+\begin{align*}
+  \hat{\sigma}^2_{\text{external}} =  \hat{\sigma}^2_{A,1}+\hat{\sigma}^2_{A,2}
+\end{align*}
+
+The uncorrected tests ({\color{truetree}light red}, {\color{truetreeML} dark red} and {\color{truetreeNoMisspecification}gold}) reject independence if:
+\begin{align*}
+ \frac{\hat{C}-0}{\hat{\sigma}_{\text{external}}/\sqrt{n}} > z_\alpha 
+\end{align*}
+
+for $\alpha=0.05$ (Supplementary Eq.\,\eqref{eq:threshold_D_external}), while $\alpha_{COR}=0.05/4$  is used for the corrected test ({\color{MLtreeBonferroni} dark green}).
+
+\medskip
+
+%%%%% Fig S1d-f - model misspecification simulation A8-B8 %%%%%
+\noindent\textbf{Protocol for Supplementary Fig.\,\ref{suppfig:simulation_misspec}d-f:}\label{subsec:misspec_16tree} This protocol mostly follows the protocol of Fig.\,\ref{fig:simulation}b, see Methods \ref{sec:protocol_simulation_16taxa}.
+
+\medskip
+
+\noindent The considered simulation tree is the 16-taxon tree shown in Fig.\,\ref{fig:simulation}b. Our focus is on the internal branch $AB$, connecting the root $A$ of a balanced $8$-taxon subtree $\mathbb{T}_A$ was connected to the root $B$ of a balanced $8$-taxon subtree $\mathbb{T}_B$. All branch lengths in $\mathbb{T}_A$ and $\mathbb{T_B}$ were drawn between $0.04$ and $0.2$ from the distributions (see Supplementary Fig.\,\ref{suppfig:EvoNAPS_branch_distribution}) of all internal and external branch lengths, respectively, as stored in the EvoNAPS database \citepMeth[\url{http://evonaps.cibiv.univie.ac.at}]{reden2023} for the sources OrthoMaM, Lanfear and TreeBase. While the branch length of $AB$ varied among $\{0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 7.5, 10.0\}$. For each parameterization, we simulated sets of $1000$ DNA alignments with sequence length ${n = 100, 1000, 10000}$ sites using Seq-Gen \citepMeth[v1.3.4;][]{Rambaut1997} under a GTR model with rates $AC=0.6676$, $AG=3.7807$, $AT=4.2833$, $CG=0.5354$, $CT=0.8718$ and $GT=1.0$ and nucleotide frequencies $\pi_A = 0.125$, $\pi_C = 0.436$, $\pi_G = 0.191$ and $\pi_T =0.245$ as estimated for the best-fit model for the dataset PF06346 as stored in the EvoNAPS database \citepSupp[\url{http://evonaps.cibiv.univie.ac.at}]{reden2023}. Each alignment was evaluated using IQ-Tree \citepMeth[2.2.2.7;][]{minh2020} and SatuTe with a significance level of $\alpha = 0.05$ while specifying JC \textbf{(d)}, K2P \textbf{(e)} and F81 \textbf{(f)} as models of substitution instead of GTR. Missing model parameters are estimated from the alignments.
+
+\medskip
+Again, the fraction of phylogenetic informative alignments (rejecting the independence of subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$) is plotted as a function of the branch length $AB$ in the simulation tree for four different analyses:
+
+\medskip
+
+\begin{enumerate}
+\item  Applying the test for phylogenetic information on the true simulation tree with fixed true branch lengths ({\color{truetreeNoMisspecification}gold}), assuming the GTR model of the simulation for each alignment. (Scenario 0, no model misspecification)
+\item Applying the test for phylogenetic information on the true simulation tree with fixed true branch lengths ({\color{truetree}light red}), assuming the JC \textbf{(d)}, K2P \textbf{(e)} and F81 \textbf{(f)} model for each alignment. (Scenario 1, model misspecification)
+\item Applying the test for phylogenetic information on the true tree topology with ML-estimated branch lengths ({\color{truetreeML} dark red}), assuming the JC \textbf{(d)}, K2P \textbf{(e)} and F81 \textbf{(f)} model for each alignment. (Scenario 2, model misspecification)
+\item Applying the test for phylogenetic information with the  Bonferroni correction $\alpha_{COR} = \alpha/64$ (see Eq.\,\eqref{eq:corrected_significance}) on the inferred ML-tree with estimated branch lengths ({\color{MLtreeBonferroni} dark green}), assuming the JC \textbf{(d)}, K2P \textbf{(e)} and F81 \textbf{(f)}  model for each alignment. (Scenario 3, model misspecification) 
+\end{enumerate}
+
+\medskip
+
+Each datapoint in Fig.\,\ref{suppfig:simulation_misspec} has been computed from an independent set of $1000$ alignments.  In the rare cases where the inferred ML-tree did not recover the split induced by branch $AB$ (i.e., the taxa of $\mathbb{T}_A$ did not split from the taxa
+of $\mathbb{T}_B$), the ML-tree was discarded. This only occurred for simulated alignments with $n = 100$ and $AB$ branch length $0.1$ or $0.2$ (totalling $4\times1000$ alignments). The maximum number of discarded ML-trees occurred under the F81 model (Fig.\,\ref{suppfig:simulation_misspec}f), where $1.6\%$ ($64$ out of $4\times1000$) of ML-trees where discarded.
+
+
+
+%                        AB=0.1, JC:     26+23 = 49/2000 = 2.45 %
+%                        AB=0.1, K2P:    20+26 = 46/2000 = 2.3  %
+%                        AB=0.1, F81:    28+33 = 61/2000 = 3.05 %
+%
+%                        AB=0.2, JC:      0+ 2 =  2/2000 = 0.1  %
+%                        AB=0.2, K2P:     3+ 0 =  3/2000 = 0.15 %
+%                        AB=0.2, F81:     2+ 1 =  3/2000 = 0.15 %
+
+\medskip
+
+For the GTR model, the largest non-zero eigenvalue has a multiplicity of
+1, so we used statistic $\hat C = \hat{C}_1$. We followed the description in the Methods \ref{msec:test}.
+
+Since the JC model \textbf{(d)} and the F81 model \textbf{(f)} have a unique non-zero eigenvalue with multiplicity $3$, we used statistic $\hat{C} = \hat{C}_1+\hat{C}_2+\hat{C_3}$ (Supplementary Eq.\,\eqref{eq:dominant_coherence}).  Under the null hypothesis of independence, the expectation of $\hat{C}$ is zero. Branch $AB$ is internal, so the variance of $\hat C$ is:
+\begin{align*}
+  \hat{\sigma}^2_{\text{internal}} =  \sum_{k, l=1}^3
+   \hat{K}^A_{kl}   \hat{K}^B_{kl}
+\end{align*}
+
+ For the K2P model \textbf{(e)}, the largest non-zero eigenvalue  has multiplicity $2$, so we used statistic $\hat{C} = \hat{C}_1+\hat{C}_2$ (Supplementary Eq.\,\eqref{eq:dominant_coherence}). Under the null hypothesis of independence, the expectation of $\hat{C}$ is zero. Similarly, the variance of $\hat C$ is:
+\begin{align*}
+  \hat{\sigma}^2_{\text{internal}} &= \sum_{k, l=1}^2
+   \hat{K}^A_{kl}   \hat{K}^B_{kl}\\
+   &=\hat{\sigma}^2_{A,1}\hat{\sigma}^2_{B,1}+\hat{\sigma}^2_{A,2}\hat{\sigma}^2_{B,2} + 2\hat{K}^A_{12}\hat{K}^B_{12}
+\end{align*}
+
+The uncorrected tests ({\color{truetree}light red}, {\color{truetreeML} dark red} and {\color{truetreeNoMisspecification}gold}) reject independence if:
+\begin{align*}
+ \frac{\hat{C}-0}{\hat{\sigma}_{\text{internal}}/\sqrt{n}} > z_\alpha 
+\end{align*}
+
+for $\alpha=0.05$ (Supplementary Eq.\,\eqref{eq:threshold_D_external}), while $\alpha_{COR}=0.05/64$  is used for the corrected test ({\color{MLtreeBonferroni} dark green}).
+
+\bigskip
+
+
+    \clearpage
+
+%%%%%==============================================================%%%
+%%%%%   TREE OF LIFE %%%%%%
+    
+\newpage
+\section{Tree of Life (ToL) analyses}
+
+We apply SatuTe to real data by analyzing the Tree of Life (ToL) for ribosomal protein and RNA alignments.  For this purpose, we are examining the work of \citetSupp{Hug2016}.
+
+\subsection{2D tree - Ribosomal protein alignment}
+Here, we consider the $3083$-taxon Tree of Life reconstructed by \citepSupp{Hug2016} from a curated amino acid alignment of $2596$ sites, containing the concatenation of $16$ highly conserved proteins from both the large  (L) and small (S) ribosomal subunits (see Supplementary Table \ref{table:per_protein_summary}). For example, proteins L2 and S3 belong to the Large and Small ribosomal subunit, respectively. Note that, due to an unintended omission,  \citetSupp{Hug2016} did
+not indicate the presence of protein L15 in the alignment.
+
+\bigskip
+
+\subsubsection{Per-category analysis}\label{suppsec:2DT_per_category_analysis}
+
+In their study, \citetSupp{Hug2016} used RAxML \citepSupp{Stamatakis2014} for tree reconstruction using the LG plus Gamma (LG+$\Gamma 4$) model  for protein-based two-domain tree (\textbf{Fig.\,\ref{fig:EUK}a}). For our analysis of this published alignment and tree, we employed \citepSupp[2.2.2.3;][]{minh2020}  to reassess the model of evolution and calculate the posterior rate category probability for each site. The dataset employs a model of rate heterogeneity, where SatuTe assigns each site to the rate category with the highest posterior probability. The alignment is subsequently divided into four subalignments, and SatuTe tests for phylogenetic information on the rescaled tree per category. On average, sites associated with one category represent $25\%$ of the alignment and can  influence the tree reconstruction. Therefore, we used a conservative Bonferroni-corrected threshold, $z_{\alpha_{COR}}$. 
+
+\medskip
+
+\noindent \textbf{Results:} All branches are phylogenetic informative across all
+categories. We can focus exclusively on the internal edge leading to Eukaryota and the external edge leading to Yeast. Under the 2D tree (Fig.\,\ref{fig:EUK}a), the per-category analysis shows that no rate category is affected by saturation (Fig.\,\ref{fig:EUK}b).
+
+\bigskip
+
+\subsubsection{Per-alignment-region analysis}\label{suppsec:2DT_per_region_analysis}
+
+Using the $3083$-taxon tree of life and the protein alignment from \citetSupp{Hug2016}, we performed a per-alignment-region analysis using our tool SatuTe to quantify the phylogenetic information revealed for each ribosomal protein. To ensure comparable results for all proteins, we used the homogeneous LG model \citepSupp{le2008}. For the analysis, we excluded taxa with no meaningful sequence data (i.e., sequences composed only of the characters “-” or “X”) and pruned the tree of life reconstructed by \citepMain{Hug2016} accordingly. The branch lengths were then ML-estimated. The findings are summarized in Table \ref{table:per_protein_summary} and Fig.\,\ref{fig:ToL_per_protein_analysis}. See Protocol for Fig.\,\ref{fig:ToL_per_protein_analysis} (Methods  \ref{msec:protocol_per_protein_analysis}) for all details of the analysis.
+
+\begin{table}[ht]
+     \centering 
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+      \hline
+       protein & alignment & number of & \# tested  &\multicolumn{3}{c|}{\# saturated branches}\\
+& length & excluded taxa &branches& internal & external & total\\
+\hline
+L2  & 317 &  27 & 6110 &  0 &  55 &  55\\
+L3  & 228 & 139 & 5886 &  2 &  43 &  45\\
+L4  & 245 & 111 & 5942 &  0 &   0 &   0\\
+L5  & 164 &  91 & 5982 &  0 &  18 &  18\\
+L6  & 220 &  31 & 6102 &  1 &  65 &  66\\
+L14 & 125 &  49 & 6066 &  0 &   0 &   0\\
+L15 & 122 &  18 & 6128 & 14 & 136 & 150\\
+L16 & 153 &  85 & 5994 & 60 & 132 & 192\\
+L18 & 141 &  64 & 6036 &  6 &  50 &  56\\
+L22 & 174 &  55 & 6054 &  0 &  45 &  45\\
+L24 &  81 &  89 & 5986 &  0 &   3 &   3\\
+S3  & 216 &  48 & 6068 & 24 & 113 & 137\\
+S8  & 141 &  32 & 6100 &  2 &  98 & 100\\
+S10 & 104 & 419 & 5326 &  0 &   0 &   0\\
+S17 &  74 & 195 & 5775 &  2 &  23 &  25\\
+S19 &  91 & 163 & 5838 & 16 & 109 & 125\\
+\hline
+     \end{tabular}
+     \vspace{0.25cm}
+     \caption{ \textbf{Per-protein summary of saturation in the $3083$-taxon Tree of Life} For each ribosomal protein, the table includes the length of the corresponding subalignment, the number of excluded taxa lacking meaningful sequence data, the number of tested branches on the pruned Tree of Life, and the number of saturated branches  categorized into internal branches, external branches and the total (both).}
+	\label{table:per_protein_summary}
+    \end{table}
+
+\medskip
+
+\noindent \textbf{Protocol for Table \ref{table:per_protein_summary}:} See Protocol for Fig.\,\ref{fig:ToL_per_protein_analysis} (Methods  \ref{msec:protocol_per_protein_analysis}).
+\medskip
+
+\noindent \textbf{Results:}        
+In total there are $715$ branches that are saturated for at least one of the $16$ ribosomal proteins, exemplifying the complex task of a comprehensive depiction of branch saturation (see Supplementary Table \ref{table:per_protein_summary}). As shown in Fig.\,\ref{fig:ToL_per_protein_analysis}, most of branches subject to saturation are located in the Archaea subtree, which in this reconstruction includes Eukaryota. Explicitly, the $336$-taxon Archaea subtree contains $423$ branches subject to saturation, mostly due to proteins L16, S19 and S3 (with respectively $196$, $104$ and $84$ saturated instances within Archaea).
+
+\medskip
+
+Remarkably, the four longest branches (namely the external branches of three Archaea Candidatus and the branch separating Bacteria from Archaea) are informative for all proteins. This may seem surprising considering that their branch lengths range from $0.92$ to $1.22$ substitutions per site, while the shortest protein has only $74$ sites. Notice, however, that the biggest nonzero eigenvalue of the chosen LG model is $\lambda_1\approx-0.27$, and thus the dominant exponential decay $e^{\lambda_1 t}$ of the transition matrix $e^{\bm{Q}\cdot t}$ (see Supplementary Prop. \ref{prop:limit_likelihood_tree}) rescales any given branch length by a factor of roughly $1/4$, reducing the effect of long branches on the loss of phylogenetic information. Conversely, shorter branches are affected by saturation due to indels or poor sampling quality, which reduce the effective number of sites providing some information. This shows that branch length alone cannot be used as a proxy for saturation.
+
+\bigskip
+
+\subsubsection{Branch-specific sliding-window analysis}\label{suppsec:2DT_sliding_window_analysis}
+
+We measured the phylogenetic information at the branch leading to Eukaryota in the 2D (Fig.\,\ref{fig:EUK}a). To do so, a sliding-window analysis was performed running from the beginning to the end of the alignment, giving a graphical representation of the change in information content.
+
+\medskip
+
+\noindent \textbf{Protocol:} See Protocol for Fig.\,\ref{fig:EUK}c (Methods  \ref{msec:protocol_sliding_window_analysis}).
+
+\medskip
+ 
+\noindent \textbf{Results:} Accordingly, the sliding-window analysis detects just a minority of sites affected by saturation, occurring mainly at the extremes of the protein sequences (Fig.\,\ref{fig:EUK}c). 
+%In particular, only L3 and L22 contain a saturated subregion within the sequence. 
+The z-scores in the yeast branch are similar and vary similarly to the z-scores in the Eukaryota branch, indicating that much of the information loss is due to gapped sites for all the Eukaryota, and not to specific substitutions in a particular branch. 
+
+\bigskip
+
+\subsubsection{Z-score differences between branches}\label{suppsec:2DT_branch_zscore_diffs}
+
+\noindent \textbf{Protocol for  Table \ref{supptab:Eukaryota_Yeast}  and Fig.\,\ref{suppfig:Eukaryota_Yeast}}:
+ To examine the variations in protein sequences between evolutionary branches leading to Eukaryota and baker's yeast (S. cerevisiae), we first identify the specific branches of interest in the ML-reconstructed 2D tree (Fig.\,\ref{fig:EUK}a). Subsequently, SatuTe is employed to conduct a thorough evolutionary analysis on these selected branches, utilizing the protein alignment alongside the phylogenetic tree provided. The protein evolutionary model used is LG+$\Gamma 4$. SatuTe assigned one rate category to each site, then computed the scalar product $C_1^\partial$  and the  standard deviation  $\hat{\sigma}_1$ as explained in the protocol of Fig.\,\ref{fig:EUK}c. For each protein, the estimate $\hat{C}_1$ was computed, giving the z-score $\sqrt{n}\hat{C}_1/\hat{\sigma}_1$, where $n$ is the number of sites in the protein considered. The results are aggregated and presented in Table \ref{supptab:Eukaryota_Yeast}. To visualize the differences in the z-scores across proteins, a customized R script is used, see Fig.\,\ref{suppfig:Eukaryota_Yeast}.
+
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+\hline
+protein & z-score  & z-score & $\Delta$ z-score \\
+       & Eukaryota & yeast & (Euk.- Yeast)\\
+\hline
+L2  & 11.68 & 12.85 & -1.17\\
+L3  & 11.62 & 11.38 &  0.24\\
+L4  & 11.06 & 12.23 & -1.17\\
+L5  & 12.31 & 12.54 & -0.23\\
+L6  & 10.34 & 10.49 & -0.15\\
+L14 &  9.96 & 10.47 & -0.51\\
+L15 &  7.72 &  8.88 & -1.16\\
+L16 &  6.35 & 11.30 & -4.95 \\
+L18 &  8.23 & 11.82 & -3.59\\
+L22 &  8.28 & 11.70 & -3.42\\
+L24 &  7.77 &  7.55 &  0.22\\
+S3  & 10.85 & 12.81 & -1.96\\
+S8  & 10.03 & 10.48 & -0.45\\
+S10 &  8.91 &  9.15 & -0.24\\
+S17 &  7.92 &  7.23 &  0.69\\
+S19 &  8.35 &  8.49 & -0.14\\
+\hline
+
+    \end{tabular}
+    \vspace{0.25cm}
+    \caption{\textbf{Per-protein  z-score comparison between two branches of a given tree.} For each ribosomal protein, the table summarizes the the z-score of the branch leading to Eukaryota and Yeast in the 2D-tree of Fig.\,\ref{fig:EUK}a, along with their differences. %These differences ($\Delta$ z-score) are represented in Supplementary Fig.\,\ref{suppfig:Eukaryota_Yeast}.
+    }
+    \label{supptab:Eukaryota_Yeast}
+    \end{table}
+
+\begin{figure}[ht]
+            \centering
+            \includegraphics[width=0.65\linewidth]{protein_based_comparison_Yeast_Eukaryota_diff_zscores.pdf}
+		     \caption{\textbf{Per-protein z-score comparison between the branches leading to Eukaryota and Yeast.} For each ribosomal protein,  the z-score differences between the branch leading to Eukaryotes and the branch leading to Yeast in the 2D-tree of \mbox{Fig.\,\ref{fig:EUK}a.}  are presented in ascending order.}
+		     \label{suppfig:Eukaryota_Yeast}
+\end{figure}
+
+
+\medskip
+
+\noindent \textbf{Results:} Considering the per-protein z-score difference between Eukaryota and Yeast, Supplementary Fig.\,\ref{suppfig:Eukaryota_Yeast} shows that protein L16 is the protein where most information got lost from the external branch leading to Yeast to the internal branch leading to Eukaryota.
+ %The phylogeny-independent saturation index gives z-scores similar in magnitude to those of SatuTe  (Supplementary Figure \ref{fig:indexFigureAA}), although simultaneous variation is much less evident than for the 16S rRNA gene alignment. 
+
+\bigskip
+
+\newpage
+\subsubsection{Z-score differences between topologies}\label{suppsec:2DT_topology_zscore_diffs}
+
+%For the ribosomal protein alignment, we further employed the SatuTe z-score to determine for each protein whether it favours the 2D or the 3D tree of life, which is a source of debate \citepMain{williams2D,cunha3D}. 
+
+In addition to the branch comparison, z-score differences allow us to determine whether each protein supports the 2D or a 3D topology of the Tree of Life. We curated the 3D-rearranged tree (Fig. \ref{fig:z-score_differences}a) by relocating Eukaryota as a third domain, distinct from Bacteria and Archaea. Its branch lengths were ML-estimated using IQ-Tree \citepMeth[2.2.2.7;][]{minh2020}. For the branch leading to Eukaryota, we compared the z-scores of the 2D tree and the 3D-rearranged tree for each protein (Fig.\,\ref{suppfig:2D_z-score_differences}).
+
+\medskip
+
+\noindent  \textbf{Protocol for  Table \ref{supptab:protein_2D_3D} and Fig.\,\ref{suppfig:2D_z-score_differences}}: See the Protocol for Fig.\,\ref{fig:z-score_differences}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+\hline
+protein& z-score & z-score& $\Delta$ z-score\\
+&2D tree & rearranged & (2D-3D)\\
+& & 3D tree & \\
+\hline
+L2&11.68&11.65& 0.03\\
+L3&11.62&11.07& 0.55\\
+L4&11.06&11.02& 0.04\\
+L5&12.31&12.21& 0.10\\
+L6&10.34&10.27& 0.07\\
+L14&9.96&9.01& 0.95\\
+L15&7.72&8.75& -1.03\\
+L16&6.35&6.30& 0.05\\
+L18&8.23&8.11& 0.12\\
+L22&8.28&8.69& -0.41\\
+L24&7.77&7.68& 0.09\\
+S3&10.85&10.51& 0.34\\
+S8&10.03&9.77& 0.26\\
+S10&8.91&9.04& -0.13\\
+S17&7.92&7.37& 0.55\\
+S19&8.35&8.01& 0.34\\
+\hline
+    \end{tabular}
+    \vspace{0.25cm}
+    \caption{\textbf{Per-protein z-score comparison to a rearranged topology:} For each ribosomal protein, the table summarizes the z-scores of the branch leading to Eukaryota in the 2D-tree of Fig.\,\ref{fig:EUK}a and the 3D-rearranged tree of Fig.\,\ref{fig:z-score_differences}, along with their differences. %The sorted difference in z-score between the two trees for the branch leading to Eukaryota ($\Delta$z-score) is represented in Fig.\,\ref{suppfig:2D_z-score_differences}.
+    }
+    \label{supptab:protein_2D_3D}
+    \end{table}
+
+
+ \begin{figure}[ht]
+            \centering
+            \includegraphics[width=0.65\linewidth]{protein_based_comparison_2D_3D_diff_zscores.pdf}
+		     \caption{\textbf{Per-protein z-score comparison to a rearranged topology.} For each ribosomal protein,  the z-score differences of the branch leading to Eukaryota in the 2D-tree of Fig.\,\ref{fig:EUK}a and the 3D-rearranged tree of Fig.\,\ref{fig:z-score_differences}  are presented in ascending order.}
+		     \label{suppfig:2D_z-score_differences}
+\end{figure}
+
+
+\medskip
+
+\noindent \textbf{Results:} Among the 16 proteins, three (L15, L22, and S10) favor the 3D-rearranged tree. Of the 11 proteins from the large ribosomal subunit, six (L2, L3, L5, L6, L16, and L18) very weakly favor the 2D tree, with z-score differences ranging from a minimum of 0.023 for protein L2 to a maximum of 0.106 for protein L18.  The presence of proteins supporting the 3D-rearranged tree may be in part due to gaps, therefore we extended the analysis by considering the amount of gaps in  Asgard subalignment, which is linked to Eukaryota subtree in the 2D tree , see (Fig.\,\ref{fig:z-score_differences}). In any case, it is remarkable that the proteins of the small ribosomal subunit more robustly support the 2D tree, being all differences greater than $0.25$ z-score except for S10. %($-0.146$ z-score difference). 
+
+%To do so, we curated the 3D-rearranged tree (Fig.\,\ref{fig:z-score_differences}a), obtained by relocating Eukaryota as a third domain separated from Bacteria and Archaea. As shown in Fig.\,\ref{fig:z-score_differences}b, in the branch leading to Eukaryota, for each protein we compared the SatuTe z-scores of the 2D tree and the 3D-rearranged tree. Among the $16$ proteins, there are $3$ (namely L15, L22 and S10) that favour the 3D-rearranged tree. Among the $11$ proteins of the large ribosomal subunit, $6$ proteins (namely L2, L3, L5, L6, L16 and L18) very weakly favour the 2D tree, ranging from the minimum difference of $0.023$ z-score for protein L2 to the maximum difference of $0.106$ z-score for protein L18.
+
+\bigskip
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%  3D tree
+\subsection{3D tree - 16S rRNA alignment}\label{suppsec:rRNA_based_3DT}
+Here, we consider the $1871$-taxon Tree of Life reconstructed by \citepSupp{Hug2016} from 16S rRNA gene alignment of $1947$ sites. This phylogenetic analysis classified Eukaryota as a monophyletic domain separate from Bacteria and Archaea, thus dividing all taxa into three domains (3D), see Fig.\,\ref{suppfig:3Dtree}.
+
+
+\begin{figure}[ht]
+            \centering
+            \includegraphics[width=0.8\linewidth]{rRNA_3D_tree_domains_version2.pdf}
+		     \caption{\textbf{Three-domain Tree of Life} with $1871$ taxa obtained from the 16S rRNA alignment with $1947$ sites.}
+		     \label{suppfig:3Dtree}
+ \end{figure}
+
+
+
+\subsubsection{Per-category analysis}
+In their study, \citetSupp{Hug2016} used RAxML \citepSupp{Stamatakis2014} for 3D tree reconstruction using the GTR plus Gamma (GTR+$\Gamma 4$) model  for protein-based two-domain tree (\textbf{Fig.\,\ref{suppfig:3Dtree}}). For our analysis of this published alignment and tree, we employed \citepSupp[2.2.2.3;][]{minh2020}  to reassess the model of evolution and calculate the posterior rate category probability for each site. The dataset employs a model of rate heterogeneity, where SatuTe assigns each site to the rate category with the highest posterior probability. The alignment is subsequently divided into four subalignments, and SatuTe tests for phylogenetic information on the rescaled tree per category. On average, sites associated with one category represent $25\%$ of the alignment and can  influence the tree reconstruction. Therefore, we used a conservative Bonferroni-corrected threshold, $z_{\alpha_{COR}}$. 
+
+\medskip
+
+\noindent \textbf{Results:} For the fastest evolving rate category (rate $2.73$), $107$ branches are classified as saturated. Among these, $13$ are internal branches, including the branch leading to Eukaryota.
+
+ For branch-specific analyses, we can focus exclusively on the internal edge leading to Eukaryota and the external edge leading to Yeast. Under the 3D tree, the per-category analysis of Fig.\,\ref{suppfig:3D_per_category_analysis} shows that the fastest evolving rate category (rate $2.73$) induced a saturated branch, while the second fastest evolving rate category (rate $0.9$) was slightly above the Bonferroni-corrected saturation threshold. The branch leading to Yeast is phylogenetic informative across all categories. 
+ 
+\medskip
+
+\begin{figure}[ht]
+            \centering
+            \includegraphics[scale=0.5]{rRNA_based_3D_tree_summary_zscores.pdf}
+		     \caption{\textbf{Per-category Analysis of Specific Branches:} The branches leading to Eukaryota and Yeast were analysed. For each of the four rate categories, SatuTe tested the branches for phylogenetic information using the subalignments and rescaled tree. The per-category
+z-scores are marked as dashed lines, and the number of sites per category
+is represented by bars.}
+		     \label{suppfig:3D_per_category_analysis}
+ \end{figure}
+
+\medskip
+
+
+
+
+
+\subsubsection{Branch-specific sliding-window analysis}\label{suppsec:3DT_sliding_window_analysis}
+
+Using the results from the previous section, we measured the phylogenetic information at the branch leading to Eukaryota in the 3D tree(Fig.\,\ref{suppfig:3Dtree}). To do so, a sliding-window analysis was performed running from the beginning to the end of the alignment, giving a graphical representation of the change in information content.
+
+\medskip
+
+\noindent \textbf{Protocol for Fig.\,\ref{suppfig:3D_sliding_window_analysis}:} We follow the Protocol for Fig.\,\ref{fig:EUK}c (Methods  \ref{msec:protocol_sliding_window_analysis}).
+
+\medskip
+First, SatuTe assigned each site to the rate category with the highest posterior probability. The four subalignments resulting from the four categories where then tested for saturation.  SatuTe provides detailed output for the test statistics of each site, which facilitates a sliding-window analysis of saturation status across the alignment. However, as the sites within a given alignment window may belong to
+various rate categories, adjustments are necessary when calculating variance.
+Since the largest nonzero eigenvalue of the GTR model has a multiplicity of 1, the estimated variance $\hat\sigma_1^2$ is calculated as follows
+
+\begin{equation}
+\hat\sigma_1^2 := \sum_{c\in[4]} \frac{n_c}{n}\cdot\mathrm{\widehat{Var}}\Big[\, C^\partial_1 \,\mid \text{rate category $c$}\Big],
+\end{equation}
+
+where $n$ represents the total number of sites in the alignment, $n_c$ is the number of sites associated with category $c$, and $\mathrm{\widehat{Var}}[\, C^\partial_1 \,\mid \text{rate category $c$}]$ is estimated by SatuTe using the tree with branch lengths rescaled using rate category $c$. Explicitly, SatuTe applies Eq. \ref{eq:CK}, namely
+  \begin{equation}
+ \mathrm{\widehat{Var}}[\, C^\partial_1 \,\mid \text{rate category $c$}] = \hat{\sigma}^2_{A,1} \hat{\sigma}^2_{B,1},
+  \end{equation}
+using all $n_c$ sites assigned to category $c$. Consequently, the z-score for each $36$bp window was calculated as
+\begin{equation}
+Z = \frac{\hat{C}_1-0}
+{
+\hat\sigma_1/\sqrt{36}
+}.
+\end{equation}
+
+\noindent Given that each 36-site window accounts for less than 2\% of the total alignment, we did not consider the Bonferroni-correction necessary. This decision is
+based on the rationale that such a small fraction of sites would have a negligible
+impact on the maximum likelihood estimate of branch placement.
+
+\medskip
+
+For the annotation of the 16S rRNA gene alignment, we used the bacterial hypervariable regions annotated by \citepMeth{baker2004} and the small bacterial conserved regions annotated by \citepMeth{yang2016}. Both annotations were initially based on \textit{E. coli} reference sequences. We modified these annotations to fit our alignment by accounting for the gaped sites present in \textit{E. coli} sequences within our dataset.
+
+
+\begin{figure}[ht]
+            \centering
+            \includegraphics[width=\linewidth]{rRNA_based_3D_tree_sliding_window_size_36.pdf}
+		     \caption{\textbf{Sliding-window Analysis for Specific Branches:} Plot of z-scores from 36bp sliding-window analysis along the protein alignment for the branches leading to Eukaryota and Yeast in the  $1871$-taxa 3D tree obtained from the 16S rRNA alignment with $1947$ sites.}
+		     \label{suppfig:3D_sliding_window_analysis}
+ \end{figure}
+\medskip
+ 
+\noindent \textbf{Results:} 
+The sliding-window analysis of Fig.\,\ref{suppfig:3D_sliding_window_analysis} shows that the well-known bacterial hypervariable regions V1-V9  \citepMain{baker2004} are all affected by saturation. Moreover, among the nine small bacterial conserved regions (C1-C9) used to separate the hypervariable regions \citepMain{yang2016}, the last six yield z-scores nearly equal to those of the highly-conserved external branch leading to baker yeast. In contrast, the first two bacterial conserved regions are nearly saturated. Notably, this exemplifies that 
+for a branch to be informative it is not enough that one of the subtrees be highly conserved. Conversely, a sufficient condition for branch saturation is that one of the subtrees have high enough evolutionary rates. As a related example, two regions around sites resp. $250$ and $800$ have a vanished z-score due to gaps in the subtree of Bacteria and Archaea.
+%When compared with the phylogeny-independent saturation index \citepMain{xia2003index} in Supplementary Figure \ref{fig:indexFigureRNA}, we see that typically both z-scores decrease or increase simultaneously, although the saturation index has mostly larger z-scores, probably due to the large presence of bacteria ($1535$ out of $1871$ sequences) in the alignment. 
+
+
+\medskip
+
+All in all, these analyses show that the fraction of saturated regions for the branch leading to Eukaryota  in the 3D tree is $43\%$ (namely $822$ saturated windows out of $1912$). However, since still more than half of the 16S rRNA gene alignment is informative for this branch, the 3D tree is not an artifact due to saturation alone and should not be excluded as a hypothesis on this ground. 
+
+
+\subsubsection{Z-score differences between topologies}\label{suppsec:3DT_topology_zscore_diffs}
+
+We divided the 16S rRNA gene alignment into nine distinct rRNA-regions, as detailed in Table \ref{supptab:rRNA_2D_3D}. The z-score differences were then used to determine whether each rRNA region  supports the original 3D topology or a rearranged 2D topology of the Tree of Life. We curated the rearranged 2D tree (Fig. \ref{suppfig:rRNA_rearranged2Dtree}) by relocating Eukaryota into the Archaea subtree and its branch lengths were ML-estimated using IQ-Tree \citepMeth[2.2.2.7;][]{minh2020}. For the branch leading to Eukaryota, we compared the z-scores of the rearranged 2D tree and the 3D tree for each protein (Fig.\,\ref{suppfig:rRNA_2D_3D}).
+
+\begin{figure}[ht]
+\centering
+            \includegraphics[width=0.8\linewidth]{rearranged_rRNA_2D_tree.pdf}
+                       \caption{Simplified diagram of the topology rearrangement of the rRNA-based  3D tree of Fig.\,\ref{suppfig:3Dtree} into a 2D tree, with branch lengths ML-optimised by replacing the black dashed branch with the green dashed branch.}
+	\label{suppfig:rRNA_rearranged2Dtree}
+\end{figure}
+
+\noindent  \textbf{Protocol for  Table \ref{supptab:rRNA_2D_3D}  and Fig.\,\ref{suppfig:rRNA_2D_3D}}: 
+
+Using SatuTe, we analyze the branches leading to Eukaryota within both the rearranged 2D tree (Fig. \ref{suppfig:rRNA_rearranged2Dtree}) and the the rRNA-based  3D tree (Fig.\,\ref{suppfig:3Dtree}) with 16S rRNA gene alignment. The evolutionary model applied throughout is GTR+$\Gamma 4$ model. SatuTe outputs enable the calculation of z-scores for various rRNA regions across both trees and all four rate categories, with each rRNA region defined by an annotation file. These calculations follow the protocol detailed for Fig.\,\ref{suppfig:3D_sliding_window_analysis}, and results are summarized in Table \ref{supptab:rRNA_2D_3D}. Explicitly, the z-score for a region with $n_R$ sites was calculated as
+\begin{equation}
+Z = \frac{\hat{C}_1-0}
+{
+\hat\sigma_1/\sqrt{n_R}
+},
+\end{equation}
+where $\hat{C}_1$ is computed using the $n_R$ sites of the tested region, while $\hat\sigma_1$ is estimated from all $n$ sites of the alignment using the category site assignment. We calculated the differences in the z-scores (Table \ref{supptab:rRNA_2D_3D}) and visualizes the z-score discrepancies between the 2D and 3D tree analyses (Fig.\,\ref{suppfig:rRNA_2D_3D}) using a customized R script.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+\hline
+region&site& z-score & z-score& $\Delta$ z-score\\
+&range&3D tree & rearranged & (2D-3D)\\
+&& & 2D tree & \\
+\hline
+R1&0-114&4.57&5.08&0.51\\
+R2&115-431&6.13&5.94&-0.19\\
+R3&432-621&3.63&3.45&-0.17\\
+R4&622-1066&6.81&6.83&0.03\\
+R5&1067-1221&8.99&8.93&-0.06\\
+R6&1222-1394&8.55&8.31&-0.23\\
+R7&1395-1565&8.93&8.35&-0.59\\
+R8&1566-1765&12.44&12.33&-0.12\\
+R9&1766-1946&9.33&9.65&0.33\\
+\hline
+    \end{tabular}
+    \vspace{0.25cm}
+    \caption{\textbf{Per-region z-score comparison to a rearranged topology:} For each rRNA region, the table summarizes the z-scores of the branch leading to Eukaryota in the ML-reconstructed 3D tree (Fig.\,\ref{suppfig:3Dtree}) and the rearranged 2D tree (Fig.\,\ref{suppfig:rRNA_rearranged2Dtree}), along with their differences.}
+    \label{supptab:rRNA_2D_3D}
+    \end{table}
+
+
+
+
+
+\begin{figure}[ht]
+            \centering
+            \includegraphics[width=0.8\linewidth]{rRNA_based_comparison_2D_3D_diff_zscores.pdf}
+		     \caption{\textbf{Per-region z-score comparison to a rearranged topology.} For each rRNA region, the z-score differences of the branch leading to Eukaryota in the ML-reconstructed 3D tree (Fig.\,\ref{suppfig:3Dtree} and the rearranged 2D tree (Fig.\,\ref{suppfig:rRNA_rearranged2Dtree})  are presented in ascending order.}
+		     \label{suppfig:rRNA_2D_3D}
+\end{figure}
+
+
+
+\medskip
+
+
+\noindent \textbf{Results:} Paradoxically, the 16S rRNA belongs to the small ribosomal subunit, while the 16S rRNA gene favours the 3D tree of life for $6$ out of $9$ regions when an analogous 2D-rearranged tree is constructed (Fig.\,\ref{suppfig:rRNA_2D_3D}). This suggests that explaining the disagreement between the 16S rRNA and its surrounding proteins (see Section \ref{suppsec:2DT_topology_zscore_diffs}) could be a useful hint to find a reliable reconstruction of the Tree of Life.
+        
+
+\end{appendices}

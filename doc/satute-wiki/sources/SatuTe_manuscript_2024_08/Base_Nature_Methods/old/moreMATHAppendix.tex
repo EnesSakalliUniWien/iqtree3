@@ -1,0 +1,263 @@
+\begin{appendices}
+\renewcommand\thefigure{S\arabic{figure}} % modify \thefigure, *not* \figurename
+\newcounter{myfig} 
+
+\renewcommand\thetable{S\arabic{table}} % modify \thefigure, *not* \figurename
+\newcounter{mytable} 
+
+
+\renewcommand*\contentsname{}
+\section*{Extended Data}
+\tableofcontents
+
+\clearpage
+
+\section{Basic properties of \texorpdfstring{$C^\partial_k$}{C}
+}
+\label{sec:apx}
+
+\begin{prop}\label{prop:totalSumLikelihood} Assuming stationarity, for each pattern $\pred$ observed at the tips of subtree $\mathbb{T}_A$, consider the likelihood vector $\va$ and  the probability ${\Pr(\pred) = \langle \bm{\pi},  \va \rangle }$. The following holds.
+
+\smallskip
+
+
+\begin{enumerate}[label=\alph*)]
+\item If $\bm{1}$ denotes the column vector of $1$'s, then
+\begin{equation*} \label{eq:expected1}
+\mathbb{E}\Big[\frac{\va}{\Pr(\pred)}\Big] = \bm{1}.
+ \end{equation*}
+\item If vector $\bm{h_k}$ is orthogonal to $\bm{1}$, then for any $k \in [3]$ it holds that
+ \begin{equation*}\label{eq:expectedscalar0}
+ \mathbb{E}\Big[\langle \frac{\va}{\Pr(\pred)}, \bm{h_k}\rangle\Big] = 0.
+ \end{equation*}
+ \end{enumerate}
+\end{prop}
+\begin{proof} \hfill
+
+
+\begin{enumerate}[label=\alph*)]
+\item It  is enough to show that 
+ \begin{equation} \label{eq:sum1}
+      \sum _\pred \va = \bm{1}.
+ \end{equation}
+Consider one nucleotide $i$. Focusing on the $i$th entry of $\va$, we see that \[\sum_\pred \Pr(\pred  \mid  \text{$i$ at node $A$}) = 1\]
+because we are summing over all possible outcomes $\pred$, as desired.
+\item We just need to use linearity and item $a)$. Indeed,
+\begin{equation}
+\mathbb{E}\Big[\langle \frac{\va}{\Pr(\pred)}, \bm{h_k}\rangle\Big] =\langle  \mathbb{E}\Big[\frac{\va}{\Pr(\pred)}\Big], \bm{h_k}\rangle = \langle  \bm{1}, \bm{h_k}\rangle = 0,
+\end{equation} 
+where in last equality we used the fact that $\bm{h_k}$ and $\bm{1}$ are orthogonal.
+%, as stated in Equation \ref{eq:decomposition}.
+\end{enumerate}
+\end{proof}
+ 
+ 
+
+\begin{prop} \label{prop:CoherenceToZero} In a phylogenetic tree $\mathbb{T}$, consider a branch $AB$ with true length $t^*$. Assuming stationarity and reversibility, for any $k \in [3]$ it holds that 
+    \[ \mathbb{E}[C^\partial_k] \to 0 \text{ as $t^* \to \infty$. }\]
+\end{prop}
+\begin{proof}
+Recall that, as $t^* \to \infty$, Eq. \ref{eq:independence} implies that 
+ observations $\pred$ and $\pblue$ become independent. Thus we have
+ \begin{align}
+    \mathbb{E}[C^\partial_k] &= \mathbb{E}\Big[  \langle \frac{\va}{\Pr(\pred)},\bm{h_k}\rangle \langle \frac{\vb}{\Pr(\pblue)}, \bm{h_k} \rangle \Big] \to \\
+    &\to  \mathbb{E}\Big[  \langle \frac{\va}{\Pr(\pred)},\bm{h_k}\rangle \Big] \mathbb{E}\Big[ \langle \frac{\vb}{\Pr(\pblue)}, \bm{h_k} \rangle \Big] = 0,
+\end{align}
+where we used Prop. \ref{prop:totalSumLikelihood}b.
+
+\end{proof}
+
+
+For the sake of briefness, let us define the covariances
+\begin{equation} \label{eq:covariances}
+K^A_{kl} :=  \mathbb{E}[\langle \frac{\bm{L}(\pred)}{\Pr(\pred)}, \bm{h_k} \rangle \langle \frac{\bm{L}(\pred)}{\Pr(\pred)}, \bm{h_l} \rangle].
+\end{equation}
+This is indeed a covariance due to Prop. \ref{prop:totalSumLikelihood}b. It is clear that ${K^A_{kk} = \sigma^2_{A,k}}$ (see the definition in Eq. \ref{eq:VarianceToMemories2}), and the choice of notation depends just on context.
+
+\begin{prop} \label{prop:memorySequence}
+    Assuming stationarity and reversibility, if node $A$ is external (or equivalently, if subtree $\mathbb{T}_A$ is composed by a single sequence), then \[\sigma^2_{A,k} = K^A_{kk} = 1,\] 
+    while if $k \neq l$, it holds that 
+    \[K^A_{kl}= 0.\]
+\end{prop}
+\begin{proof}
+   The eigendecomposition of Eq. \ref{eq:decomposition} implies that $\diag(\bm{\pi}) \bm{v_k} = \bm{h_k}$, while $\langle \bm{v_k} ,\bm{h_k} \rangle = 1$ and $\langle \bm{v_k} ,\bm{h_l} \rangle = 0$ if $k \neq l$. The patterns of a sequence are the possible letters $i$ it is composed of.  Moreover, due to stationarity, we know that pattern $\pred = i$ satisfies $\Pr(\pred) = \pi_i$, where $i$ is a nucleotide. Note also that, if $\pred = i$,  then $\bm{L}(\pred)$ is the vector of $0$'s, except $1$ at the $i$th entry. All in all, we have
+\begin{equation}
+\sigma^2_{A,k} = \sum_i \Pr(i) (\frac{1}{\pi_i} h_k^i )^2 = \sum_i \pi_i (\frac{1}{\pi_i} h_k^i )^2 = \sum_i v_k^i h_k^i = \langle \bm{h_k}, \bm{v_k} \rangle= 1.
+\end{equation}
+Similarly, we have 
+\begin{equation}
+  K^A_{kl}   = \sum_i \Pr(i) (\frac{1}{\pi_i} h_k^i )(\frac{1}{\pi_i} h_l^i ) = \sum_i \pi_i (\frac{1}{\pi_i} h_k^i )(\frac{1}{\pi_i} h_l^i ) = \langle \bm{h_k}, \bm{v_l} \rangle = 0.
+\end{equation}
+\end{proof}
+
+\clearpage
+
+\section{Testing for Saturation for Any Multiplicity of \texorpdfstring{$\lambda_1$}{l1}}
+\label{sec:multiplicityGreaterThan1}
+
+Any statistic $\CK$ or linear combination of them can be used to test for saturation. However, we want the most powerful test among the candidates. As we prove in Appendix \ref{subsec:approximation}, optimal power is achieved asymptotically by the test that uses the dominant coherence 
+\begin{equation}\label{eq:dominant_coherence}
+\hat{\delta}:= \sum_{k \in [D]}\CK,
+\end{equation} 
+where eigenvalue $\lambda_1$ has multiplicity $D$ and $\lambda_1 = \cdots = \lambda_D$.
+
+\medskip
+
+For Prop. \ref{prop:variance_coherence_D}, recall that in Eq. \ref{eq:covariances} we already defined the covariances
+\begin{equation*}
+K^A_{kl} :=  \mathbb{E}[\langle \frac{\bm{L}(\pred)}{\Pr(\pred)}, \bm{h_k} \rangle \langle \frac{\bm{L}(\pred)}{\Pr(\pred)}, \bm{h_l} \rangle].
+\end{equation*}
+ 
+\begin{prop} \label{prop:variance_coherence_D}  In a phylogenetic tree $\mathbb{T}$ consider a branch $AB$ with length $t^*$ and assume stationarity and reversibility.  If $t^* \to \infty$, then the dominant coherence of branch $AB$ satisfies
+\begin{align}
+ \mathbb{E}[\hat{\delta}] &= 0,\\
+ \mathrm{Var}[\hat{\delta}] &= \frac{1}{n}\sum_{k, l \in [D]} 
+   K^A_{kl}   K^B_{kl}.
+\end{align}
+In particular, if node $A$ is external, then 
+\begin{equation} \label{eq:externalMultiple}
+ \mathrm{Var}[\hat{\delta}] = \frac{1}{n}\sum_{k \in [D]} 
+      \sigma^2_{B, k},
+\end{equation}
+and if both nodes $A$ and $B$ are external, then 
+\begin{equation}
+ \mathrm{Var}[\hat{\delta}] = \frac{D}{n}.
+ \end{equation}
+\end{prop}
+\begin{proof} Since the expectation of a sum is the sum of expectations, $\mathbb{E}[C_k^\partial] = 0$ (Prop. \ref{prop:CoherenceToZero}) implies that  $\mathbb{E}[\hat{\delta}] = 0$. 
+ 
+ \medskip
+ 
+ Regarding the variance, we can sum up the variance of each independent site, giving $\mathrm{Var}[\hat{\delta}] = 1/n  \mathrm{Var}[\sum_{k \in [D]}C^\partial_k] $. Since $\mathbb{E}[C^\partial_k] = 0$ (Prop. \ref{prop:CoherenceToZero}), we have 
+ \begin{equation} \label{eq:VarianceExpected}
+     \mathrm{Var}[\sum_{k \in [D]}C^\partial_k] =\mathbb{E}[(\sum_{k \in [D]}C^\partial_k)^2 ].
+ \end{equation}
+ After expanding the squared sum $(\sum_{k \in [D]}C^\partial_k)^2$, since the expectation is multiplicative under independence, a summand 
+ $C^\partial_k C^\partial_l$ satisifes
+  \begin{align}
+ &\mathbb{E}[C^\partial_k C^\partial_l] = \\
+ =& \mathbb{E}\Big[\langle \frac{\va}{\Pr(\pred)},\bm{h_k}\rangle \langle \frac{\vb}{\Pr(\pblue)}, \bm{h_k} \rangle \langle \frac{\va}{\Pr(\pred)},\bm{h_l}\rangle \langle \frac{\vb}{\Pr(\pblue)}, \bm{h_l} \rangle\Big]= \nonumber\\
+  =& \mathbb{E}\Big[\langle \frac{\va}{\Pr(\pred)},\bm{h_k}\rangle \langle \frac{\va}{\Pr(\pred)},\bm{h_l}\rangle \Big]  \mathbb{E}\Big[\langle \frac{\vb}{\Pr(\pblue)}, \bm{h_k} \rangle \langle \frac{\vb}{\Pr(\pblue)}, \bm{h_l} \rangle\Big]= \nonumber\\
+  =& K^A_{kl}   K^B_{kl}.\nonumber
+ \end{align}
+ Summing for all $k,l \in [D]$ we get the desired equality.  The particular case when nodes $A$ and/or $B$ are external follows from Prop. \ref{prop:memorySequence} and the fact that $K^B_{kk} = \sigma^2_{B,k} $.
+ 
+\end{proof}
+
+
+Prop. \ref{prop:variance_coherence_D} and Appendix \ref{subsec:approximation} lead to a one-sided $z$-test based on the dominant coherence $\hat{\delta}$. The null hypothesis of independence is rejected with significance $\alpha$ if 
+\begin{equation} \label{eq:threshold_D}
+     \hat{\delta} >  z_\alpha \sqrt{
+     {\mathrm{\widehat{Var}}}[\hat{\delta}]
+     } = z_\alpha \frac{\sqrt{\sum_{k, l \in [D]} 
+   \hat{K}^A_{kl}   \hat{K}^B_{kl}.
+}}{\sqrt{n}},
+\end{equation} where $z_\alpha$ satisfies $\Pr(Z > z_\alpha) = \alpha$, while $\hat{K}^A_{kl}$ is the sample estimate of $K^A_{kl}$. If node $A$ is external, then Eq. \ref{eq:threshold_D} is simplified due to Prop. \ref{prop:memorySequence} as 
+\begin{equation} \label{eq:threshold_D_external}
+     \hat{\delta} > z_\alpha \frac{\sqrt{\sum_{k\in [D]}  \hat{\sigma}^2_{B,k}
+}}{\sqrt{n}}.
+\end{equation}
+\bigskip
+
+
+\clearpage 
+
+
+\section{The Asymptotic Equivalence between the MLE and the Dominant Coherence
+}
+\label{sec:asym_phylo_tree}
+
+There is a close relationship between the statistics $\CK$ and the log-likelihood of a branch. To describe this relationship, consider branch $AB$ of tree $\mathbb{T}$. Given an alignment where pattern $\partial$ is observed $n_\partial$ times, the log-likelihood $f(t)$ of branch $AB$ having length $t$ is
+\begin{equation}\label{eq:definitionloglike}
+f(t) = 
+\sum_\partial n_\partial \log{(\Pr(\partial \mid t))}.
+\end{equation}
+If we define the log-likelihood of independence as 
+ \begin{equation} \label{eq:DIFLoglikelihood}
+ {f_\infty := \sum_\partial n_\partial \Big(\log\Pr(\pred)+  \log\Pr(\pblue)\Big)}, 
+ \end{equation}
+ then Equation \ref{eq:definitionloglike} can be rewritten as 
+\begin{equation}\label{eq:definitionloglike2}
+f(t) -f_\infty= 
+\sum_\partial n_\partial \log{(\frac{\Pr(\partial \mid t)}{\Pr(\pred)\Pr(\pblue)})}.
+\end{equation}
+    Using Eq. \ref{eq:likelihood_branch_at_site_t6}, last equation becomes
+ \begin{align} 
+     \label{eq:efficient_likelihood_2}
+     f(t)-f_\infty &=  \sum_{\partial} n_\partial \log \Big( 1+  \sum_{k \in [3]} e^{\lambda_kt}  C_k^\partial\Big).
+ \end{align} 
+ 
+In Prop. \ref{prop:limit_likelihood_tree},  we use the statistics $\CK:= \sum_\partial (n_{\partial}/n) C_k^\partial$ to asymptotically describe the log-likelihood $f(t)$. 
+ 
+  \begin{prop} \label{prop:limit_likelihood_tree}
+Assuming stationarity and reversibility, if rate matrix $Q$ has eigenvalues $0 > \lambda_1 \geq \lambda_2 \geq \lambda_3$ and $\lambda_1$ has multiplicity $D$, then define the dominant coherence as \[\hat{\delta} := \sum_{k \in [D]} \CK.\]
+If $\hat{\delta} \neq 0,$ then \[f(t) - f_\infty \sim \hat{\delta} n e^{\lambda_1 t}.\]
+\end{prop}
+\begin{proof} \hfill
+ \begin{sloppypar}
+ In Equation \ref{eq:definitionloglike2} it is clear that $f(t) - f_\infty$ tends to zero as $t \to \infty$, since $\log(1) = 0$. Now, using L'H\^{o}pital's rule, it is enough to show that the derivative $f'(t)$ satisfies ${f'(t) \sim 
+     \hat{\delta} n \lambda_1  e^{\lambda_1 t}}$. In the expression
+ \end{sloppypar}
+ \begin{equation*}
+     [\log \Big(1 +  \sum_{k \in [3]} e^{\lambda_kt} C_k^\partial \Big)]' = \frac{  \sum_{k \in [3]} \lambda_k e^{\lambda_kt} C_k^\partial }{1 + \sum_{k \in [3]} e^{\lambda_kt} C_k^\partial},
+ \end{equation*}
+ the denominator is asymptotically equivalent to $1$. On the other hand, if ${\sum_{k \in [D]}C_k^\partial \neq 0,}$ then the numerator is equivalent to ${\lambda_1e^{\lambda_1t}\sum_{k \in [D]}C_k^\partial}$, and $o(e^{\lambda_1t})$ otherwise. Due to the assumption $\hat{\delta} \neq 0$, we can sum up the equivalencies, giving
+\begin{equation}
+     f'(t) \sim \sum_{\partial} n_\partial \Big(
+     \lambda_1 e^{\lambda_1t}
+     \sum_{k \in [D]}
+     C_k^\partial 
+     \Big) = 
+     n \lambda_1  e^{\lambda_1 t} \sum_{k \in [D]} 
+     \CK = n \lambda_1  e^{\lambda_1 t} \hat{\delta},
+\end{equation}
+as desired.
+
+\end{proof}
+
+\iffalse
+Notably, Prop. \ref{prop:limit_likelihood_tree} implies that whether $f(t)$ increases or decreases for large $t$ uniquely depends on the sign of $\hat{\delta}$, as stated in the following corollary. 
+
+\begin{cor} \label{prop:decission_tree}
+\begin{sloppypar}
+Given an alignment and assuming a stationary and reversible process on a tree, the log-likelihood $f(t)$ of branch $AB$ having length $t$ satisfies the following.
+
+\end{sloppypar}
+\begin{itemize}
+    \item[a)] If $\hat{\delta}$ is positive, then $f(t)$ has local minimum $f_\infty$ when $t \to \infty$.
+    \item[b)] If $\hat{\delta}$ is negative, then $f(t)$ has local maximum $f_\infty$ when $t \to \infty$.
+\end{itemize}
+\end{cor}
+Corollary \ref{prop:decission_tree} is an additional motivation (apart from the approximation of the likelihood-ratio test in Subappendix \ref{subsec:approximation}) to perform a one-sided test for saturation in Equations \ref{eq:threshold} and \ref{eq:threshold_D}. Indeed, it would be contradictory to reject saturation because  $\hat{\delta} \ll 0$, while the MLE could be $\hat{t} = \infty$ due to Cor. \ref{prop:decission_tree}b. 
+
+\fi
+
+%Leaving aside our test for saturation, we recommend using Corollary \ref{prop:decission_tree} to predict the possible numerical divergence of the Newton method. If the log-likelihood $f(t)$ has a unique maximum for $t \in [0, \infty]$, Corollary \ref{prop:decission_tree} characterizes the convergence of the Newton method  in the search for the absolute maximum of $f(t)$. %as explained in Appendix \ref{sec:multiple_maxima}. For practitioners, 
+ %However, in general Corollary \ref{prop:decission_tree} cannot be used to guarantee that an MLE $\hat{t} < \infty$ is indeed the absolute maximum point, since the log-likelihood $f(t)$ can have multiple maxima.
+ 
+ \subsection{Optimal power of the test for saturation}
+\label{subsec:approximation}
+We know that the likelihood-ratio test is the most powerful $\alpha$-level test, as proved by \cite{Neyman1933}. 
+%In Appendix  \ref{sec:asym_phylo_tree}, we have described the the log-likelihood $f(t)$ of branch $AB$ having length $t$, which has limit $f_\infty$ as $t \to \infty$ (Equations \ref{eq:definitionloglike}, \ref{eq:DIFLoglikelihood}, and \ref{eq:definitionloglike2}). 
+Given the log-likelihood $f(t)$ of branch $AB$ having length $t$, if the MLE is $\hat{t} < \infty$, the likelihood-ratio test compares the null hypothesis $t^* \to \infty$ versus the alternative hypothesis $t^* = \hat{t}$  using statistic $f(\hat{t})-f_\infty$, or more explicitly
+\begin{equation}
+    \text{"Reject $t^* \to \infty$ if $f(\hat{t})-f_\infty > c$",}
+\end{equation}
+ where $c \in \mathbb{R}_{>0}$ is chosen so that $\Pr(f(\hat{t})-f_\infty > c  \mid  t^* \to \infty) = \alpha$.
+
+
+\medskip
+Assuming that $\hat{t}$ is large enough,
+%from the singularity of $f(t)$, 
+we can use the approximation ${f(\hat{t}) \approx  f_\infty + \hat{\delta} n e^{\lambda_1 \hat{t}}}$ of Prop. \ref{prop:limit_likelihood_tree}, where $\hat{\delta} := \sum_{k \in [D]} \CK$ and $D$ is the multiplicity of $\lambda_1$. This gives the test 
+\begin{equation}
+    \text{"Reject $t^* \to \infty$ if $ \hat{\delta}  > e^{-\lambda_1 \hat{t}}c/n$",}
+\end{equation}
+ where $c \in \mathbb{R}_{>0}$ is chosen so that $\Pr( \hat{\delta}  > e^{-\lambda_1 \hat{t}}c/n \mid  t^* \to \infty) = \alpha$. Setting $c' := e^{-\lambda_1 \hat{t}}c/n$, it is clear that the one-sided test for saturation using the dominant coherence $\hat{\delta}$ achieves optimal power for long branches. 
+
+
+
+
+
+
+

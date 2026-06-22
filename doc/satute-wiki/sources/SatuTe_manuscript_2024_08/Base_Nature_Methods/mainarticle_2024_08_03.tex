@@ -1,0 +1,265 @@
+\section*{Introduction}
+Model-based phylogenetic inference has become common practice, largely due to the availability of phylogenetic software like PHYLIP \citepMain{felsenstein2005}, PhyML \citepMain{guindon2010}, RAxML \citepMain{Stamatakis2014} or IQ-Tree \citepMain{minh2020}. This practice involves inferring a phylogenetic tree from an multiple sequence alignment (MSA) and subsequently validating it using various statistical methods, such as the aLRT to evaluate the reliability of short branches \citepMain{Anisimova2006}. A popular method, the phylogenetic bootstrap, provides a support value for each branch in the tree, where a low bootstrap support value indicates that the branch has a poor reproducibility \citepMain{felsenstein1985confidence}. Conversely, branches with high bootstrap support values are considered as evidence of a real phylogenetic signal, justifying the separation between the two groups in the tree. Implicit to all these analyses is the assumption that the alignment contains sufficient phylogenetic information to conclude that the branch displays a historical relationship \citepMain{ho2004}.
+
+\medskip
+However, the antagonist to phylogenetic information is saturation, i.e., the occurrence of too many substitutions in an alignment to provide reliable information about true genetic distances \citepMain{philippe2011}. For two sequences, an alignment is considered saturated when it becomes impossible to determine whether the sequences are homologous or merely randomly related to each other \citepMain{jermiin2020, philippe1999, brown1982}. When two sequences are saturated, the evolutionary distance between them, measured in substitutions per site, is so extensive that their evolutionary relationship cannot be justified. Consequently, linking them with a branch to create the smallest possible tree lacks phylogenetic significance.
+
+\medskip
+
+For alignments with more than two sequences and a tree with many leaves, the question arises whether branches are subject to saturation and, more importantly, how to measure saturation.
+If we detect saturation for a branch, then the phylogenetic signal for the two groups, separated by the branch, is so small that an evolutionary relationship among them is not justifiable.
+
+\medskip 
+
+Leaving aside the maximum-parsimony test  \citepMain{Archie1989} or ad hoc analyses \citepMain{liu2014, davalos2008}, tests for saturation consider entire alignments and their global phylogenetic signal \citepMain{duchene2021, xia2003index}. These methods do not consider the tree structure and thus cannot reveal saturation for individual branches in a phylogenetic tree.
+
+\medskip
+
+Here, we introduce SatuTe (\textit{Satu}ration \textit{Te}st), a new tool that fill a critical gap in the phylogenetic toolkit by detecting when sequence saturation hinders accurate inference of evolutionary relationships. For a phylogenetic tree and an alignment, SatuTe evaluates whether the alignment provides enough phylogenetic information to justify the branches in the tree. SatuTe embeds the analysis of saturation between two sequences into a general framework that handles multiple sequences and a tree. Thus, SatuTe opens a new avenue for studying the relationship between alignments and trees and helps to consolidate evolutionary conclusions.
+
+\medskip
+
+In the following, we present the theoretical foundations of SatuTe. We explain the test designed to reject the null hypothesis of saturation in favour of the alternative hypothesis of phylogenetic signal present. Alternatively, the p-value computed from our test statistic indicates the strength of evidence against the null hypothesis of saturation for a branch. We then       evaluated the performance of SatuTe on simulated alignments and investigate its applicability for typical phylogenetic questions. These questions focus on deciding whether a branch in the tree is supported by the phylogenetic signal of the alignment. Lastly, we use SatuTe to examine real data, analysing the phylogenetic signal of ribosomal protein and 16S rRNA alignments for the Tree of Life (ToL). We exemplarily analyse the branch connecting Eukaryota with the rest of the tree to shed new light on the ongoing debate between the two-domain hypothesis \citepMain{williams2D, Hug2016}  and the three-domain hypothesis \citepMain{woese, gribaldo2010}.
+
+\section*{Results}
+\subsection*{Foundations of SatuTe}\label{sec:SatuTe}
+To keep the explanation simple, we present the 
+theory and statistical method using DNA, though they are equally applicable to amino acid sequences.
+For further details, we refer to Methods
+ and Supplementary Information \ref{suppsec:maths}.
+
+\medskip
+
+Fig.\,\ref{fig:panel1}a displays an alignment of length $n$, where the columns of the alignment represent the $n$ site patterns $\partial$, while each of the $m$ rows represents a nucleotide sequence of the taxa comprising the leaves of a phylogenetic tree. We assume the GTR model, a reversible and stationary model of sequence evolution   with rate matrix $\bm{Q}$  and stationary nucleotide distribution $\bm{\pi}$ \citepMain{tavare1986}. The matrix $\diag (\bm{\pi})\bm{P}(t) = \diag (\bm{\pi})e^{\bm{Q}\cdot t}$ describes the probability of each nucleotide pair if $t$ substitutions per site (branch length) have occurred.
+
+\medskip
+
+For the model of sequence evolution and the phylogenetic tree, we ask if the branch $AB$ (Fig.\,\ref{fig:panel1}b) is supported by the phylogenetic signal provided by the alignment. To this end, we compute for site pattern $\partial$ the (partial) likelihood vectors $\va$ and $\vb$ at nodes A and B \citepMain{Felsenstein1981}, where $\partial A$ and $\partial B$ are the subpatterns of $\partial$
+induced by branch $AB$. The probability of observing pattern $\partial$ of the alignment is
+computed as
+
+\begin{align} \label{eq:branch_likelihood_given_t} \Prob(\partial \mid t)  = \va^T \diag (\bm{\pi})  \bm{P}(t) \vb,
+\end{align}
+
+where $t$ is the branch length of $AB$. Moreover, the reversibility of the substitution model allows the spectral decomposition of matrix $\diag (\bm{\pi})\bm{P}(t)$ \citepMain{levin2017markov}, expressed as
+
+%\begin{align} \label{eq:spectral_decomposition}
+%   \bm{P}(t) = \bm{1}\cdot\bm{\pi}^T + \sum_{i=1}^3\bm{v_i}\cdot \bm{h_i}^T e^{\lambda_it},
+%\end{align}
+
+\begin{align} \label{eq:spectral_decomposition}
+   \diag (\bm{\pi})\bm{P}(t) = \bm{\pi} \bm{\pi}^T + \sum_{i=1}^3\bm{h_i} \bm{h_i}^T e^{\lambda_it},
+\end{align}
+ 
+where  ${\lambda_0 = 0 > \lambda_1 \geq \lambda_2 \geq \lambda_3}$  are the eigenvalues of the rate matrix and $\bm{h_k}$  are the corresponding left eigenvectors ($i = 1,2,3$). 
+%Note that the right eigenvalues form an orthonormal basis with respect to $\bm{\pi}$-inner product $\langle \bm{v},\bm{w}\rangle_{\bm{\pi}}= \bm{v}^T\cdot\diag(\bm{\pi})\cdot\bm{w}$ and $\bm{h}_k=\diag(\bm{\pi})\cdot\bm{v}_k$.
+
+\medskip 
+
+Substituting equation \eqref{eq:spectral_decomposition} into \eqref{eq:branch_likelihood_given_t}, we derive the central equation
+
+\begin{align}\label{eq:branchlikelihod_new}
+    \Prob(\partial \mid t)  = \Prob(\pred)\Prob(\pblue) +  \sum_{i =1}^3  \langle \va,\bm{h_i}\rangle \langle \vb, \bm{h_i}\rangle\, e^{\lambda_i t},
+\end{align}
+
+where $\langle\cdot,\cdot\rangle$ denotes the scalar product, and $\Prob(\pred) = \langle \va,\bm{\pi}\rangle$ , $\Prob(\pblue) = \langle \vb,\bm{\pi}\rangle$ are the probabilities for patterns $\pred, \pblue$ given subtrees $\mathbb{T}_A, \mathbb{T}_B$, respectively. Note that the product $\Prob(\pred)\Prob(\pblue)$ describes the probability of pattern $\partial$ if the subtrees are independent from each other.
+
+\medskip
+
+Rewriting Eq.\,\eqref{eq:branchlikelihod_new} in a more compact form, and assuming all eigenvalues are different, we obtain
+
+\begin{align} \label{eq:centraleq} 
+\frac{\Prob(\partial \mid t)}{\Prob(\pred)\Prob(\pblue)} =  1 + \sum_{i =1}^3 C^\partial_i  e^{\lambda_i t},
+\end{align}
+
+where  $C^\partial_i$ is given by
+\begin{equation}
+    C^\partial_i = \langle  \tfrac{\va}{\Prob(\pred)},\bm{h_i}\rangle \langle \tfrac{\vb}{\Prob(\pblue)}, \bm{h_i}\rangle.
+\end{equation}
+
+\medskip
+
+
+Eq.\,\eqref{eq:centraleq} shows that with increasing branch length $t$, the ratio of the probability for pattern
+$\Prob(\partial \mid t)$ for the tree and the product of the probabilities for the two subpatterns converges
+exponentially quickly to one, since the non-zero eigenvalues $\lambda_i$ are negative.
+
+\medskip 
+
+Conversely, if $\mathbb{T}_A$ and $ \mathbb{T}_B$ are independent, then the sum in Eq.\,\eqref{eq:centraleq} must equal zero for all branch lengths $t$. While we cannot expect that this be true for an individual pattern $\partial$, we show that the expectation of any coefficient $C^\partial_i$, when summed over all patterns, equals zero if $\mathbb{T}_A$ and $\mathbb{T}_B$ are independent. We call $C^\partial_i$ the coherence coefficient (for the non-zero eigenvalue $\lambda_i$). Because the second largest eigenvalue $\lambda_1$ dominates the sum in Eq.\,\eqref{eq:centraleq}, we will restrict our analysis to the coherence coefficient $C^\partial_1$.
+
+\medskip 
+
+The expected coherence coefficient is estimated from the alignment and the tree as the average $\hat C_1 = (1/n)\sum_{s=1}^n C^{\partial_s}_1$ for the $n$ site patterns ${\partial_s}$. According to the central limit theorem, the average coherence coefficient is approximately normally distributed (Fig.\,\ref{fig:panel1}c) with expectation $0$ and standard error $\sigma_1/\sqrt{n}$, which can be estimated from the data (see Methods \ref{msec:estimates}). $\hat C_1$ can be z-transformed to obtain a normalised z-score $Z$. The null hypothesis that no phylogenetic signal exists to justify branch $AB$ is rejected if the z-score $Z$ is larger than the critical value $z_\alpha$ of a specified significance level $\alpha$ (Fig.\,\ref{fig:panel1}d).
+
+\medskip
+
+	\begin{figure}[H]
+            \centering
+            \includegraphics[width=\linewidth]{figure_1_2024_08_02.pdf}
+		     \caption{
+		   \textbf{SatuTe in a nutshell.} \textbf{(a)} Five-taxon DNA alignment where each column represents a pattern $\partial$. \textbf{(b)} The branch $AB$ splits the five-taxon tree into subtree $\mathbb{T}_A$ with sequences $S1,S3,S4$ and subtree $\mathbb{T}_B$ with sequences $S2, S5$. Additionally, branch $AB$ splits each pattern, such as $\partial = \text{CTTTC}$, into subpatterns ${\partial A=\text{CTC}}$ and ${\partial B=\text{TT}}$. These subpatterns are used to compute the likelihood vectors $\va$ and $\vb$, which determine the coherence coefficients. \textbf{(c)} The average coherence $\hat{C}_1$ is approximately normally distributed, with expectation zero and standard error
+     $\hat{\sigma}_1/\sqrt{n}$, if the subtrees  $\mathbb{T}_A$ and  $\mathbb{T}_B$ are independent. The z-transform of the average coherence is then used to test for phylogenetic information. \textbf{(d)} The null hypothesis of independently evolving subtrees is rejected at the significance level $\alpha$ if $Z>z_\alpha$. Rejection implies phylogenetic signal. Thus, the subtrees share a common history and are connected by a branch.}
+		     \label{fig:panel1}
+        \end{figure}
+
+
+
+\subsection*{SatuTe applied to simulated data}
+
+We analysed the performance of SatuTe for a wide variety of parameter selections, including different numbers of taxa (five and sixteen), different alignment lengths ($100$, $1000$, $10000$), various branch types (internal, external) and different branch lengths for the branch $AB$ of interest (Fig.\,\ref{fig:simulation}). For each parameter
+combination we simulated 1000 alignments along the specified tree assuming the Jukes-Cantor (JC) model \citepMain{Jukes1969}. For details of the simulation see Methods \ref{msec:simulations}. The parameter combinations reflect typical phylogenetic scenarios.
+
+\medskip
+
+In the \textbf{first scenario}, representing the statistically correct situation ({\color{truetree} pink}, Fig.\,\ref{fig:simulation}), the alignment is simulated along the true (simulation) tree with its true branch lengths. Subsequently, the phylogenetic signal of the simulated alignment was tested on the true tree
+(including the true branch lengths) for the external edge (Fig.\,\ref{fig:simulation}a) and the internal edge (Fig.\,\ref{fig:simulation}b). Regardless of the specific parameters, the fraction of simulated alignments that are phylogenetically informative for branch AB decreases from 100\% to the significance level of 5\% as the
+branch length increases. Thus, long branch lengths in the true evolutionary process resulted in lower rejection rates of the null hypothesis of subtree independence, leading to more instances where the subtrees lack a phylogenetic signal for $AB$. According to standard statistical theory, longer alignments preserve phylogenetic signal for longer branches, so the overall behaviour of the curves follows a typical power curve and serves as a basis for other scenarios that deviate from this gold-standard.
+
+\medskip 
+
+
+A realistic application similar to the first scenario is the following. After reconstructing a phylogenetic tree from a long (phylogenomic) alignment, one might want to identify which genes or regions are informative for the branches of the reconstructed tree. To achieve this, we analyse the reconstructed tree and test to which extent the genes or regions, which constitute only a fraction of the overall alignment, are phylogenetically informative.
+
+\medskip 
+
+Another application of SatuTe arised when we have a widely accepted tree and a new alignment for a gene family that has not yet been investigated. In this case, we would infer the branch lengths for the new alignment and check which branches in the accepted tree are supported by the new alignment. In other words, we determine where the new alignment is phylogenetically informative within the accepted tree topology. 
+
+\medskip
+
+This is what we consider in our \textbf{second scenario}  ({\color{truetreeML} purple}, Fig.\,\ref{fig:simulation}). Here, the true tree topology is known, but the branch lengths are maximum likelihood (ML) estimates based on the alignment. Fig.\,\ref{fig:simulation} shows that the purple curves are extremely close to the gold-standard (first scenario). For short sequences (100 sites), the test turns out to be too liberal, with an empirical rejection level of approximately 10\%, but we conclude that this is still tolerable.
+
+
+\medskip
+
+
+The \textbf{third scenario} ({\color{MLtree} blue}, Fig.\,\ref{fig:simulation}) involves reconstructing an ML-tree for an alignment and then determining where in the ML-tree the same alignment is phylogenetically informative. This scenario, where the data is used twice -- namely to infer the tree and then to investigate the phylogenetic signal of branches -- is known as circular analysis in statistics. Such double-dipping into the data undermines statistical inference and may lead to an inflation of the type I error \citepMain{button2019double}. This is actually what we observe in Fig.\,\ref{fig:simulation}, where for long branches 15\% of the alignments are tested as phylogenetically informative for the external branch (Fig.\,\ref{fig:simulation}a) and 50\% of alignments for the internal branch (Fig.\,\ref{fig:simulation}b), regardless of the sequence length. The high rejection rate is explained by the observation that for long branches AB most of the reconstructed trees disagree with the true tree. Most of the inferred ML-trees link subtrees $\mathbb{T}_A$ and $\mathbb{T}_B$  via their external branches (Supplementary Table \ref{supptab:placementAB}). Thus, if subtrees have $m_A$ and $m_B$ leaves, then the tree with the highest likelihood among $m_A\cdot m_B$ trees is selected, which happens to be phylogenetically informative.
+
+\medskip
+
+The \textbf{fourth scenario} shows that the Bonferroni adjusted significance level $\alpha_{adjust} = \alpha / (m_A m_B)$ provides power curves ({\color{MLtreeBonferroni} green}, Fig.\,\ref{fig:simulation}) that are close to the gold-standard. However, if the subtrees contain very similar sequences, then $\alpha_{adjust}$ may become too small (Supplementary Fig.\,\ref{suppfig:simulation_shortBranches}). Then it may help to reduce the number of leaves and to carry out additional simulations tailored for the specific question and data.
+
+\medskip
+
+Fig.\,\ref{fig:simulation} shows the results generated under the assumption that no model misspecification occurs. Since the computation of the coherence coefficient obviously depends on the selected model of sequence evolution, we evolved sequences under a GTR-model \citepMain{tavare1986} and then
+inferred an ML-tree assuming either a JC or Kimura two parameter (K2P) \citepMain{kimura1980simple} model. In both cases we observe a too liberal test (Supplementary Fig.\, \ref{suppfig:simulation_misspec}), with too many alignments considered phylogenetically informative for the branch $AB$ compared to the gold-standard. However, when we replaced the JC or K2P model by the F81 model \citepMain{Felsenstein1981}, which incorporates the base composition of the alignment, SatuTe performed well and the power curves approach the gold-standard (Supplementary Fig.\, \ref{suppfig:simulation_misspec}).
+Thus, the most critical aspect for the good performance of SatuTe is specifying the base composition, which is straightforward from the data. However, the estimation of the correct
+substitution rate parameters in the rate matrix is less important.
+
+\medskip 
+
+
+
+%%% Fig 2 - simulation %%%
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{figure_simulated_data_main.pdf}
+     \caption{\textbf{Performance of SatuTe in simulations}. The plot shows the fraction of phylogenetically informative simulated alignments for branch $AB$ and various analysis scenarios: the true tree ({\color{truetree}pink}), the true tree topology with ML-estimated branch lengths ({\color{truetreeML} purple}), and the inferred ML-tree including branch lengths ({\color{MLtree} blue}). The {\color{MLtreeBonferroni} green} curves represent the percentage of informative instances after applying the Bonferroni correction to the light green instances. In \textbf{(a)}, an external branch of a five-taxon tree and in \textbf{(b)}, the central branch of a balanced 16-taxon tree is analysed. Dashed, solid, and alternating dashed lines represent the results for 100, 1000, and 10000 sites, respectively.}
+     \label{fig:simulation}
+\end{figure}
+
+
+\subsection*{SatuTe investigates the Tree of Life}
+
+We applied SatuTe to two alignments used to determine deep branching patterns in the ToL \citepMain{Hug2016}. The first alignment, comprising 16 ribosomal-subunit proteins, with a length of 2596 amino acid sites and 3083 taxa suggests the two-domain tree (2D ToL), in which the Eukaryota branch off within the Archaea (Fig.\,\ref{fig:EUK}a). The second alignment, consisting exclusively of the 16S rRNA gene with 1947 sites and 1871 taxa, supports the three-domain tree (3D ToL), in which Archaea, Bacteria and Eukaryota are each monophyletic (Fig.\,\ref{fig:EUK}d). Depending on the alignments the 2D ToL or 3D ToL is inferred (see \citetMain{Hug2016}). 
+
+\medskip
+To examine the phylogenetic information in both alignments, we  inferred the branch lengths for both trees, using the LG+G4 model for the protein alignment and the GTR+G4 model for the 16S rRNAs (Methods \ref{msec:ToL}). We have focused our analysis on the models considered by the authors, as exploring alternative models is beyond the scope of our study.
+
+\medskip
+
+
+Since the 2D ToL is based on an LG+G4 model and SatuTe is only applicable if all sites evolve at the same rate (Methods \ref{msec:hetero}), each alignment site was assigned to the rate category with highest posterior probability \citepMain{yang1994maximum}. For sites within each rate category, we determined the phylogenetic signal for each branch according to the fourth scenario (ML-tree \& Bonferroni correction). All 6163 branches were phylogenetically informative for each of the four rate categories. Fig.\,\ref{fig:EUK}b displays the z-scores for the Eukaryota branch and for comparison an external branch leading to yeast.
+
+\medskip
+
+For the 3D ToL we inferred the branch lengths with the GTR+G4 model and repeated the above analysis. From the 3739 branches, 107 branches were classified as saturated for sites from the highest rate category (rate 2.73). Among the saturated branches, there were 13 internal branches and one of them was the branch connecting Eukaryota with the rest of the tree
+(Fig.\,\ref{fig:EUK}e). Thus, the fastest evolving sites in the 16S rRNA alignment do not provide support for the Eukaryota branch.
+
+\medskip
+
+Given these results, we decided to focus on the branch that separates the Eukaryota from the rest in both the 2D and 3D ToL. Using SatuTe, we conduct a sliding-window analysis with a window size of 36 sites for both alignments (Methods \ref{msec:ToL}) to identify which regions of each alignment are phylogenetically informative for the Eukaryota branch. As the window length is small in relation to the total alignment, the analysis per window is similar to the first scenario of the simulations. Figs.\,\ref{fig:EUK}c and \ref{fig:EUK}f show the z-scores along the alignment. The ribosomal proteins show a clear phylogenetic signal for the entire alignment. The signal seems to be strong  independently of the proteins. Only a few short regions exist where the phylogenetic signal has been lost (that is, z-score falls below the critical value $z_{\alpha}$). These regions are often found at the junction of two concatenated protein alignments. For the 3D ToL determined from the 16S rRNA alignment, we find many and sometimes very long alignment regions that are not phylogenetically informative (Fig.\,\ref{fig:EUK}f). Saturated regions are mostly found in the so-called hypervariable regions V1-V9 \citepMain{baker2004}. On the other hand, from the conserved regions C1-C9 in bacteria \citepMain{yang2016}, regions C1 and C4-C9 show phylogenetic signal, whereas C2 and C3 are almost saturated (for the Eukaryota branch). The conspicuously long phylogenetically uninformative regions 240-301 (z-score $< 1 \cdot 10^{-16}$)
+and 789-956 (z-score $< 1 \cdot 10^{-14}$) of the alignment have a low z-score because they are gappy and therefore provide little information about the substitution model.
+
+\medskip 
+
+The sliding-window analysis of the 16S rRNA revealed that 43.0\% of the 1912 windows show no phylogenetic signal for the Eukaryota branch. In the protein alignments we only find 5.4\% saturated windows. Even if the protein alignments have conserved significantly more phylogenetic information from early evolution, we currently cannot decide whether the
+3D ToL is an artefact due to many saturated regions in the alignment. SatuTe does test for saturation but does not determine which tree is correct. In any case, some regions of the 16S rRNA provide little phylogenetic information for the placement of the Eukaryota branch in the 3D ToL, as is evident from the z-scores (Fig.\,\ref{fig:EUK}f).
+
+\medskip 
+
+Finally, we note that the z-score can tell us "how much" phylogenetic information is present for branches in different trees that induce the same partition of taxa. In this specific case, we calculated for the ribosomal proteins the z-scores for the Eukaryota branch in the 2D ToL and the 3D ToL (Fig.\,\ref{fig:z-score_differences}a). The tree in Fig.\,\ref{fig:z-score_differences}a shows the possible placements of the Eukaryota branch. To get the 3D ToL for the protein alignment, we pruned the Eukaryota subtree from the 2D-tree and regrafted it on the branch connecting  Bacteria and Archaea. Then, following the second scenario, the ML-branch lengths were estimated for the rearranged tree and a LG+G4 substitution model. Supplementary Table \ref{supptab:protein_2D_3D} shows that the z-scores are significant for each protein, irrespective of 2D or 3D ToL. This suggests the presence of a phylogenetic signal that is independent of the trees. However, the 2D ToL z-scores are slightly larger except for proteins L15, L22 and S10 (Fig.\,\ref{fig:z-score_differences}b) and almost identical for L2. 
+%
+%
+%
+We analysed the 16S rRNA alignment in a similar way. Therefore, we performed the subtree and regrafting procedure on the 3D tree (Fig.\,\ref{fig:EUK}d) to obtain the 2D ToL (Fig.\,\ref{fig:z-score_differences}c). The 16S rRNA alignment was divided into 9 regions and for each region the z-score of the 2D ToL, 3D ToL and the region specific z-score differences were determined (Supplementary Table \ref{supptab:rRNA_2D_3D}). For six of the nine regions, the z-score difference is negative, i.e. these regions have a higher score in the 3D ToL (Fig.\,\ref{fig:z-score_differences}d).
+
+\medskip
+
+Interestingly, the empirical distributions of the z-score differences for both alignments show no significant difference (Kolmogorov-Smirnov test: p-value=0.072). In summary, for the 16S rRNA alignment it is not clear which tree to prefer. However, the analysis yields valuable insights into the phylogenetic information that individual alignments (different protein or different regions) provide for branches in a phylogenetic tree.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{figure_sliding_window_2024_08_28.pdf}
+	\caption{\textbf{Per rate category and sliding-window analysis of selected branches:} The branches leading to Eukaryota and yeast were analysed. \textbf{(a)}, 2D tree with $3083$ taxa obtained from the ribosomal protein alignment and \textbf{(d)}, 3D tree with 1871 taxa obtained from the 16S rRNA gene alignment. \textbf{(b)}, \textbf{(e)} The per rate category z-scores are marked as dotted lines, and the estimated number of sites per category is represented by grey bars. For the Eukaryota branch the Bonferroni adjusted critical value is shown.
+ \textbf{(c)}, \textbf{(f)} The progression of the z-score was calculated as a moving average for a sliding window with 36 sites.
+ }  \label{fig:EUK} 
+\end{figure}
+
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figure_zscore_differences_2024_08_06.pdf}
+    \caption{\textbf{Differences between z-scores for the two placements of Eukaryota.} The topology rearrangement of \textbf{(a)}  the protein-based 2D tree (Fig. \ref{fig:EUK}a) into a 3D-tree  and \textbf{(c)} the 16S rRNA-based 3D tree (Fig. \ref{fig:EUK}d) into a 2D-tree by replacing the black dashed branch with the green dashed branch. For each \textbf{(b)} ribosomal protein and \textbf{(d)} rRNA region, the z-score differences of the branch leading to Eukaryota between the 2D-tree  and the 3D-tree are presented in ascending order.
+    } \label{fig:z-score_differences} 
+\end{figure}
+\bigskip
+
+\section*{Discussion}
+
+
+SatuTe is a new method to quickly and efficiently compute the phylogenetic signal for every branch in a phylogenetic tree and a multiple sequence alignment. The practical applications of SatuTe are numerous and we have shown only some typical scenarios with simulated alignments and other applications based on alignments used in the discussion about the structure of the ToL \citepMain{williams2D,cunha3D}. The simulations show that SatuTe has all the properties of a good test and is also relatively robust when the ideal statistical conditions are not met. Our experiments (simulations, ToL) reflect typical applications of SatuTe. Many other analyses are conceivable.
+To this end, we developed the SatuTe program package, which can be seamlessly integrated into a phylogenetic pipeline with IQ-Tree2, as a good and flexible starting point for more in-depth studies. SatuTe generates a comprehensive output for each alignment site, enabling further in-depth analysis, such as user-specific investigations of subregions, structural elements or other parts of an alignment. Additionally, the z-scores enable the comparison between branches in a tree or even between trees. We have presented the principle of this analysis in the ToL example. A more detailed analysis, which obviously depends on the data and the specific scientific questions, is beyond the scope of the paper. However, SatuTe offers the bioinformatic tools and the essential statistics to estavlish the groundwork for such an in-depth analysis.  
+
+\medskip
+
+That is why we did not resolve the discussion about the true phylogenetic relationship of Archaea, Bacteria and Eukaryota. Our analysis clearly highlighted strengths and weaknesses of the alignments that led to the conflicting hypotheses about the ToL. SatuTe helps to come to a more objective decision which alignments to include or exclude in a phylogenetic study. 
+
+\medskip
+
+SatuTe may be seen as a complementary tool to bootstrap methods  \citepMain{lemoine2018,hoang2017,Stamatakis2008,felsenstein1985confidence}, which measure how strongly an alignment supports a split between two groups. In the classic bootstrap interpretation, a high bootstrap value is taken as a consistency value for the branch in the tree. SatuTe helps to determine whether the two groups are related, i.e. that a branch indicates a common evolutionary history or if the high bootstrap value simply reflects the dissimilarity between the groups (Supplementary Table \ref{supptab:bootstrap}).
+
+\medskip
+
+The basic theory behind SatuTe gives additional information about the fading of the phylogenetic signal as the number of substitutions grows. As is well known \citepMain{levin2017markov,elchanan2003} the second largest eigenvalue describes the speed of the substitution model towards the stationary distribution. For the ToL discussion the second
+largest eigenvalue of the LG+G4 model equals -0.27 and -0.83 for the GTR+G4 model. Therefore, the accelerated loss of phylogenetic signal along a branch under the GTR model, occurring three times faster offers at least a partial explanation for the preference of proteins in inferring deep phylogenies. This may also lead to a more systematic understanding for the usefulness of substitution models for inferring deep phylogenies \citepMain[see][]{kapli2023}.
+
+\medskip 
+
+Moreover, the computation of the coherence coefficient can be formally generalised for non-stationary and non-reversible substitution models using the $\bm{\pi}$-scalar product \citepMain{levin2017markov} between the likelihood vectors \citepMain{manuel2022}. However, dropping those assumptions leads to root identifiability issues. This implies that the test for saturation does not depend only on the parent node of the two subtrees, but also on the placement of the root. This complication leads to a slightly more technical test, that will be implemented in future versions of SatuTe.
+
+\medskip
+
+In summary, SatuTe enables completely new possibilities for phylogenetic analysis. We were only able to demonstrate some typical applications that look promising. Our software package, SatuTe, allows even the uninitiated to quickly carry out the presented applications. Additionally, SatuTe provides a detailed output for each alignment position, which can then be analysed for further questions.
+
+
+\bigskip
+
+%\section*{Online content}
+%{\color{blue}Any methods, additional references, Nature Portfolio reporting summaries, source data, extended data, supplementary information, acknowledgements, peer review information; details of author contributions and competing interests; and statements of data and code availability are available at  }
+
+
+\backmatter
+ 
+% To change the title from References to Bibliography:
+
+
+%\renewcommand\refname{Bibliography}
+\bibliographystyleMain{apalike}
+\bibliographyMain{biblio.bib} 
+
+
+%\begin{refsection}
+%\nocite{manuel2022}
+%\printbibliography
+%\end{refsection}

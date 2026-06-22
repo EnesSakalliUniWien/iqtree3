@@ -1,0 +1,130 @@
+% !TEX TS-program = pdflatexmk
+\documentclass[pdflatex, sn-chicago]{sn-jnl}% Math and Physical Sciences Reference Style
+\usepackage{anyfontsize}
+\usepackage{lineno}
+%%%% Standard Packages
+\usepackage{mystyle}
+\usepackage{tocloft}
+\usepackage{etoc}
+\setcounter{secnumdepth}{3}
+
+%\usepackage[sectionbib]{chapterbib}
+%\usepackage[backend=biber,style=authoryear]{biblatex}
+%\usepackage{biblatex}
+%\usepackage[natbib,style=authoryear, backend=biber]{biblatex}
+%\addbibresource{biblio.bib}
+\usepackage[resetlabels,labeled]{multibib}
+\newcites{Main}{Bibliography}
+\newcites{Meth}{Bibliography Methods}
+\newcites{Supp}{Bibliography Supplementary Information}
+
+\makeatletter
+\renewcommand\@biblabel[1]{\textbullet} % Change the item label to a bullet, or customize as needed
+\makeatother
+
+\jyear{2021}%
+%% as per the requirement new theorem styles can be included as shown below
+\theoremstyle{thmstyleone}%
+\newtheorem{theorem}{Theorem}%  meant for continuous numbers
+%%\new-theorem{theorem}{Theorem}[section]% meant for sectionwise numbers
+%% optional argument [theorem] produces theorem numbering sequence instead of independent numbers for Proposition
+\newtheorem{proposition}[theorem]{Proposition}% 
+%%\newtheorem{proposition}{Proposition}% to get separate numbers for theorem and proposition etc.
+
+\theoremstyle{thmstyletwo}%
+\theoremstyle{thmstylethree}%
+
+\raggedbottom
+%%\unnumbered% uncomment this for unnumbered level heads
+
+\graphicspath{{./figures/}}
+
+\begin{document}
+
+
+\title[SatuTe]{\centering When the Past Fades: Detecting phylogenetic signal with SatuTe}
+
+%%=============================================================%%
+%% Prefix	-> \pfx{Dr}
+%% GivenName	-> \fnm{Joergen W.}
+%% Particle	-> \spfx{van der} -> surname prefix
+%% FamilyName	-> \sur{Ploeg}
+%% Suffix	-> \sfx{IV}
+%% NatureName	-> \tanm{Poet Laureate} -> Title after name
+%% Degrees	-> \dgr{MSc, PhD}
+%% \author*[1,2]{\pfx{Dr} \fnm{Joergen W.} \spfx{van der} \sur{Ploeg} \sfx{IV} \tanm{Poet Laureate} 
+%%                 \dgr{MSc, PhD}}\email{iauthor@gmail.com}
+%%=============================================================%%
+
+\author*[1]{\fnm{Cassius} \sur{Manuel}}\email{cassiusmanuelperez@gmail.com}
+\equalcont{These authors contributed equally to this work.}
+%cassius.perezdeloscoboshermtosa@meduniwien.ac.at
+\author[1]{\fnm{Christiane} \sur{Elgert}}
+\equalcont{These authors contributed equally to this work.}
+\author[1,2]{\fnm{Enes} \sur{Sakalli}}
+\equalcont{These authors contributed equally to this work.}
+\author[1]{\fnm{Heiko A.} \sur{Schmidt}}
+\author[4]{\fnm{Carme} \sur{Viñas}}
+
+\author[1,3]{\fnm{Arndt} \spfx{von} \sur{Haeseler}} %\email{arndt.von.haeseler@univie.ac.at}
+\affil[1]{\orgdiv{Center for Integrative Bioinformatics Vienna, Max Perutz Labs}, \orgname{University of Vienna, Medical University of Vienna}, \orgaddress{\street{Dr. Bohr Gasse 9}, \city{Vienna}, \postcode{A-1030}, \country{Austria}}}
+
+\affil[2]{\orgdiv{Vienna BioCenter PhD Program}, \orgname{Doctoral School of the University of Vienna and Medical University of Vienna}, \orgaddress{\city{Vienna}, \postcode{A-1030}, \country{Austria}}}
+
+\affil[3]{\orgdiv{Faculty of Computer Science}, \orgname{University of Vienna}, \orgaddress{\street{W\"ahringer Str. 29}, \city{Vienna}, \postcode{A-1090}, \country{Austria}}}
+
+\affil[4]{\orgdiv{Faculty of Mathematics and Statistics}, \orgname{Polytechnic University of Catalonia}, \orgaddress{\city{Barcelona}, \country{Spain}}}
+\linenumbers
+\abstract{In phylogenetics, the phenomenon of saturation is well known, although its influence on tree reconstruction lacks a systematic and well founded method. Here we propose a new measure of the phylogenetic information shared between two subtrees connected by a branch in a phylogeny. This measure generalises the concept of saturation between two sequences to a theory of saturation between subtrees, whose implementation we provide as the versatile program SatuTe. We describe different usages of SatuTe, identifying which branches in a tree are phylogenetically informative and which alignment regions support a given branch. As an example, we discuss the Tree of Life reconstruction from ribosomal proteins and the 16S rRNA gene, with emphasis on the two-domain versus three-domain hypotheses. For the branch leading to Eukaryota, we show that most ribosomal proteins contain a strong phylogenetic signal, whereas some regions of the 16S rRNA gene have lost phylogenetic information. Thus, SatuTe opens new insights into phylogenetic inference and complements standard phylogenetic analysis.
+
+}
+
+\keywords{branch support, phylogenetic inference, phylogenetic signal, saturation, tree of life}
+
+\maketitle
+
+%%\pacs[JEL Classification]{D8, H51}
+
+%%\pacs[MSC Classification]{35A01, 65L10, 65L12, 65L20, 65L70}
+
+%\newpage
+%\section*{}
+%{\color{red} These are the format requirements of Nature methods:}
+%
+%    \noindent Abstract – up to 150 words, unreferenced. \\
+%    Main text – 3,000 words (up to 5,000 words with editorial discretion), excluding abstract, Methods, references and figure legends.\\
+%    Display items – up to 6 figures and/or tables. \\
+%    Article should be divided as follows: \\
+%    Introduction\\
+%    Results\\
+%    Discussion\\
+%    Online Methods\\
+%    References – as a guideline, we typically recommend up to 50.\\
+%
+%\medskip
+%
+%\noindent Proposed reviewers:
+%
+%Lars Jermiin - Lars.Jermiin@universityofgalway.ie
+%
+%Xuhua Xia - xxia@uOttawa.ca
+%
+%Maria Anisimovan - maria.anisimova@zhaw.ch
+%
+%David Duchene - david.duchene@sund.ku.dk.
+%
+%Simon Ho - simon.ho@sydney.edu.au
+%
+%Bernhard Misof - b.misof@leibniz-lib.de
+%
+%Karen Meusemann - k.meusemann@leibniz-lib.de
+
+\newpage
+
+\include{mainarticle_2024_08_03}
+\include{methods_2024_08_01}
+\include{extended_data_2024_08_05}
+\include{supplements}
+
+
+\end{document}

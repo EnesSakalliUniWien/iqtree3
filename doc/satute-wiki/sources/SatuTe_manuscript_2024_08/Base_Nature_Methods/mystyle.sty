@@ -1,0 +1,152 @@
+\usepackage[export]{adjustbox}
+\usepackage{graphicx} % Required for the inclusion of images
+\usepackage{amsmath} % Required for some math elements 
+\usepackage{lineno}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{xr}
+\usepackage{enumitem}
+\usepackage{blindtext}
+\usepackage[section]{placeins}
+\usepackage{siunitx}
+\usepackage{array, multirow, bigdelim, makecell, booktabs} 
+\usepackage{mathtools}
+\usepackage{pict2e}
+\usepackage{url}
+\usepackage{subcaption}
+\usepackage{minitoc}
+\usepackage{longtable}
+
+\usepackage{appendix}
+
+% Redefine the appendix section formatting
+\renewcommand{\appendixname}{}
+\renewcommand{\appendixtocname}{}
+\renewcommand{\appendixpagename}{}
+
+%% MATHOPERATORS
+
+\DeclareMathOperator{\suf}{suf}
+\DeclareMathOperator{\pre}{pre}
+\DeclareMathOperator{\diag}{Diag}
+\DeclareMathOperator{\graph}{Graph}
+\DeclareMathOperator{\tr}{Tr}
+\DeclareMathOperator{\sgn}{Sgn}
+\DeclareMathOperator{\cov}{Cov}
+
+
+%% FOR MATH STATEMENTS 
+
+\newtheorem{prop}{Proposition}
+\numberwithin{prop}{section}
+\newtheorem{lemma}[prop]{Lemma}
+\newtheorem{cor}[prop]{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{theo}[prop]{Theorem}
+\newtheorem{ex}{Example}
+
+%Shortcuts
+
+\newcommand\pred{{\partial A}}
+\newcommand\pblue{{\partial B}}
+\newcommand\aaa{\bm{\alpha_c}}
+\newcommand\aat{\bm{\tilde{\alpha}_c}}
+\newcommand\aap{\bm{\tilde{\alpha}_{c, \partial}}}
+\newcommand\aapp{\bm{\tilde{\alpha}_{c, \partial_c}}}
+\newcommand\bbb{\bm{\beta_c}}
+\newcommand\bbt{\bm{\tilde{\beta}_c}}
+\newcommand\rrr{\bm{\rho_\partial}}
+\newcommand\rrt{\bm{\tilde{\rho}_\partial}}
+\newcommand\myeq{\stackrel{\mathclap{\normalfont\mbox{p}}}{\sim}}
+\newcommand\CK{\hat{C}_k}
+\newcommand\CO{\hat{C}_1}
+\newcommand\Prob{\mathbb{P}}
+\newcommand\va
+{{
+\bm{L}(\partial A)
+}}
+
+\newcommand\ta
+{{
+\bm{\tilde{\alpha}_{\color{black}\partial A}}
+}}
+
+\newcommand\vb
+{{
+\bm{L}(\partial B)
+}}
+\newcommand\tb
+{{
+\bm{\tilde{\beta}_{\color{black}\partial B}}
+}}
+
+
+
+
+%%The bigcirc symbol
+\makeatletter
+\newcommand{\bigcomp}{%
+  \DOTSB
+  \mathop{\vphantom{\sum}\mathpalette\bigcomp@\relax}%
+  \slimits@
+}
+\newcommand{\bigcomp@}[2]{%
+  \begingroup\m@th
+  \sbox\z@{$#1\sum$}%
+  \setlength{\unitlength}{0.9\dimexpr\ht\z@+\dp\z@}%
+  \vcenter{\hbox{%
+    \begin{picture}(1,1)
+    \bigcomp@linethickness{#1}
+    \put(0.5,0.5){\circle{1}}
+    \end{picture}%
+  }}%
+  \endgroup
+}
+\newcommand{\bigcomp@linethickness}[1]{%
+  \linethickness{%
+      \ifx#1\displaystyle 2\fontdimen8\textfont\else
+      \ifx#1\textstyle 1.65\fontdimen8\textfont\else
+      \ifx#1\scriptstyle 1.65\fontdimen8\scriptfont\else
+      1.65\fontdimen8\scriptscriptfont\fi\fi\fi 3
+  }%
+}
+
+
+% Custom command for the special section "Methods"
+\newcommand{\specialsection}[1]{
+  \setcounter{section}{13} % Set the counter to 12 (so the next section will be "M")
+  \section*{#1} % No section number for the special section itself
+  \addcontentsline{toc}{section}{#1} % Add section to the table of contents
+  \renewcommand\thesubsection{\Alph{section}.\arabic{subsection}} % Use "M" for subsections
+  \renewcommand\thesubsubsection{\Alph{section}.\arabic{subsection}.\arabic{subsubsection}} % Use "M" for sub-subsections
+  \setcounter{subsection}{0} % Reset subsection counter for the special section
+  \setcounter{subsubsection}{0} % Reset sub-subsection counter for the special section
+}
+
+% Command to reset section and subsection numbering after the special section
+\newcommand{\resetsections}{
+  \renewcommand\thesection{\arabic{section}} % Reset to numeric section numbering
+  \renewcommand\thesubsection{\thesection.\arabic{subsection}} % Reset to numeric subsection numbering
+  \renewcommand\thesubsubsection{\thesection.\arabic{subsection}.\arabic{subsubsection}} % Reset to numeric sub-subsection numbering
+  \setcounter{section}{0} % Reset section counter
+  \setcounter{subsection}{0} % Reset subsection counter
+  \setcounter{subsubsection}{0} % Reset sub-subsection counter
+}
+
+
+\makeatother
+
+\definecolor{britishracinggreen}{rgb}{0.0, 0.26, 0.15}
+\definecolor{burgundy}{rgb}{0.5, 0.0, 0.13}
+\definecolor{applegreen}{rgb}{0.55, 0.71, 0.0}
+\definecolor{ashgrey}{rgb}{0.7, 0.75, 0.71}
+\definecolor{lightblue}{rgb}{0.68, 0.85, 0.9}
+
+\definecolor{truetree}{HTML}{CC6677}
+\definecolor{truetreeML}{HTML}{882255}
+\definecolor{MLtree}{HTML}{44AA99}
+\definecolor{MLtreeBonferroni}{HTML}{117733}
+\definecolor{truetreeNoMisspecification}{HTML}{E69F00}
