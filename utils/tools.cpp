@@ -1731,6 +1731,31 @@ void parseArg(int argc, char *argv[], Params &params) {
                 params.print_df1_trees = true;
                 continue;
             }
+            if (strcmp(argv[cnt], "--satute") == 0) {
+                params.satute_analysis = true;
+                params.ignore_identical_seqs = false;
+                continue;
+            }
+            if (strcmp(argv[cnt], "--satute-alpha") == 0) {
+                params.satute_analysis = true;
+                params.ignore_identical_seqs = false;
+                cnt++;
+                if (cnt >= argc)
+                    throw "Use --satute-alpha <alpha>";
+                params.satute_alpha = convert_double(argv[cnt]);
+                if (params.satute_alpha <= 0.0 || params.satute_alpha >= 1.0)
+                    throw "SatuTe alpha must be between 0 and 1";
+                continue;
+            }
+            if (strcmp(argv[cnt], "--satute-edges") == 0) {
+                params.satute_analysis = true;
+                params.ignore_identical_seqs = false;
+                cnt++;
+                if (cnt >= argc)
+                    throw "Use --satute-edges <branch_id_file>";
+                params.satute_edges_file = argv[cnt];
+                continue;
+            }
             if (strcmp(argv[cnt], "--qic") == 0) {
                 params.internode_certainty = 1;
                 continue;
@@ -6002,6 +6027,14 @@ void usage_iqtree(char* argv[], bool full_command) {
     << "  -p FILE|DIR          Partition file or directory for --scf" << endl
     << "  --cf-verbose         Write CF per tree/locus to cf.stat_tree/_loci" << endl
     << "  --cf-quartet         Write sCF for all resampled quartets to .cf.quartet" << endl;
+
+    cout
+    << endl << "BRANCH SATURATION ANALYSIS:" << endl
+    << "  --satute             Run SatuTe branch saturation analysis" << endl
+    << "                       Writes formula rows: dominant and eigenvalue_weighted" << endl
+    << "                       and rate-category rows for discrete rate models" << endl
+    << "  --satute-alpha NUM   Significance level for SatuTe (default: 0.05)" << endl
+    << "  --satute-edges FILE  Analyze only branch IDs listed in FILE" << endl;
     
     usage_alisim();
     cout
@@ -7062,6 +7095,9 @@ void Params::setDefault() {
     site_concordance_partition = false;
     print_cf_quartets = false;
     print_df1_trees = false;
+    satute_analysis = false;
+    satute_alpha = 0.05;
+    satute_edges_file = nullptr;
     internode_certainty = 0;
     tree_weight_file = nullptr;
     consensus_type = CT_NONE;

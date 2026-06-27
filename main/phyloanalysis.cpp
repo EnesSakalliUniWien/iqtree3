@@ -150,6 +150,14 @@ void reportReferences(Params &params, ofstream &out) {
             << "https://doi.org/10.1093/bioinformatics/btac741" << endl << endl;
     }
 
+    if (params.satute_analysis) {
+        out << "Since you used SatuTe please also cite: " << endl << endl
+            << "Cassius Manuel et al. (2025)" << endl
+            << "When the Past Fades: Detecting Phylogenetic Signal with SatuTe." << endl
+            << "Molecular Biology and Evolution, 42:msaf090." << endl
+            << "https://doi.org/10.1093/molbev/msaf090" << endl << endl;
+    }
+
     if (params.alisim_active) {
         out << "Since you used AliSim please also cite: " << endl << endl
             << "Nhan Ly-Trong, Giuseppe MJ Barca, Bui Quang Minh (2023)" << endl
@@ -5350,6 +5358,9 @@ void runPhyloAnalysis(Params &params, Checkpoint *checkpoint, IQTree *&tree, Ali
 
         if (MPIHelper::getInstance().isMaster()) {
             reportPhyloAnalysis(params, *tree, *model_info);
+            if (params.satute_analysis) {
+                tree->computeSatuTe(params.out_prefix, params.satute_alpha, params.satute_edges_file);
+            }
         }
 
         // reinsert identical sequences

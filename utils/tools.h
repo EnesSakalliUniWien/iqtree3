@@ -1459,6 +1459,15 @@ public:
 
     /** TRUE to print trees associated with discordance factor 1 (NNI-1 tree) */
     bool print_df1_trees;
+
+    /** TRUE to run SatuTe branch saturation analysis */
+    bool satute_analysis;
+
+    /** Significance level for SatuTe branch saturation analysis */
+    double satute_alpha;
+
+    /** Optional file listing branch IDs to analyze with SatuTe */
+    char *satute_edges_file;
     
     /** 1 to compute internode certainty */
     int internode_certainty;

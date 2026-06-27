@@ -47,6 +47,7 @@ phylotreemixlen.h
 phylotreepars.cpp
 phylotreesse.cpp
 quartet.cpp
+satute.cpp
 supernode.cpp
 supernode.h
 tinatree.cpp

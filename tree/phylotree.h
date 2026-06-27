@@ -1984,6 +1984,11 @@ public:
     void computeSiteConcordance(map<string,string> &meanings);
 
     /**
+     compute SatuTe branch saturation statistic and write annotated output files
+     */
+    void computeSatuTe(const char *prefix, double alpha, const char *edges_file = nullptr);
+
+    /**
      compute site concordance factor
      @param branch target branch
      @param nquartets number of quartets
