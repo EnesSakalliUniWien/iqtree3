@@ -1,0 +1,84 @@
+{
+  "created_at": "2026-06-19T15:13:43",
+  "example_repo": "/Users/berksakalli/Projects/SatuTe-example-analyses",
+  "example_repo_head": "6285ea177a329e54e7a18adf3fef02a3c3062514",
+  "iqtree_repo": "/Users/berksakalli/Projects/iq-tree-satute",
+  "iqtree_repo_head": "86eaabd5167eaa438fcb10811dcb69123a6bf0d9",
+  "iqtree_modelprotein_source": "/Users/berksakalli/Projects/iq-tree-satute/model/modelprotein.cpp",
+  "independence_statement": "This run does not read SatuTe .components.csv files, SatuTe .satute result trees, or manuscript SatuTe Python analysis functions. It reads IQ-TREE .treefile/.iqtree/.siteprob artifacts plus the original alignments, and computes components, windows, summaries, and plots here.",
+  "formulas": [
+    "dominant",
+    "eigenvalue_weighted"
+  ],
+  "window_size": 36,
+  "alpha": 0.01,
+  "datasets": {
+    "protein_based_2D_tree": {
+      "nsites": 2596,
+      "category_counts": {
+        "c1": 533,
+        "c2": 717,
+        "c3": 820,
+        "c4": 526
+      },
+      "category_rates": {
+        "c1": 0.1663,
+        "c2": 0.5182,
+        "c3": 1.0213,
+        "c4": 2.2942
+      },
+      "model_source": "/Users/berksakalli/Projects/iq-tree-satute/model/modelprotein.cpp",
+      "state_order": "ARNDCQEGHILKMFPSTWYV",
+      "eigenvalues": [
+        -2.1161606626970464,
+        -1.7991149374979611,
+        -1.6534259034266512,
+        -1.4587313839945029,
+        -1.433519375567442,
+        -1.337075704531712,
+        -1.2517445332276962,
+        -1.1683955669860475,
+        -1.0633782399124194,
+        -1.0048436624065258,
+        -0.9856562164391455,
+        -0.9168245731055451,
+        -0.7539151713412579,
+        -0.6082540267471835,
+        -0.5461727623869486,
+        -0.48767841452437344,
+        -0.4327654412025987,
+        -0.4055320539739608,
+        -0.2671807365262453,
+        -7.03894211951624e-16
+      ]
+    },
+    "rRNA_based_3D_tree": {
+      "nsites": 1947,
+      "category_counts": {
+        "c1": 678,
+        "c2": 482,
+        "c3": 444,
+        "c4": 343
+      },
+      "category_rates": {
+        "c1": 0.05756,
+        "c2": 0.324,
+        "c3": 0.8919,
+        "c4": 2.727
+      },
+      "model_source": "/Users/berksakalli/Projects/SatuTe-example-analyses/tree_of_life/SatuTe_results/rRNA_based_3D_tree/branch_to_eukaryota/rRNA_alignment.fasta.iqtree",
+      "state_order": "ACGT",
+      "eigenvalues": [
+        -1.8552020065264136,
+        -1.4200873595516441,
+        -0.8259816620151713,
+        2.2871503221782387e-16
+      ]
+    }
+  },
+  "summary": "doc/satute-wiki/results/biological/independent_enhanced_sliding_window_20260619_151135/independent_enhanced_sliding_window_summary.tsv",
+  "component_summary": "doc/satute-wiki/results/biological/independent_enhanced_sliding_window_20260619_151135/independent_component_generation_summary.tsv",
+  "comparison_to_old_summary": "doc/satute-wiki/results/biological/independent_enhanced_sliding_window_20260619_151135/comparison_to_manuscript/published_vs_eigenvalue_weighted_summary.tsv",
+  "source_result_dir": "/Users/berksakalli/Projects/satute-eigenvector-reanalysis/results/independent_enhanced_sliding_window_20260619_151135",
+  "manuscript_sliding_window_rerun": "/Users/berksakalli/Projects/satute-eigenvector-reanalysis/results/manuscript_sliding_window_rerun_20260619_145048"
+}

@@ -1,0 +1,36 @@
+{
+  "created_at": "2026-06-19T15:01:43",
+  "example_repo": "/Users/berksakalli/Projects/SatuTe-example-analyses",
+  "example_repo_head": "6285ea177a329e54e7a18adf3fef02a3c3062514",
+  "example_repo_remote": "https://enesBerkSakalli@github.com/Elli-ellgard/SatuTe-example-analyses.git",
+  "reference_module": "/Users/berksakalli/Projects/iq-tree-satute/doc/satute-phase1/satute_reference.py",
+  "dataset": "rRNA_based_3D_tree",
+  "alignment": "rRNA_alignment.fasta",
+  "nsites": 1947,
+  "model": "GTR{0.843918,2.1529,1.37429,0.792139,3.61047,1.0}+F{0.251472,0.229985,0.312053,0.206489}",
+  "rate_categories": {
+    "c1": 0.05756,
+    "c2": 0.324,
+    "c3": 0.8919,
+    "c4": 2.727
+  },
+  "site_category_counts": {
+    "c1": 678,
+    "c2": 482,
+    "c3": 444,
+    "c4": 343
+  },
+  "formulas": [
+    "dominant",
+    "eigenvalue_weighted"
+  ],
+  "window_size": 36,
+  "alpha": 0.01,
+  "component_root": "doc/satute-wiki/results/biological/enhanced_sliding_window_rerun_20260619_150104/components",
+  "component_generation_summary": "doc/satute-wiki/results/biological/enhanced_sliding_window_rerun_20260619_150104/component_generation_summary.tsv",
+  "sliding_window_summary": "doc/satute-wiki/results/biological/enhanced_sliding_window_rerun_20260619_150104/enhanced_sliding_window_summary.tsv",
+  "limits": [
+    "This run covers the nucleotide rRNA GTR+F+G4 manuscript dataset.",
+    "The protein LG+G4 manuscript dataset is not recomputed here because the current enhanced statistic implementation is nucleotide/GTR-based."
+  ]
+}

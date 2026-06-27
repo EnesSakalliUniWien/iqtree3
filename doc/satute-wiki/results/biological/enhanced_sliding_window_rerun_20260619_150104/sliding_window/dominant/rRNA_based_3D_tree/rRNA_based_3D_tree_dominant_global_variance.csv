@@ -1,0 +1,3 @@
+dataset,branch,global_variance
+branch_to_yeast,"(Eukaryota_Opisthokonta_Nucletmycea_Fungi_Dikarya_Ascomycota_Saccharomycotina_Saccharomycetes_Saccharomycetales_Saccharomyces_cerevisiae_baker_s_yeast, Node1652*)",0.5783377332874245
+branch_to_eukaryota,"(Node1612*, Node77*)",0.46867935167770675
