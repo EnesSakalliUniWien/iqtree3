@@ -36,7 +36,7 @@ C_{\partial i}
 \end{equation}
 For the dominant non-stationary mode, the empirical statistic is \(\hat C_1=n^{-1}\sum_{s=1}^{n}C_{\partial_s 1}\), with variance estimator \(\hat\sigma_1^2\) and one-sided statistic \(Z=\sqrt{n}\hat C_1/\hat\sigma_1\). Rejecting \(Z\leq z_\alpha\) is not the aim; SatuTe rejects subtree independence when \(Z>z_\alpha\), and therefore calls branch \(AB\) phylogenetically informative. Failure to reject means that \(AB\) is treated as saturated.
 
-This construction tests whether the dominant surviving spectral direction links \(T_A\) and \(T_B\). Under a general time-reversible (GTR) model, \(\lambda_1\), \(\lambda_2\) and \(\lambda_3\) are usually distinct. Their eigenvectors \(h_i\) describe different directions in nucleotide state space, while their eigenvalues describe different decay rates along branch \(AB\). A statistic that uses only \(C_{\partial 1}\) can omit signal carried by \(h_2\) or \(h_3\). A statistic that sums all \(C_{\partial i}\) equally treats rapidly decaying modes as if they persist over long branches. The weighted statistic tested here uses all non-stationary modes but scales them by their relative decay.
+This construction tests whether the dominant surviving spectral direction links \(T_A\) and \(T_B\). Under a general time-reversible (GTR) model, \(\lambda_1\), \(\lambda_2\) and \(\lambda_3\) are usually distinct. Their eigenvectors \(h_i\) describe different directions in nucleotide state space, while their eigenvalues describe different decay rates along branch \(AB\). A statistic that uses only \(C_{\partial 1}\) can omit signal carried by \(h_2\) or \(h_3\). The weighted statistic tested here allows non-dominant directions to contribute only through the relative decay implied by the fitted model.
 
 \begin{figure}[htbp]
   \centering
@@ -123,7 +123,7 @@ which is the multiplicity-three expression used by SatuTe. Thus, the weighted st
 
 Under a typical GTR model, the second largest eigenvalue has multiplicity one. The published statistic therefore uses \(C_{\partial 1}\), the most persistent non-stationary direction. This choice follows the slowest approach to stationarity. It can, however, discard signal in \(h_2\) and \(h_3\) when branch \(AB\) is short enough that those directions remain visible.
 
-The unweighted all-mode alternative, \(C_{\partial}^{\mathrm{all}}=\sum_{i=1}^{3}C_{\partial i}\), can detect additional spectral agreement, but it does not account for different decay rates. The weighted statistic in \cref{eq-weighted-coherence} separates these two effects. For short branches, \(w_i(t)\) remains close to one and multiple directions can contribute. For long branches, \(w_i(t)\) approaches zero for faster modes and the statistic approaches the dominant SatuTe coefficient.
+The weighted statistic in \cref{eq-weighted-coherence} separates direction from persistence. For short branches, \(w_i(t)\) remains close to one and multiple directions can contribute. For long branches, \(w_i(t)\) approaches zero for faster modes and the statistic approaches the dominant SatuTe coefficient.
 
 \subsection*{The original SatuTe simulations define the baseline}
 
@@ -147,9 +147,9 @@ The four analysis scenarios are also part of the statistical design, not merely 
 
 The empirical comparison cannot be based on a small reduced run. A reduced run can test software wiring, branch selection and file parsing, but it cannot support claims about power, calibration or trustworthiness. The validation for this extension therefore starts by reproducing the SatuTe simulation design before adding GTR alternatives. In the JC baseline, branch length \(AB\) varies over \(\{0.1,0.2,0.3,0.4,0.5,0.8,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,7.5,10.0\}\), with \(1{,}000\) alignments per parameter combination and sequence lengths \(n=100,1{,}000,10{,}000\). The five-taxon case uses the \(B\mid A_1,A_2,A_3,A_4\) split described in the manuscript archive. The 16-taxon case uses the central \(A_1,\ldots,A_8\mid B_1,\ldots,B_8\) split with subtree branch lengths sampled from the EvoNAPS empirical distributions.
 
-After the JC baseline reproduces the published behavior, the extension can be evaluated under GTR. The comparison is paired. One simulated alignment, one random seed, one analysis scenario and one target branch define a replicate. On that same replicate, the analysis computes the published dominant coefficient \(C_{\partial 1}\), the unweighted all-mode coefficient \(C_{\partial}^{\mathrm{all}}\), and the eigenvalue-weighted coefficient \(C_{\partial}^{\lambda}(t)\). The same one-sided normal test, the same \(\alpha\), and the same \(m_A m_B\) Bonferroni threshold are then applied to all three statistics. The endpoints are type I error under subtree independence, power under known informative branches, behavior under maximum-likelihood branch-length estimation, and inflation under maximum-likelihood topology selection with and without the Bonferroni correction.
+After the JC baseline reproduces the published behavior, the extension can be evaluated under GTR. The comparison is paired. One simulated alignment, one random seed, one analysis scenario and one target branch define a replicate. On that same replicate, the analysis computes the published dominant coefficient \(C_{\partial 1}\) and the eigenvalue-weighted coefficient \(C_{\partial}^{\lambda}(t)\). The same one-sided normal test, the same \(\alpha\), and the same \(m_A m_B\) Bonferroni threshold are then applied to both statistics. The endpoints are type I error under subtree independence, power under known informative branches, behavior under maximum-likelihood branch-length estimation, and inflation under maximum-likelihood topology selection with and without the Bonferroni correction.
 
-The paired design changes the reporting. Power curves still show the fraction of replicates called informative, but each parameter combination should also include a discordance table: dominant-only, all-mode-only, weighted-only, all-mode versus weighted disagreements, and all formulas agreeing. McNemar tests on paired decisions and paired summaries of \(Z_{\lambda}(t)-Z_1\) or \(-\log_{10}P_{\lambda}+\log_{10}P_1\) compare formulas on the same simulated alignments and remove simulation noise shared by all formulas.
+The paired design changes the reporting. Power curves still show the fraction of replicates called informative, but each parameter combination should also include a discordance table: dominant-only, weighted-only and agreement. McNemar tests on paired decisions and paired summaries of \(Z_{\lambda}(t)-Z_1\) or \(-\log_{10}P_{\lambda}+\log_{10}P_1\) compare formulas on the same simulated alignments and remove simulation noise shared by both formulas.
 
 \begin{table}[htbp]
   \centering
@@ -165,19 +165,51 @@ The paired design changes the reporting. Power curves still show the fraction of
     Replicates & \(1{,}000\) per combination & \(1{,}000\) per combination \\
     Simulator & Seq-Gen-compatible JC design & GTR matrices with controlled spectra \\
     Scenarios & True fixed, true ML lengths, ML tree, Bonferroni & Same scenarios \\
-    Replicate unit & One alignment, one scenario, one target branch & Same replicate for every formula \\
+    Replicate unit & One alignment, one scenario, one target branch & Same replicate for both formulas \\
     Test threshold & Same \(\alpha\), same Bonferroni rule & Same \(\alpha\), same Bonferroni rule \\
-    Statistics & \(C_{\partial 1}\) & \(C_{\partial 1}\), \(C_{\partial}^{\mathrm{all}}\), \(C_{\partial}^{\lambda}(t)\) \\
+    Statistics & \(C_{\partial 1}\) & \(C_{\partial 1}\), \(C_{\partial}^{\lambda}(t)\) \\
     Main comparison & Calibration of SatuTe baseline & Paired decisions and paired \(Z\)-score differences \\
     \bottomrule
   \end{tabular}
 \end{table}
 
+\subsection*{Biological sliding-window rerun}
+
+The curated biological rerun applies the same extension to the manuscript 16S rRNA Tree-of-Life dataset. The dataset is the rRNA-based 3D tree with \(1{,}947\) alignment sites, a fitted GTR+F+G4 model, four rate categories and 36-site sliding windows. The focal branches are the internal branch leading to Eukaryota and the external branch leading to yeast. The comparison keeps the published SatuTe rerun, the native dominant-mode calculation and the eigenvalue-weighted statistic.
+
+For the branch leading to Eukaryota, the published SatuTe rerun marks \(822\) of \(1{,}912\) windows as saturated. The native dominant calculation marks \(895\) windows, whereas the eigenvalue-weighted statistic marks \(699\) windows. For the yeast branch, the corresponding counts are \(70\), \(83\) and \(29\) saturated windows. The difference is therefore concentrated in the same sliding-window setting used by the original paper, rather than in a simulated example.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{results/biological/enhanced_sliding_window_rerun_20260619_150104/comparison_to_manuscript/original_vs_enhanced_sliding_window_curves.pdf}
+  \caption{\textbf{Published SatuTe and eigenvalue-weighted sliding-window curves for the 16S rRNA Tree-of-Life example.} The curves compare the manuscript SatuTe rerun with the native dominant calculation and the eigenvalue-weighted statistic for the branches leading to Eukaryota and yeast.}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.72\textwidth]{results/biological/enhanced_sliding_window_rerun_20260619_150104/comparison_to_manuscript/original_vs_enhanced_saturated_windows.pdf}
+  \caption{\textbf{Number of saturated sliding windows in the 16S rRNA Tree-of-Life example.} The eigenvalue-weighted statistic changes the number of windows classified as saturated while using the same 36-site windows and the same branch targets.}
+\end{figure}
+
+A second biological rerun uses an independent implementation that does not read SatuTe component files or SatuTe result trees. It recomputes the sliding-window scores from the IQ-TREE treefile, model report, site-probability output and the original alignments. This run covers both Tree-of-Life examples from the manuscript: the ribosomal protein alignment on the protein-based 2D tree under LG+G4, and the 16S rRNA alignment on the rRNA-based 3D tree under GTR+G4. In the protein 2D tree, the branch leading to Eukaryota has \(2{,}561\) windows, with \(138\) saturated windows in the published SatuTe rerun and \(5\) in the eigenvalue-weighted calculation. The yeast branch also has \(2{,}561\) windows, with counts \(54\) and \(8\). In the 16S rRNA 3D tree, the branch leading to Eukaryota has \(1{,}912\) windows, with counts \(822\) and \(699\). The yeast branch has \(1{,}912\) windows, with counts \(70\) and \(29\).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{results/biological/independent_enhanced_sliding_window_20260619_151135/comparison_to_manuscript/published_vs_eigenvalue_weighted_curves.pdf}
+  \caption{\textbf{Independent eigenvalue-weighted sliding-window curves for the protein 2D and 16S rRNA 3D Tree-of-Life examples.} The independent calculation compares the published SatuTe sliding-window score with the eigenvalue-weighted statistic on the same 36-site windows and target branches.}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{results/biological/independent_enhanced_sliding_window_20260619_151135/comparison_to_manuscript/published_vs_eigenvalue_weighted_saturated_windows.pdf}
+  \caption{\textbf{Saturated-window counts in the independent biological comparison.} Counts are shown for the branch leading to Eukaryota and the branch leading to yeast in the protein-based 2D tree and the 16S rRNA-based 3D tree.}
+\end{figure}
+
 \section*{Discussion}
 
 The extension changes the spectral aggregation step while keeping the SatuTe null test. SatuTe already derives branch saturation from the spectral decomposition of \(\operatorname{Diag}(\pi)P(t)\). The weighted statistic asks whether the coefficient tested by SatuTe should remain restricted to the single slowest mode under GTR, or whether other model-defined directions should contribute according to their expected persistence over branch \(AB\). Because the formula is built from \(C_{\partial i}\), \(\lambda_i\), \(\hat\sigma_{A,i,j}^{2}\), \(\hat\sigma_{B,i,j}^{2}\) and \(Z\), it keeps the notation and null logic of the original method.
 
-This distinction can be framed as a calibration problem. The published \(C_{\partial 1}\) statistic is stringent in GTR because it tests only the slowest surviving non-stationary direction. The unweighted all-mode statistic is less stringent because it allows any spectral direction to contribute equally. The eigenvalue-weighted statistic allows all eigenvectors to contribute, but scales each contribution by the decay rate implied by the fitted model. On long branches, this makes the method approach the dominant SatuTe statistic. On short branches, non-dominant directions can still contribute.
+This distinction can be framed as a calibration problem. The published \(C_{\partial 1}\) statistic is stringent in GTR because it tests only the slowest surviving non-stationary direction. The eigenvalue-weighted statistic allows additional eigenvectors to contribute, but scales each contribution by the decay rate implied by the fitted model. On long branches, this makes the method approach the dominant SatuTe statistic. On short branches, non-dominant directions can still contribute.
 
 The method is an extension rather than a replacement. The dominant SatuTe coefficient remains the reference statistic for branch saturation in IQ-TREE until the weighted statistic has been calibrated under the full simulation grid. If calibration supports the weighted test, it would add a model-aware diagnostic: not only whether two subtrees agree, but whether they agree in spectral directions that the fitted substitution model predicts should remain visible across the focal branch.
 
@@ -189,21 +221,21 @@ The notation follows SatuTe. A branch \(AB\) separates subtrees \(T_A\) and \(T_
 
 \subsection*{Weighted estimator}
 
-For each site \(s\), compute \(C_{\partial_s i}\) for all non-stationary modes. For branch length \(t\), compute \(w_i(t)=\exp\{(\lambda_i-\lambda_1)t\}\). Then compute \(\hat C_{\lambda}(t)\), \(\hat\sigma_{\lambda}^{2}(t)\) and \(Z_{\lambda}(t)\) using \cref{eq-weighted-mean,eq-weighted-variance,eq-weighted-z}. If a model has a repeated second largest eigenvalue, all modes in that eigenspace have weight one. For JC, this gives the published SatuTe statistic.
+For each site \(s\), compute \(C_{\partial_s i}\) for the non-stationary modes. For branch length \(t\), compute \(w_i(t)=\exp\{(\lambda_i-\lambda_1)t\}\). Then compute \(\hat C_{\lambda}(t)\), \(\hat\sigma_{\lambda}^{2}(t)\) and \(Z_{\lambda}(t)\) using \cref{eq-weighted-mean,eq-weighted-variance,eq-weighted-z}. If a model has a repeated second largest eigenvalue, each direction in that eigenspace has weight one. For JC, this gives the published SatuTe statistic.
 
 \subsection*{Simulation protocol}
 
-The baseline simulation first reproduces the published JC design. DNA alignments are generated with Seq-Gen, using the same tree cases, branch-length grid, sequence lengths and replicate count used for SatuTe. The five-taxon tree is a balanced four-taxon subtree \(T_A\) with all subtree branches set to 0.2 and a single taxon \(B\) attached by branch \(AB\). The 16-taxon tree is built from two balanced eight-taxon subtrees whose internal and external branch lengths are sampled from EvoNAPS-derived pools in the interval 0.04 to 0.2. Each alignment is analyzed under four scenarios: the true simulation tree with fixed true branch lengths, the true topology with maximum-likelihood branch lengths, the maximum-likelihood inferred tree, and the maximum-likelihood inferred tree with Bonferroni threshold \( \alpha/(m_A m_B) \). The GTR extension then repeats the same topologies and scenario logic with rate matrices chosen to span weak, moderate and strong separation between \(\lambda_1\), \(\lambda_2\) and \(\lambda_3\). Within each replicate, all formulas are evaluated on the same inferred or supplied tree, the same estimated branch length and the same target split.
+The baseline simulation first reproduces the published JC design. DNA alignments are generated with Seq-Gen, using the same tree cases, branch-length grid, sequence lengths and replicate count used for SatuTe. The five-taxon tree is a balanced four-taxon subtree \(T_A\) with all subtree branches set to 0.2 and a single taxon \(B\) attached by branch \(AB\). The 16-taxon tree is built from two balanced eight-taxon subtrees whose internal and external branch lengths are sampled from EvoNAPS-derived pools in the interval 0.04 to 0.2. Each alignment is analyzed under four scenarios: the true simulation tree with fixed true branch lengths, the true topology with maximum-likelihood branch lengths, the maximum-likelihood inferred tree, and the maximum-likelihood inferred tree with Bonferroni threshold \( \alpha/(m_A m_B) \). The GTR extension then repeats the same topologies and scenario logic with rate matrices chosen to span weak, moderate and strong separation between \(\lambda_1\), \(\lambda_2\) and \(\lambda_3\). Within each replicate, both formulas are evaluated on the same inferred or supplied tree, the same estimated branch length and the same target split.
 
 \subsection*{Implementation status}
 
-The local rerun script implements the paired design and the paper topologies. It records the simulator, branch-length source, target split, scenario, formula, \(Z\)-score, \(P\)-value and decision for every replicate. The script supports a direct rerun mode with Seq-Gen and an external EvoNAPS branch-length table, and a development-check mode using IQ-TREE AliSim with fixed 0.1 subtree branches when the raw EvoNAPS branch-length pools are not available. The development-check mode tests the IQ-TREE integration and formula comparison, but it is not evidence for the manuscript claims.
+The local rerun script implements the paired design and the paper topologies. It records the simulator, branch-length source, target split, scenario, formula, \(Z\)-score, \(P\)-value and decision for every replicate. The script supports a direct rerun mode with Seq-Gen and an external EvoNAPS branch-length table, and a development-check mode using IQ-TREE AliSim with fixed 0.1 subtree branches when the raw EvoNAPS branch-length pools are not available. The development-check mode tests the IQ-TREE integration and formula comparison, but it is not evidence for the manuscript claims. The biological sliding-window reruns are stored with the curated biological results accompanying this manuscript.
 
 An exact rerun still requires three external inputs that are not present in the manuscript archive: the Seq-Gen binary, the raw EvoNAPS internal and external branch-length samples used for the 16-taxon simulations, and TreeShredder or an equivalent split-checking procedure to discard maximum-likelihood trees that do not recover the \(AB\) split. Without these dependencies, a run can verify code wiring but cannot claim to reproduce the original SatuTe simulation curves.
 
 \section*{Data availability}
 
-No full-scale simulation data are reported in this draft. The SatuTe source paper, the manuscript archive and public repositories are available from the cited sources. The local repository contains reduced outputs used only to verify command wiring, branch selection and paired formula evaluation.
+No full-scale simulation data are reported in this draft. The SatuTe source paper, the manuscript archive and public repositories are available from the cited sources. The local repository contains reduced simulation outputs used only to verify command wiring, branch selection and paired formula evaluation, and it contains the curated biological reruns used for the sliding-window figures.
 
 \section*{Code availability}
 

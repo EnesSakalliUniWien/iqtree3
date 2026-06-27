@@ -23,18 +23,17 @@ Under subtree independence, the expected value of this product is zero.
 
 In the JC model, all three non-stationary eigenvalues are equal. The dominant
 non-stationary eigenspace therefore contains all three directions, and the
-published statistic, an unweighted all-mode statistic and an eigenvalue-weighted
-statistic give the same test after normalization. This provides a useful
-reference case: if the model has no spectral separation among non-stationary
-directions, eigenvalue weighting should not create one.
+published statistic and the eigenvalue-weighted statistic give the same test
+after normalization. This provides a useful reference case: if the model has no
+spectral separation among non-stationary directions, eigenvalue weighting
+should not create one.
 
 In a typical GTR model, the non-stationary eigenvalues differ. The published
 SatuTe statistic uses the slowest-decaying non-stationary direction. Other
 eigenvectors may still carry agreement between the two subtrees, but their
-eigenvalues indicate faster decay. An unweighted all-mode statistic includes
-those directions with equal weight; an eigenvalue-weighted statistic includes
-them with weights determined by their expected persistence across the focal
-branch.
+eigenvalues indicate faster decay. The eigenvalue-weighted statistic includes
+those directions with weights determined by their expected persistence across
+the focal branch.
 
 The proposed site-level weighted statistic has the form
 `sum_k exp((lambda_k - lambda_*) * branch_length) * C_k`, where `lambda_*` is
@@ -58,12 +57,10 @@ The reduced runs in this repository test the implementation, target-branch
 selection and output parsing. They are not estimates of power or calibration.
 The method comparison should be made on paired replicates: the same simulated
 alignment, target branch, inferred or supplied tree and significance threshold
-should be used for the dominant, all-unweighted and eigenvalue-weighted
-statistics.
+should be used for the dominant and eigenvalue-weighted statistics.
 
 At the current stage, the published dominant statistic remains the reference
-method. The unweighted all-mode statistic is a diagnostic for signal in
-non-dominant directions. The eigenvalue-weighted statistic is the extension to
-evaluate because it uses both eigenvectors and eigenvalues. Its status depends
-on the full simulation analysis, including type I error, power and behavior
-under maximum-likelihood tree selection.
+method. The eigenvalue-weighted statistic is the extension to evaluate because
+it uses both eigenvectors and eigenvalues. Its status depends on the full
+simulation analysis, including type I error, power and behavior under
+maximum-likelihood tree selection.

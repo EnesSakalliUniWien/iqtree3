@@ -55,7 +55,7 @@ one-sided z-test.
 
 Under JC, the three non-stationary eigenvalues are equal. The dominant
 non-stationary eigenspace has multiplicity three, so all three non-stationary
-eigenvectors are used. Any all-mode variant collapses back to the same test
+eigenvectors are used. Eigenvalue weighting gives the same normalized test
 because there are no faster or slower non-stationary modes to separate.
 
 Under a typical GTR model, the eigenvalues split. Usually only one

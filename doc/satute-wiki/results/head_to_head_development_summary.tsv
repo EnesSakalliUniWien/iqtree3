@@ -1,49 +1,17 @@
-tree_case	model	nsites	branch_length	scenario	formula	evaluated	informative	missing_split	fraction_informative
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_bonferroni	all_unweighted	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_bonferroni	dominant	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_bonferroni	eigenvalue_weighted	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_unadjusted	all_unweighted	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_unadjusted	dominant	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_unadjusted	eigenvalue_weighted	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_topology_ml_lengths	all_unweighted	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_topology_ml_lengths	dominant	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_topology_ml_lengths	eigenvalue_weighted	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_tree_fixed_lengths	all_unweighted	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_tree_fixed_lengths	dominant	1	1	0	1.0
-five_external	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_tree_fixed_lengths	eigenvalue_weighted	1	1	0	1.0
-five_external	JC	100	0.1	ml_tree_bonferroni	all_unweighted	1	1	0	1.0
-five_external	JC	100	0.1	ml_tree_bonferroni	dominant	1	1	0	1.0
-five_external	JC	100	0.1	ml_tree_bonferroni	eigenvalue_weighted	1	1	0	1.0
-five_external	JC	100	0.1	ml_tree_unadjusted	all_unweighted	1	1	0	1.0
-five_external	JC	100	0.1	ml_tree_unadjusted	dominant	1	1	0	1.0
-five_external	JC	100	0.1	ml_tree_unadjusted	eigenvalue_weighted	1	1	0	1.0
-five_external	JC	100	0.1	true_topology_ml_lengths	all_unweighted	1	1	0	1.0
-five_external	JC	100	0.1	true_topology_ml_lengths	dominant	1	1	0	1.0
-five_external	JC	100	0.1	true_topology_ml_lengths	eigenvalue_weighted	1	1	0	1.0
-five_external	JC	100	0.1	true_tree_fixed_lengths	all_unweighted	1	1	0	1.0
-five_external	JC	100	0.1	true_tree_fixed_lengths	dominant	1	1	0	1.0
-five_external	JC	100	0.1	true_tree_fixed_lengths	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_bonferroni	all_unweighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_bonferroni	dominant	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_bonferroni	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_unadjusted	all_unweighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_unadjusted	dominant	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	ml_tree_unadjusted	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_topology_ml_lengths	all_unweighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_topology_ml_lengths	dominant	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_topology_ml_lengths	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_tree_fixed_lengths	all_unweighted	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_tree_fixed_lengths	dominant	1	1	0	1.0
-sixteen_internal	GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}	100	0.1	true_tree_fixed_lengths	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	ml_tree_bonferroni	all_unweighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	ml_tree_bonferroni	dominant	1	1	0	1.0
-sixteen_internal	JC	100	0.1	ml_tree_bonferroni	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	ml_tree_unadjusted	all_unweighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	ml_tree_unadjusted	dominant	1	1	0	1.0
-sixteen_internal	JC	100	0.1	ml_tree_unadjusted	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	true_topology_ml_lengths	all_unweighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	true_topology_ml_lengths	dominant	1	1	0	1.0
-sixteen_internal	JC	100	0.1	true_topology_ml_lengths	eigenvalue_weighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	true_tree_fixed_lengths	all_unweighted	1	1	0	1.0
-sixteen_internal	JC	100	0.1	true_tree_fixed_lengths	dominant	1	1	0	1.0
-sixteen_internal	JC	100	0.1	true_tree_fixed_lengths	eigenvalue_weighted	1	1	0	1.0
+tree_case	simulation_model	evaluation_model	nsites	branch_length	scenario	formula	evaluated	informative	missing_split	fraction_informative
+five_external	JC	JC	100	0.1	ml_tree_bonferroni	dominant	1	1	0	1.0
+five_external	JC	JC	100	0.1	ml_tree_bonferroni	eigenvalue_weighted	1	1	0	1.0
+five_external	JC	JC	100	0.1	ml_tree_unadjusted	dominant	1	1	0	1.0
+five_external	JC	JC	100	0.1	ml_tree_unadjusted	eigenvalue_weighted	1	1	0	1.0
+five_external	JC	JC	100	0.1	true_topology_ml_lengths	dominant	1	1	0	1.0
+five_external	JC	JC	100	0.1	true_topology_ml_lengths	eigenvalue_weighted	1	1	0	1.0
+five_external	JC	JC	100	0.1	true_tree_fixed_lengths	dominant	1	1	0	1.0
+five_external	JC	JC	100	0.1	true_tree_fixed_lengths	eigenvalue_weighted	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	ml_tree_bonferroni	dominant	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	ml_tree_bonferroni	eigenvalue_weighted	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	ml_tree_unadjusted	dominant	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	ml_tree_unadjusted	eigenvalue_weighted	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	true_topology_ml_lengths	dominant	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	true_topology_ml_lengths	eigenvalue_weighted	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	true_tree_fixed_lengths	dominant	1	1	0	1.0
+sixteen_internal	JC	JC	100	0.1	true_tree_fixed_lengths	eigenvalue_weighted	1	1	0	1.0

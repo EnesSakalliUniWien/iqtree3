@@ -87,10 +87,10 @@ are too different, to support claims about the published power curves.
 
 The enhancement is evaluated on paired replicates. For each simulated
 alignment and each analysis scenario, the same target branch is evaluated by
-the dominant SatuTe statistic, the unweighted all-mode statistic, and the
-eigenvalue-weighted statistic. The same unadjusted or Bonferroni-adjusted
-threshold is then applied to all formulas. This produces paired decision rows
-and discordance counts between formulas.
+the published dominant SatuTe statistic and the eigenvalue-weighted statistic.
+The same unadjusted or Bonferroni-adjusted threshold is then applied to both
+formulas. This produces paired decision rows and discordance counts between the
+published and enhanced tests.
 
 Smoke-test command:
 
@@ -103,7 +103,9 @@ ${PYTHON_BIN:-python3} \
   --site-lengths 100 \
   --branch-lengths 0.1 \
   --tree-cases five_external,sixteen_internal \
-  --models JC \
+  --simulation-models JC \
+  --evaluation-models JC \
+  --scenario-set fig2 \
   --simulator alisim
 ```
 
@@ -120,7 +122,9 @@ ${PYTHON_BIN:-python3} \
   --reps 1000 \
   --paper-grid \
   --tree-cases five_external,sixteen_internal \
-  --models JC
+  --simulation-models JC \
+  --evaluation-models JC \
+  --scenario-set fig2
 ```
 
 For full EC2 execution, use `doc/satute-wiki/aws/run_full_head_to_head_shard.sh`
@@ -139,6 +143,43 @@ frequencies `0.125,0.436,0.191,0.245`, then evaluate under correctly specified
 GTR and under misspecified JC, K2P and F81. An eigenvector enhancement should
 be evaluated on these paired designs rather than added as a placeholder GTR
 model in the Fig. 2 reproduction.
+
+The corresponding supplementary command shape is:
+
+```bash
+${PYTHON_BIN:-python3} \
+  doc/satute-wiki/head_to_head_satute_simulations.py \
+  --iqtree ./build/iqtree3 \
+  --seqgen /path/to/seq-gen \
+  --simulator seq-gen \
+  --evonaps-branch-lengths /path/to/evonaps_branch_lengths.tsv \
+  --outdir /tmp/iqtree-satute-misspecification-full \
+  --reps 1000 \
+  --paper-grid \
+  --tree-cases five_external,sixteen_internal \
+  --simulation-models GTR_PF06346 \
+  --evaluation-models GTR_PF06346,JC,K2P,F81 \
+  --scenario-set misspecification
+```
+
+Skewed GTR models are useful for stress-testing the eigenvalue-weighted
+calculation, but they are not part of the published simulation reproduction.
+Use exact model pairs for this extension:
+
+```bash
+${PYTHON_BIN:-python3} \
+  doc/satute-wiki/head_to_head_satute_simulations.py \
+  --iqtree ./build/iqtree3 \
+  --seqgen /path/to/seq-gen \
+  --simulator seq-gen \
+  --evonaps-branch-lengths /path/to/evonaps_branch_lengths.tsv \
+  --outdir /tmp/iqtree-satute-skewed-gtr-extension \
+  --reps 1000 \
+  --paper-grid \
+  --tree-cases five_external,sixteen_internal \
+  --model-pairs GTR_SKEW_FREQ:GTR_SKEW_FREQ,GTR_SKEW_RATES:GTR_SKEW_RATES,GTR_SKEW_BOTH:GTR_SKEW_BOTH \
+  --scenario-set all
+```
 
 ## Full Grid Command
 

@@ -47,13 +47,13 @@ products, or vendored Seq-Gen source/binaries. Those paths are ignored by
 3. [03-reconstruct-paper-simulations.md](03-reconstruct-paper-simulations.md)
    documents the full Fig. 2 simulation target and the reduced development
    script used for command-line verification.
-4. [04-new-eigenvalue-statistic.md](04-new-eigenvalue-statistic.md) separates
-   the published dominant-mode statistic from the new all-mode and
-   eigenvalue-decay weighted statistics.
+4. [04-new-eigenvalue-statistic.md](04-new-eigenvalue-statistic.md) defines
+   the eigenvalue-weighted statistic as an extension of the published
+   dominant-mode statistic.
 5. [head_to_head_satute_simulations.py](head_to_head_satute_simulations.py)
    is the paired simulation driver: one simulated alignment is evaluated by
-   the dominant, all-mode and eigenvalue-weighted tests under the same
-   scenario and threshold.
+   the published dominant and eigenvalue-weighted tests under the same scenario
+   and threshold.
 6. [short-addendum-paper.tex](short-addendum-paper.tex) is a manuscript draft
    for the eigenvalue-weighted extension. It uses the SatuTe notation and does
    not present the reduced development checks as empirical evidence. The
@@ -74,12 +74,14 @@ ${PYTHON_BIN:-python3} \
   --site-lengths 100 \
   --branch-lengths 0.1 \
   --tree-cases five_external,sixteen_internal \
-  --models JC \
+  --simulation-models JC \
+  --evaluation-models JC \
+  --scenario-set fig2 \
   --simulator alisim
 ```
 
 The output has one row per replicate, analysis scenario and formula. The same
-alignment and target branch are evaluated by the dominant, all-mode and
+alignment and target branch are evaluated by the published dominant and
 eigenvalue-weighted statistics.
 
 The verified development-check outputs are:
@@ -87,6 +89,57 @@ The verified development-check outputs are:
 ```text
 doc/satute-wiki/results/head_to_head_development_detail.tsv
 doc/satute-wiki/results/head_to_head_development_summary.tsv
+```
+
+## Biological Rerun Results
+
+The curated biological rerun is:
+
+```text
+doc/satute-wiki/results/biological/enhanced_sliding_window_rerun_20260619_150104/
+```
+
+This run restores the 16S rRNA Tree-of-Life sliding-window analysis for the
+branch leading to Eukaryota and the branch leading to yeast. It contains the
+published SatuTe rerun, the native dominant-mode calculation and the
+eigenvalue-weighted calculation, with the comparison figures:
+
+```text
+comparison_to_manuscript/original_vs_enhanced_sliding_window_curves.pdf
+comparison_to_manuscript/original_vs_enhanced_saturated_windows.pdf
+comparison_to_manuscript/original_vs_enhanced_summary.tsv
+```
+
+The rerun uses the manuscript GTR+F+G4 nucleotide model and four rate
+categories. The protein LG+G4 Tree-of-Life dataset was not recomputed with the
+enhanced statistic in this run.
+
+The comparison figures can be regenerated from the curated tables with:
+
+```bash
+python3 doc/satute-wiki/plot_biological_comparison.py
+```
+
+The independent biological comparison is:
+
+```text
+doc/satute-wiki/results/biological/independent_enhanced_sliding_window_20260619_151135/
+```
+
+This run includes both manuscript Tree-of-Life examples. The protein analysis
+uses `protein_based_2D_tree` with `trees/protein_based_2D_ToL.treefile`; the
+16S rRNA analysis uses `rRNA_based_3D_tree` with
+`trees/rRNA_based_3D_ToL.treefile`. In the protein 2D tree, the branch leading
+to Eukaryota has 2,561 windows, with 138 saturated windows in the published
+SatuTe rerun and 5 in the eigenvalue-weighted calculation. The yeast branch has
+2,561 windows, with counts 54 and 8. In the 16S rRNA 3D tree, the branch
+leading to Eukaryota has 1,912 windows, with counts 822 and 699. The yeast
+branch has 1,912 windows, with counts 70 and 29.
+
+The independent comparison figures can be regenerated with:
+
+```bash
+python3 doc/satute-wiki/plot_independent_biological_comparison.py
 ```
 
 ## Paper-Faithful Rerun Target
@@ -112,7 +165,9 @@ ${PYTHON_BIN:-python3} \
   --reps 1000 \
   --paper-grid \
   --tree-cases five_external,sixteen_internal \
-  --models JC
+  --simulation-models JC \
+  --evaluation-models JC \
+  --scenario-set fig2
 ```
 
 This command is JC-only because Fig. 2 in the paper simulated and evaluated
@@ -130,6 +185,44 @@ frequencies A=0.125, C=0.436, G=0.191, T=0.245
 That supplementary experiment should simulate with `GTR_PF06346` and evaluate
 separately under the correctly specified GTR model and the misspecified JC,
 K2P and F81 models. It should not be mixed into the Fig. 2 reproduction.
+
+Supplementary command shape:
+
+```bash
+${PYTHON_BIN:-python3} \
+  doc/satute-wiki/head_to_head_satute_simulations.py \
+  --iqtree ./build/iqtree3 \
+  --seqgen /path/to/seq-gen \
+  --simulator seq-gen \
+  --evonaps-branch-lengths /path/to/evonaps_branch_lengths.tsv \
+  --outdir /tmp/iqtree-satute-misspecification-full \
+  --reps 1000 \
+  --paper-grid \
+  --tree-cases five_external,sixteen_internal \
+  --simulation-models GTR_PF06346 \
+  --evaluation-models GTR_PF06346,JC,K2P,F81 \
+  --scenario-set misspecification
+```
+
+Skewed GTR analyses are extension experiments, not reproductions of the
+published simulation figures. Run them as explicit model pairs so that each
+simulation model is evaluated under the intended model rather than as an
+accidental cross-product:
+
+```bash
+${PYTHON_BIN:-python3} \
+  doc/satute-wiki/head_to_head_satute_simulations.py \
+  --iqtree ./build/iqtree3 \
+  --seqgen /path/to/seq-gen \
+  --simulator seq-gen \
+  --evonaps-branch-lengths /path/to/evonaps_branch_lengths.tsv \
+  --outdir /tmp/iqtree-satute-skewed-gtr-extension \
+  --reps 1000 \
+  --paper-grid \
+  --tree-cases five_external,sixteen_internal \
+  --model-pairs GTR_SKEW_FREQ:GTR_SKEW_FREQ,GTR_SKEW_RATES:GTR_SKEW_RATES,GTR_SKEW_BOTH:GTR_SKEW_BOTH \
+  --scenario-set all
+```
 
 The EvoNAPS table must contain a branch type column named `type`, `kind`, or
 `branch_type` with values starting with `internal` or `external`, and a length
