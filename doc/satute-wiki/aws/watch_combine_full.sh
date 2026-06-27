@@ -7,7 +7,8 @@ OUTDIR="${OUTDIR:-${ROOT_DIR}/doc/satute-wiki/results/full-run}"
 FIGURE_DIR="${FIGURE_DIR:-${ROOT_DIR}/doc/satute-wiki/figures/full-run}"
 EXPECTED_REPS="${EXPECTED_REPS:-1000}"
 TREE_CASES="${TREE_CASES:-five_external}"
-PLOT_MODELS="${PLOT_MODELS:-JC}"
+PLOT_MODEL_PAIRS="${PLOT_MODEL_PAIRS:-JC:JC}"
+PLOT_SCENARIO_SET="${PLOT_SCENARIO_SET:-fig2}"
 POLL_SECONDS="${POLL_SECONDS:-60}"
 
 worker_count() {
@@ -34,5 +35,6 @@ OUTDIR="${OUTDIR}" \
 FIGURE_DIR="${FIGURE_DIR}" \
 EXPECTED_REPS="${EXPECTED_REPS}" \
 TREE_CASES="${TREE_CASES}" \
-PLOT_MODELS="${PLOT_MODELS}" \
+PLOT_MODEL_PAIRS="${PLOT_MODEL_PAIRS}" \
+PLOT_SCENARIO_SET="${PLOT_SCENARIO_SET}" \
 "${ROOT_DIR}/doc/satute-wiki/aws/combine_verify_plot_full.sh"

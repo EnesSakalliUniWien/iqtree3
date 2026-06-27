@@ -43,7 +43,9 @@ OUTDIR=/work/output/satute-head-to-head \
 REPS=1000 \
 SHARD_INDEX=${AWS_BATCH_JOB_ARRAY_INDEX} \
 SHARD_COUNT=200 \
-MODELS=JC \
+SIMULATION_MODELS=JC \
+EVALUATION_MODELS=JC \
+SCENARIO_SET=fig2 \
 TREE_CASES=five_external,sixteen_internal \
   /work/iq-tree-satute/doc/satute-wiki/aws/run_full_head_to_head_shard.sh
 ```
@@ -53,9 +55,29 @@ analysis is the separate Supplementary Fig. model-misspecification experiment
 using the EvoNAPS PF06346 model alias `GTR_PF06346`; do not add it to the Fig.
 2 rerun.
 
+For the supplementary GTR model-misspecification contract, use:
+
+```bash
+SIMULATION_MODELS=GTR_PF06346 \
+EVALUATION_MODELS=GTR_PF06346,JC,K2P,F81 \
+SCENARIO_SET=misspecification \
+TREE_CASES=five_external,sixteen_internal \
+  /work/iq-tree-satute/doc/satute-wiki/aws/run_full_head_to_head_shard.sh
+```
+
+For matched skewed-GTR extension runs, use exact model pairs:
+
+```bash
+MODEL_PAIRS=GTR_SKEW_FREQ:GTR_SKEW_FREQ,GTR_SKEW_RATES:GTR_SKEW_RATES,GTR_SKEW_BOTH:GTR_SKEW_BOTH \
+SCENARIO_SET=all \
+TREE_CASES=five_external,sixteen_internal \
+  /work/iq-tree-satute/doc/satute-wiki/aws/run_full_head_to_head_shard.sh
+```
+
 If a shard is interrupted after writing partial output, rerun the same shard
 with `RESUME=1`. The driver appends to the existing detail TSV and skips
-replicate tasks that already have the expected twelve rows.
+replicate tasks that already have the expected row count for the selected
+scenario set and model pair.
 
 ## Combine, Verify And Plot
 
@@ -69,7 +91,8 @@ OUTDIR=/work/output/full-run-results \
 FIGURE_DIR=/work/output/full-run-figures \
 EXPECTED_REPS=1000 \
 TREE_CASES=five_external,sixteen_internal \
-PLOT_MODELS=JC \
+PLOT_MODEL_PAIRS=JC:JC \
+PLOT_SCENARIO_SET=fig2 \
   /work/iq-tree-satute/doc/satute-wiki/aws/combine_verify_plot_full.sh
 ```
 
@@ -80,8 +103,8 @@ This command:
 3. Verifies that the dominant formula matches IQ-TREE SatuTe and that JC
    collapses across formulas.
 4. Generates model-specific manuscript plots:
-   - `figure_simulated_data_main_reproduction_JC.svg/pdf`
-   - `figure_head_to_head_formula_comparison_JC.svg/pdf`
+   - `figure_simulated_data_main_reproduction_sim_JC__eval_JC.svg/pdf`
+   - `figure_head_to_head_formula_comparison_sim_JC__eval_JC.svg/pdf`
 
 The plotter refuses incomplete paper-scale input unless `--allow-incomplete` is
 passed manually. Do not use `--allow-incomplete` for manuscript figures.

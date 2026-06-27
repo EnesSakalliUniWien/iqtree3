@@ -13,7 +13,8 @@ def aggregate(detail_path, summary_path):
         for row in reader:
             key = (
                 row["tree_case"],
-                row["model"],
+                row["simulation_model"],
+                row["evaluation_model"],
                 row["nsites"],
                 row["branch_length"],
                 row["scenario"],
@@ -28,7 +29,8 @@ def aggregate(detail_path, summary_path):
     with open(summary_path, "w", encoding="utf-8", newline="") as handle:
         fieldnames = [
             "tree_case",
-            "model",
+            "simulation_model",
+            "evaluation_model",
             "nsites",
             "branch_length",
             "scenario",
@@ -40,18 +42,19 @@ def aggregate(detail_path, summary_path):
         ]
         writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
-        for key in sorted(groups, key=lambda x: (x[0], x[1], int(x[2]), float(x[3]), x[4], x[5])):
+        for key in sorted(groups, key=lambda x: (x[0], x[1], x[2], int(x[3]), float(x[4]), x[5], x[6])):
             group = groups[key]
             evaluated = group["evaluated"]
             fraction = group["informative"] / evaluated if evaluated else ""
             writer.writerow(
                 {
                     "tree_case": key[0],
-                    "model": key[1],
-                    "nsites": key[2],
-                    "branch_length": key[3],
-                    "scenario": key[4],
-                    "formula": key[5],
+                    "simulation_model": key[1],
+                    "evaluation_model": key[2],
+                    "nsites": key[3],
+                    "branch_length": key[4],
+                    "scenario": key[5],
+                    "formula": key[6],
                     "evaluated": evaluated,
                     "informative": group["informative"],
                     "missing_split": group["missing"],

@@ -11,7 +11,7 @@ def load_rows(path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Verify paired SatuTe formula calculation invariants.")
+    parser = argparse.ArgumentParser(description="Verify paired SatuTe calculation invariants.")
     parser.add_argument("--detail", required=True)
     parser.add_argument("--z-tolerance", type=float, default=1e-6)
     args = parser.parse_args()
@@ -33,10 +33,11 @@ def main():
 
     jc_by_replicate = defaultdict(dict)
     for row in rows:
-        if row["model"] != "JC" or row["target_found"] != "1":
+        if row["evaluation_model"] != "JC" or row["target_found"] != "1":
             continue
         key = (
             row["tree_case"],
+            row["simulation_model"],
             row["nsites"],
             row["branch_length"],
             row["replicate"],
@@ -45,7 +46,7 @@ def main():
         jc_by_replicate[key][row["formula"]] = float(row["satZ"])
 
     mismatches = []
-    required = {"dominant", "all", "eigenvalue_weighted"}
+    required = {"dominant", "eigenvalue_weighted"}
     for key, values in jc_by_replicate.items():
         if not required <= values.keys():
             continue
@@ -56,7 +57,7 @@ def main():
     if mismatches:
         first_key, first_spread = mismatches[0]
         raise SystemExit(
-            f"JC formulas do not collapse for {len(mismatches)} replicate/scenario rows; "
+            f"JC dominant and eigenvalue-weighted statistics do not collapse for {len(mismatches)} replicate/scenario rows; "
             f"first={first_key}, Z spread={first_spread}"
         )
 

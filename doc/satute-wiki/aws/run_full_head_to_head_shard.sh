@@ -10,7 +10,10 @@ OUTDIR="${OUTDIR:-/work/satute-head-to-head}"
 REPS="${REPS:-1000}"
 SHARD_INDEX="${SHARD_INDEX:-${AWS_BATCH_JOB_ARRAY_INDEX:-0}}"
 SHARD_COUNT="${SHARD_COUNT:-1}"
-MODELS="${MODELS:-JC}"
+SIMULATION_MODELS="${SIMULATION_MODELS:-JC}"
+EVALUATION_MODELS="${EVALUATION_MODELS:-${SIMULATION_MODELS}}"
+MODEL_PAIRS="${MODEL_PAIRS:-}"
+SCENARIO_SET="${SCENARIO_SET:-fig2}"
 TREE_CASES="${TREE_CASES:-five_external}"
 RESUME="${RESUME:-0}"
 
@@ -30,13 +33,19 @@ cmd=(
   --reps "${REPS}" \
   --paper-grid \
   --tree-cases "${TREE_CASES}" \
-  --models "${MODELS}" \
+  --simulation-models "${SIMULATION_MODELS}" \
+  --evaluation-models "${EVALUATION_MODELS}" \
+  --scenario-set "${SCENARIO_SET}" \
   --shard-index "${SHARD_INDEX}" \
   --shard-count "${SHARD_COUNT}"
 )
 
 if [[ -n "${EVONAPS_BRANCH_LENGTHS}" ]]; then
   cmd+=(--evonaps-branch-lengths "${EVONAPS_BRANCH_LENGTHS}")
+fi
+
+if [[ -n "${MODEL_PAIRS}" ]]; then
+  cmd+=(--model-pairs "${MODEL_PAIRS}")
 fi
 
 if [[ "${RESUME}" == "1" || "${RESUME}" == "true" ]]; then

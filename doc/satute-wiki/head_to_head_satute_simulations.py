@@ -19,14 +19,66 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 
-STATE_INDEX = {"A": 0, "C": 1, "G": 2, "T": 3}
+DNA_STATE_INDEX = {"A": 0, "C": 1, "G": 2, "T": 3, "U": 3}
+AA_ALPHABET = "ARNDCQEGHILKMFPSTWYV"
+AA_STATE_INDEX = {symbol: index for index, symbol in enumerate(AA_ALPHABET)}
 PAPER_BRANCH_LENGTHS = "0.1,0.2,0.3,0.4,0.5,0.8,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,7.5,10.0"
 GTR_PF06346_MODEL = "GTR{0.6676,3.7807,4.2833,0.5354,0.8718,1.0}+F{0.125,0.436,0.191,0.245}"
+GTR_SKEW_FREQ_MODEL = "GTR{1.0,1.0,1.0,1.0,1.0,1.0}+F{0.70,0.10,0.10,0.10}"
+GTR_SKEW_RATES_MODEL = "GTR{0.05,8.0,0.10,0.10,5.0,0.05}+F{0.25,0.25,0.25,0.25}"
+GTR_SKEW_BOTH_MODEL = "GTR{0.05,8.0,0.10,0.10,5.0,0.05}+F{0.70,0.10,0.10,0.10}"
+LG_RATES = [
+    0.425093, 0.276818, 0.395144, 2.489084, 0.969894, 1.038545, 2.066040, 0.358858, 0.149830,
+    0.395337, 0.536518, 1.124035, 0.253701, 1.177651, 4.727182, 2.139501, 0.180717, 0.218959,
+    2.547870, 0.751878, 0.123954, 0.534551, 2.807908, 0.363970, 0.390192, 2.426601, 0.126991,
+    0.301848, 6.326067, 0.484133, 0.052722, 0.332533, 0.858151, 0.578987, 0.593607, 0.314440,
+    0.170887, 5.076149, 0.528768, 1.695752, 0.541712, 1.437645, 4.509238, 0.191503, 0.068427,
+    2.145078, 0.371004, 0.089525, 0.161787, 4.008358, 2.000679, 0.045376, 0.612025, 0.083688,
+    0.062556, 0.523386, 5.243870, 0.844926, 0.927114, 0.010690, 0.015076, 0.282959, 0.025548,
+    0.017416, 0.394456, 1.240275, 0.425860, 0.029890, 0.135107, 0.037967, 0.084808, 0.003499,
+    0.569265, 0.640543, 0.320627, 0.594007, 0.013266, 0.893680, 1.105251, 0.075382, 2.784478,
+    1.143480, 0.670128, 1.165532, 1.959291, 4.128591, 0.267959, 4.813505, 0.072854, 0.582457,
+    3.234294, 1.672569, 0.035855, 0.624294, 1.223828, 1.080136, 0.236199, 0.257336, 0.210332,
+    0.348847, 0.423881, 0.044265, 0.069673, 1.807177, 0.173735, 0.018811, 0.419409, 0.611973,
+    0.604545, 0.077852, 0.120037, 0.245034, 0.311484, 0.008705, 0.044261, 0.296636, 0.139538,
+    0.089586, 0.196961, 1.739990, 0.129836, 0.268491, 0.054679, 0.076701, 0.108882, 0.366317,
+    0.697264, 0.442472, 0.682139, 0.508851, 0.990012, 0.584262, 0.597054, 5.306834, 0.119013,
+    4.145067, 0.159069, 4.273607, 1.112727, 0.078281, 0.064105, 1.033739, 0.111660, 0.232523,
+    10.649107, 0.137500, 6.312358, 2.592692, 0.249060, 0.182287, 0.302936, 0.619632, 0.299648,
+    1.702745, 0.656604, 0.023918, 0.390322, 0.748683, 1.136863, 0.049906, 0.131932, 0.185202,
+    1.798853, 0.099849, 0.346960, 2.020366, 0.696175, 0.481306, 1.898718, 0.094464, 0.361819,
+    0.165001, 2.457121, 7.803902, 0.654683, 1.338132, 0.571468, 0.095131, 0.089613, 0.296501,
+    6.472279, 0.248862, 0.400547, 0.098369, 0.140825, 0.245841, 2.188158, 3.151815, 0.189510,
+    0.249313,
+]
+LG_FREQ = [
+    0.079066, 0.055941, 0.041977, 0.053052, 0.012937, 0.040767, 0.071586, 0.057337, 0.022355,
+    0.062157, 0.099081, 0.064600, 0.022951, 0.042302, 0.044040, 0.061197, 0.053287, 0.012066,
+    0.034155, 0.069147,
+]
 MODEL_ALIASES = {
     "JC": "JC",
+    "LG": "LG",
+    "K2P": "K2P",
+    "F81": "F81",
     "GTR_PF06346": GTR_PF06346_MODEL,
     "GTR_EvoNAPS_PF06346": GTR_PF06346_MODEL,
+    "GTR_SKEW_FREQ": GTR_SKEW_FREQ_MODEL,
+    "GTR_SKEW_RATES": GTR_SKEW_RATES_MODEL,
+    "GTR_SKEW_BOTH": GTR_SKEW_BOTH_MODEL,
 }
+FORMULAS = ["dominant", "eigenvalue_weighted"]
+FIG2_SCENARIOS = [
+    "true_tree_fixed_lengths",
+    "true_topology_ml_lengths",
+    "ml_tree_unadjusted",
+    "ml_tree_bonferroni",
+]
+MISSPECIFICATION_SCENARIOS = [
+    "true_tree_fixed_lengths",
+    "true_topology_ml_lengths",
+    "ml_tree_bonferroni",
+]
 
 
 class Node:
@@ -50,10 +102,42 @@ def parse_csv_numbers(text, cast=float):
     return [cast(value) for value in text.split(",") if value.strip()]
 
 
+def parse_csv_text(text):
+    return [value.strip() for value in text.split(",") if value.strip()]
+
+
 def resolve_model_alias(alias):
     if alias in MODEL_ALIASES:
         return MODEL_ALIASES[alias]
     return alias
+
+
+def parse_model_pairs(text):
+    pairs = []
+    for item in parse_csv_text(text):
+        if ":" not in item:
+            raise ValueError(f"Model pair must have SIM:EVAL syntax, got: {item}")
+        simulation_alias, evaluation_alias = [part.strip() for part in item.split(":", 1)]
+        if not simulation_alias or not evaluation_alias:
+            raise ValueError(f"Model pair must have non-empty SIM:EVAL aliases, got: {item}")
+        pairs.append((resolve_model_alias(simulation_alias), resolve_model_alias(evaluation_alias)))
+    return pairs
+
+
+def selected_scenarios(simulation_model, evaluation_model, scenario_set):
+    if scenario_set == "fig2":
+        return list(FIG2_SCENARIOS)
+    if scenario_set == "misspecification":
+        if simulation_model == evaluation_model:
+            return ["true_tree_fixed_lengths"]
+        return list(MISSPECIFICATION_SCENARIOS)
+    if scenario_set == "all":
+        return list(FIG2_SCENARIOS)
+    raise ValueError(f"Unknown scenario set: {scenario_set}")
+
+
+def expected_rows_for_task(simulation_model, evaluation_model, scenario_set):
+    return len(selected_scenarios(simulation_model, evaluation_model, scenario_set)) * len(FORMULAS)
 
 
 def sniff_delimiter(path):
@@ -309,15 +393,34 @@ def parse_sat_stat(path, target_taxa):
 
 
 def parse_model(model):
+    if model == "LG":
+        return np.array(LG_RATES, dtype=float), np.array(LG_FREQ, dtype=float)
+
     if model == "JC":
         return np.ones(6, dtype=float), np.repeat(0.25, 4)
+
+    if model.startswith("F81+F{") and model.endswith("}"):
+        freq_text = model[len("F81+F{") : -1]
+        pi = np.array([float(value) for value in freq_text.split(",")], dtype=float)
+        if len(pi) != 4:
+            raise ValueError(f"Unsupported F81 model dimensions: {model}")
+        pi /= pi.sum()
+        return np.ones(6, dtype=float), pi
+
+    if model.startswith("K2P{") and model.endswith("}+FQ"):
+        kappa = float(model[len("K2P{") : -len("}+FQ")])
+        return np.array([1.0, kappa, 1.0, 1.0, kappa, 1.0], dtype=float), np.repeat(0.25, 4)
+
+    if model in {"F81", "K2P"}:
+        raise ValueError(f"Model {model} requires fitted parameters from IQ-TREE before independent calculation")
 
     if not (model.startswith("GTR{") and "}+F{" in model and model.endswith("}")):
         raise ValueError(f"Unsupported model syntax: {model}")
     rate_text, freq_text = model[4:-1].split("}+F{", 1)
     rates = np.array([float(value) for value in rate_text.split(",")], dtype=float)
     pi = np.array([float(value) for value in freq_text.split(",")], dtype=float)
-    if len(rates) != 6 or len(pi) != 4:
+    expected_rate_count = len(pi) * (len(pi) - 1) // 2
+    if len(pi) not in {4, 20} or len(rates) != expected_rate_count:
         raise ValueError(f"Unsupported model dimensions: {model}")
     pi /= pi.sum()
     return rates, pi
@@ -325,21 +428,31 @@ def parse_model(model):
 
 def build_q(model):
     rates, pi = parse_model(model)
-    q = np.zeros((4, 4), dtype=float)
-    for i, j, rate in [
-        (0, 1, rates[0]),
-        (0, 2, rates[1]),
-        (0, 3, rates[2]),
-        (1, 2, rates[3]),
-        (1, 3, rates[4]),
-        (2, 3, rates[5]),
-    ]:
-        q[i, j] = rate * pi[j]
-        q[j, i] = rate * pi[i]
-    for i in range(4):
+    nstates = len(pi)
+    expected_rate_count = nstates * (nstates - 1) // 2
+    if len(rates) != expected_rate_count:
+        raise ValueError(f"Rate count {len(rates)} does not match {nstates} states for model {model}")
+    q = np.zeros((nstates, nstates), dtype=float)
+    rate_index = 0
+    for i in range(nstates - 1):
+        for j in range(i + 1, nstates):
+            rate = rates[rate_index]
+            rate_index += 1
+            q[i, j] = rate * pi[j]
+            q[j, i] = rate * pi[i]
+    for i in range(nstates):
         q[i, i] = -float(np.sum(q[i, :]))
     q /= -float(np.dot(pi, np.diag(q)))
     return q, pi
+
+
+def state_index_for_model(model):
+    _, pi = parse_model(model)
+    if len(pi) == 4:
+        return DNA_STATE_INDEX, 4
+    if len(pi) == 20:
+        return AA_STATE_INDEX, 20
+    raise ValueError(f"Unsupported state count for model {model}: {len(pi)}")
 
 
 def reversible_eigendecomposition(q, pi):
@@ -362,7 +475,7 @@ def transition_matrix(evals, eigenvectors, inv_eigenvectors, length):
 def mode_indices(evals, formula):
     zero_index = int(np.argmin(np.abs(evals)))
     nonzero = [i for i, value in enumerate(evals) if i != zero_index and abs(value) > 1e-10]
-    if formula in {"all_unweighted", "eigenvalue_weighted"}:
+    if formula == "eigenvalue_weighted":
         return nonzero
     if formula != "dominant":
         raise ValueError(f"Unknown SatuTe formula: {formula}")
@@ -376,27 +489,27 @@ def branch_key(a, b):
     return tuple(sorted((a.id, b.id)))
 
 
-def compute_partial(node, parent, site, sequences, transitions, memo):
+def compute_partial(node, parent, site, sequences, transitions, memo, state_index, nstates):
     key = (node.id, -1 if parent is None else parent.id, site)
     if key in memo:
         return memo[key]
 
     if node.name:
         symbol = sequences[node.name][site]
-        state = STATE_INDEX.get(symbol)
+        state = state_index.get(symbol)
         if state is None:
-            partial = np.ones(4, dtype=float)
+            partial = np.ones(nstates, dtype=float)
         else:
-            partial = np.zeros(4, dtype=float)
+            partial = np.zeros(nstates, dtype=float)
             partial[state] = 1.0
         memo[key] = partial
         return partial
 
-    partial = np.ones(4, dtype=float)
+    partial = np.ones(nstates, dtype=float)
     for child, length in node.neighbors:
         if child is parent:
             continue
-        child_partial = compute_partial(child, node, site, sequences, transitions, memo)
+        child_partial = compute_partial(child, node, site, sequences, transitions, memo, state_index, nstates)
         contribution = transitions[branch_key(node, child)] @ child_partial
         partial *= contribution
     memo[key] = partial
@@ -404,7 +517,7 @@ def compute_partial(node, parent, site, sequences, transitions, memo):
 
 
 def formula_weights(evals, modes, formula, branch_length):
-    if formula in {"dominant", "all_unweighted"}:
+    if formula == "dominant":
         return np.ones(len(modes), dtype=float)
     dominant = max(evals[m] for m in modes)
     return np.array([math.exp((evals[m] - dominant) * branch_length) for m in modes], dtype=float)
@@ -421,6 +534,7 @@ def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha
         return {formula: None for formula in formulas}
     left, right, branch_length, left_taxa, right_taxa = edge
     q, pi = build_q(model)
+    state_index, nstates = state_index_for_model(model)
     evals, eigenvectors, inv_eigenvectors = reversible_eigendecomposition(q, pi)
     transitions = {
         branch_key(node, other): transition_matrix(evals, eigenvectors, inv_eigenvectors, length)
@@ -447,8 +561,8 @@ def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha
 
     for site in range(nsites):
         memo = {}
-        left_lh = compute_partial(left, right, site, sequences, transitions, memo)
-        right_lh = compute_partial(right, left, site, sequences, transitions, memo)
+        left_lh = compute_partial(left, right, site, sequences, transitions, memo, state_index, nstates)
+        right_lh = compute_partial(right, left, site, sequences, transitions, memo, state_index, nstates)
         left_post = left_lh * pi
         right_post = right_lh * pi
         left_sum = float(np.sum(left_post))
@@ -570,11 +684,14 @@ def run_seqgen(seqgen, tree_file, model, nsites, seed, alignment):
         )
     if model == "JC":
         cmd = [seqgen, "-mHKY", "-l", str(nsites), "-n", "1", "-z", str(seed)]
+    elif model == "LG":
+        cmd = [seqgen, "-mLG", "-l", str(nsites), "-n", "1", "-z", str(seed)]
     elif model.startswith("GTR{"):
         rates, pi = parse_model(model)
+        seqgen_model = "GTR" if len(pi) == 4 else "GENERAL"
         cmd = [
             seqgen,
-            "-mGTR",
+            f"-m{seqgen_model}",
             "-r",
             ",".join(f"{value:.10g}" for value in rates),
             "-f",
@@ -614,12 +731,39 @@ def run_satute(iqtree, alignment, prefix, model, tree=None, fixed_lengths=False)
     return Path(str(prefix) + ".sat.tree"), Path(str(prefix) + ".sat.stat")
 
 
-def write_missing_rows(writer, base, scenario, formula, alpha_used):
+def fitted_model_for_compute(prefix, requested_model):
+    requested_model = resolve_model_alias(requested_model)
+    if requested_model == "JC" or requested_model == "LG" or requested_model.startswith("GTR{") or requested_model.startswith("F81+F{") or requested_model.startswith("K2P{"):
+        return requested_model
+
+    iqtree_path = Path(str(prefix) + ".iqtree")
+    if not iqtree_path.exists():
+        raise FileNotFoundError(f"Cannot find IQ-TREE report for fitted model: {iqtree_path}")
+
+    text = iqtree_path.read_text(encoding="utf-8", errors="replace")
+    for raw in text.splitlines():
+        if " -m " not in raw and " -m\t" not in raw:
+            continue
+        marker = '-m "'
+        if marker not in raw:
+            continue
+        start = raw.index(marker) + len(marker)
+        end = raw.find('"', start)
+        if end > start:
+            fitted = raw[start:end]
+            if fitted.startswith("F81+F{") or fitted.startswith("K2P{") or fitted in {"JC", "LG"} or fitted.startswith("GTR{"):
+                return fitted
+
+    raise ValueError(f"Could not extract fitted model for {requested_model} from {iqtree_path}")
+
+
+def write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evaluation_model):
     row = dict(base)
     row.update(
         {
             "scenario": scenario,
             "formula": formula,
+            "fitted_evaluation_model": fitted_evaluation_model,
             "target_found": 0,
             "left_taxa": "",
             "right_taxa": "",
@@ -645,18 +789,30 @@ def write_missing_rows(writer, base, scenario, formula, alpha_used):
     writer.writerow(row)
 
 
-def write_formula_rows(writer, base, scenario, formulas, tree_path, stat_path, alignment, model, target_taxa, alpha, alpha_used):
+def write_formula_rows(
+    writer,
+    base,
+    scenario,
+    formulas,
+    tree_path,
+    stat_path,
+    alignment,
+    fitted_evaluation_model,
+    target_taxa,
+    alpha,
+    alpha_used,
+):
     sequences = parse_alignment(alignment)
     root = parse_newick(tree_path)
     iqtree_row = parse_sat_stat(stat_path, target_taxa)
-    results = compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha_used)
+    results = compute_formulas(root, sequences, target_taxa, fitted_evaluation_model, formulas, alpha, alpha_used)
     for formula in formulas:
         result = results.get(formula)
         if result is None:
-            write_missing_rows(writer, base, scenario, formula, alpha_used)
+            write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evaluation_model)
             continue
         row = dict(base)
-        row.update({"scenario": scenario, "formula": formula})
+        row.update({"scenario": scenario, "formula": formula, "fitted_evaluation_model": fitted_evaluation_model})
         row.update(result)
         row["iqtree_satZ"] = iqtree_row.get("satZ", "") if iqtree_row else ""
         row["iqtree_satP"] = iqtree_row.get("satP", "") if iqtree_row else ""
@@ -665,20 +821,46 @@ def write_formula_rows(writer, base, scenario, formulas, tree_path, stat_path, a
         writer.writerow(row)
 
 
-def run_case(iqtree, seqgen, simulator, pools, outdir, writer, tree_case, model, nsites, branch_length, rep, seed, alpha):
-    case_dir = outdir / "runs" / tree_case / sanitize_model(model) / f"n{nsites}" / f"b{branch_length:.2f}" / f"r{rep:04d}"
+def run_case(
+    iqtree,
+    seqgen,
+    simulator,
+    pools,
+    outdir,
+    writer,
+    tree_case,
+    simulation_model,
+    evaluation_model,
+    nsites,
+    branch_length,
+    rep,
+    seed,
+    alpha,
+    scenario_set,
+):
+    case_dir = (
+        outdir
+        / "runs"
+        / tree_case
+        / f"sim_{sanitize_model(simulation_model)}"
+        / f"eval_{sanitize_model(evaluation_model)}"
+        / f"n{nsites}"
+        / f"b{branch_length:.2f}"
+        / f"r{rep:04d}"
+    )
     case_dir.mkdir(parents=True, exist_ok=True)
     tree_file = case_dir / "true.tree"
     rng = random.Random(seed)
     write_tree(tree_case, branch_length, tree_file, rng, pools)
 
     sim_prefix = case_dir / "sim"
-    alignment = simulate_alignment(iqtree, seqgen, simulator, tree_file, model, nsites, seed, sim_prefix)
+    alignment = simulate_alignment(iqtree, seqgen, simulator, tree_file, simulation_model, nsites, seed, sim_prefix)
     target_taxa = target_taxa_for_case(tree_case)
-    formulas = ["dominant", "all_unweighted", "eigenvalue_weighted"]
+    scenarios = set(selected_scenarios(simulation_model, evaluation_model, scenario_set))
     base = {
         "tree_case": tree_case,
-        "model": model,
+        "simulation_model": simulation_model,
+        "evaluation_model": evaluation_model,
         "nsites": nsites,
         "branch_length": branch_length,
         "replicate": rep,
@@ -689,18 +871,29 @@ def run_case(iqtree, seqgen, simulator, pools, outdir, writer, tree_case, model,
         "alpha": alpha,
     }
 
-    tree_path, stat_path = run_satute(iqtree, alignment, case_dir / "true_fixed", model, tree_file, True)
-    write_formula_rows(writer, base, "true_tree_fixed_lengths", formulas, tree_path, stat_path, alignment, model, target_taxa, alpha, alpha)
+    if "true_tree_fixed_lengths" in scenarios:
+        prefix = case_dir / "true_fixed"
+        tree_path, stat_path = run_satute(iqtree, alignment, prefix, evaluation_model, tree_file, True)
+        fitted_model = fitted_model_for_compute(prefix, evaluation_model)
+        write_formula_rows(writer, base, "true_tree_fixed_lengths", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
 
-    tree_path, stat_path = run_satute(iqtree, alignment, case_dir / "true_ml_lengths", model, tree_file, False)
-    write_formula_rows(writer, base, "true_topology_ml_lengths", formulas, tree_path, stat_path, alignment, model, target_taxa, alpha, alpha)
+    if "true_topology_ml_lengths" in scenarios:
+        prefix = case_dir / "true_ml_lengths"
+        tree_path, stat_path = run_satute(iqtree, alignment, prefix, evaluation_model, tree_file, False)
+        fitted_model = fitted_model_for_compute(prefix, evaluation_model)
+        write_formula_rows(writer, base, "true_topology_ml_lengths", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
 
-    tree_path, stat_path = run_satute(iqtree, alignment, case_dir / "ml_tree", model, None, False)
-    write_formula_rows(writer, base, "ml_tree_unadjusted", formulas, tree_path, stat_path, alignment, model, target_taxa, alpha, alpha)
+    if "ml_tree_unadjusted" in scenarios or "ml_tree_bonferroni" in scenarios:
+        prefix = case_dir / "ml_tree"
+        tree_path, stat_path = run_satute(iqtree, alignment, prefix, evaluation_model, None, False)
+        fitted_model = fitted_model_for_compute(prefix, evaluation_model)
+        if "ml_tree_unadjusted" in scenarios:
+            write_formula_rows(writer, base, "ml_tree_unadjusted", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
 
-    taxa_count = 5 if tree_case == "five_external" else 16
-    alpha_bonf = alpha / (1 * (taxa_count - 1) if tree_case == "five_external" else 8 * 8)
-    write_formula_rows(writer, base, "ml_tree_bonferroni", formulas, tree_path, stat_path, alignment, model, target_taxa, alpha, alpha_bonf)
+        taxa_count = 5 if tree_case == "five_external" else 16
+        alpha_bonf = alpha / (1 * (taxa_count - 1) if tree_case == "five_external" else 8 * 8)
+        if "ml_tree_bonferroni" in scenarios:
+            write_formula_rows(writer, base, "ml_tree_bonferroni", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha_bonf)
 
 
 def aggregate(detail_path, summary_path):
@@ -708,7 +901,15 @@ def aggregate(detail_path, summary_path):
     with open(detail_path, "r", encoding="utf-8") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         for row in reader:
-            key = (row["tree_case"], row["model"], row["nsites"], row["branch_length"], row["scenario"], row["formula"])
+            key = (
+                row["tree_case"],
+                row["simulation_model"],
+                row["evaluation_model"],
+                row["nsites"],
+                row["branch_length"],
+                row["scenario"],
+                row["formula"],
+            )
             if row["target_found"] == "1":
                 groups[key]["evaluated"] += 1
                 groups[key]["informative"] += 1 if row["decision"] == "informative" else 0
@@ -716,20 +917,33 @@ def aggregate(detail_path, summary_path):
                 groups[key]["missing"] += 1
 
     with open(summary_path, "w", encoding="utf-8", newline="") as handle:
-        fieldnames = ["tree_case", "model", "nsites", "branch_length", "scenario", "formula", "evaluated", "informative", "missing_split", "fraction_informative"]
+        fieldnames = [
+            "tree_case",
+            "simulation_model",
+            "evaluation_model",
+            "nsites",
+            "branch_length",
+            "scenario",
+            "formula",
+            "evaluated",
+            "informative",
+            "missing_split",
+            "fraction_informative",
+        ]
         writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
-        for key in sorted(groups, key=lambda x: (x[0], x[1], int(x[2]), float(x[3]), x[4], x[5])):
+        for key in sorted(groups, key=lambda x: (x[0], x[1], x[2], int(x[3]), float(x[4]), x[5], x[6])):
             group = groups[key]
             fraction = group["informative"] / group["evaluated"] if group["evaluated"] else ""
             writer.writerow(
                 {
                     "tree_case": key[0],
-                    "model": key[1],
-                    "nsites": key[2],
-                    "branch_length": key[3],
-                    "scenario": key[4],
-                    "formula": key[5],
+                    "simulation_model": key[1],
+                    "evaluation_model": key[2],
+                    "nsites": key[3],
+                    "branch_length": key[4],
+                    "scenario": key[5],
+                    "formula": key[6],
                     "evaluated": group["evaluated"],
                     "informative": group["informative"],
                     "missing_split": group["missing"],
@@ -745,25 +959,28 @@ def sanitize_model(model):
 def task_key_from_row(row):
     return (
         row["tree_case"],
-        row["model"],
+        row["simulation_model"],
+        row["evaluation_model"],
         str(row["nsites"]),
         f"{float(row['branch_length']):.10g}",
         str(row["replicate"]),
     )
 
 
-def completed_tasks(detail_path, fieldnames=None, clean_incomplete=False):
+def completed_tasks(detail_path, scenario_set, fieldnames=None, clean_incomplete=False):
     if not detail_path.exists():
         return set()
     rows = []
     counts = defaultdict(int)
+    expected = {}
     with open(detail_path, "r", encoding="utf-8") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         for row in reader:
             rows.append(row)
             key = task_key_from_row(row)
             counts[key] += 1
-    complete = {key for key, count in counts.items() if count >= 12}
+            expected[key] = expected_rows_for_task(row["simulation_model"], row["evaluation_model"], scenario_set)
+    complete = {key for key, count in counts.items() if count >= expected.get(key, 0)}
     if clean_incomplete and fieldnames is not None:
         with open(detail_path, "w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
@@ -782,7 +999,27 @@ def main():
     parser.add_argument("--site-lengths", default="100")
     parser.add_argument("--branch-lengths", default="0.1,1.0")
     parser.add_argument("--tree-cases", default="five_external")
-    parser.add_argument("--models", default="JC", help="Comma-separated model aliases, e.g. JC or GTR_PF06346.")
+    parser.add_argument(
+        "--simulation-models",
+        default="JC",
+        help="Comma-separated simulation model aliases, e.g. JC, GTR_PF06346, GTR_SKEW_FREQ, GTR_SKEW_RATES, GTR_SKEW_BOTH.",
+    )
+    parser.add_argument(
+        "--evaluation-models",
+        default="",
+        help="Comma-separated evaluation model aliases. Defaults to the simulation models. Use JC,K2P,F81 for misspecification.",
+    )
+    parser.add_argument(
+        "--model-pairs",
+        default="",
+        help="Exact comma-separated SIM:EVAL model pairs. Use this for matched extension designs such as GTR_SKEW_FREQ:GTR_SKEW_FREQ.",
+    )
+    parser.add_argument(
+        "--scenario-set",
+        choices=["fig2", "misspecification", "all"],
+        default="fig2",
+        help="Scenario contract: fig2 reproduces the main JC simulations; misspecification follows the supplementary GTR setup.",
+    )
     parser.add_argument("--paper-grid", action="store_true", help="Use paper branch lengths and site lengths 100,1000,10000.")
     parser.add_argument("--simulator", choices=["alisim", "seq-gen"], default="alisim")
     parser.add_argument("--seqgen", default=shutil.which("seq-gen") or shutil.which("seqgen") or "")
@@ -809,15 +1046,26 @@ def main():
     branch_lengths = parse_csv_numbers(PAPER_BRANCH_LENGTHS if args.paper_grid else args.branch_lengths, float)
     site_lengths = parse_csv_numbers("100,1000,10000" if args.paper_grid else args.site_lengths, int)
     tree_cases = [value.strip() for value in args.tree_cases.split(",") if value.strip()]
-    model_aliases = [value.strip() for value in args.models.split(",") if value.strip()]
-    models = [resolve_model_alias(alias) for alias in model_aliases]
+    if args.model_pairs:
+        try:
+            model_pairs = parse_model_pairs(args.model_pairs)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+    else:
+        simulation_aliases = parse_csv_text(args.simulation_models)
+        evaluation_aliases = parse_csv_text(args.evaluation_models) or simulation_aliases
+        simulation_models = [resolve_model_alias(alias) for alias in simulation_aliases]
+        evaluation_models = [resolve_model_alias(alias) for alias in evaluation_aliases]
+        model_pairs = [(simulation_model, evaluation_model) for simulation_model in simulation_models for evaluation_model in evaluation_models]
     pools = load_branch_length_pools(args.evonaps_branch_lengths)
 
     detail_path = outdir / "head_to_head_detail.tsv"
     summary_path = outdir / "head_to_head_summary.tsv"
     fieldnames = [
         "tree_case",
-        "model",
+        "simulation_model",
+        "evaluation_model",
+        "fitted_evaluation_model",
         "nsites",
         "branch_length",
         "replicate",
@@ -849,7 +1097,7 @@ def main():
         "iqtree_decision",
         "iqtree_bonf_decision",
     ]
-    done = completed_tasks(detail_path, fieldnames, clean_incomplete=True) if args.resume else set()
+    done = completed_tasks(detail_path, args.scenario_set, fieldnames, clean_incomplete=True) if args.resume else set()
     write_header = not (args.resume and detail_path.exists() and detail_path.stat().st_size > 0)
     mode = "a" if args.resume else "w"
     with open(detail_path, mode, encoding="utf-8", newline="") as handle:
@@ -860,7 +1108,7 @@ def main():
         selected_tasks = 0
         skipped_tasks = 0
         for tree_case in tree_cases:
-            for model in models:
+            for simulation_model, evaluation_model in model_pairs:
                 for nsites in site_lengths:
                     for branch_length in branch_lengths:
                         for rep in range(1, args.reps + 1):
@@ -869,12 +1117,35 @@ def main():
                             if current % args.shard_count != args.shard_index:
                                 continue
                             selected_tasks += 1
-                            task_key = (tree_case, model, str(nsites), f"{branch_length:.10g}", str(rep))
+                            task_key = (
+                                tree_case,
+                                simulation_model,
+                                evaluation_model,
+                                str(nsites),
+                                f"{branch_length:.10g}",
+                                str(rep),
+                            )
                             if task_key in done:
                                 skipped_tasks += 1
                                 continue
                             seed = 900000 + rep + nsites * 10 + int(branch_length * 1000)
-                            run_case(iqtree, args.seqgen, args.simulator, pools, outdir, writer, tree_case, model, nsites, branch_length, rep, seed, args.alpha)
+                            run_case(
+                                iqtree,
+                                args.seqgen,
+                                args.simulator,
+                                pools,
+                                outdir,
+                                writer,
+                                tree_case,
+                                simulation_model,
+                                evaluation_model,
+                                nsites,
+                                branch_length,
+                                rep,
+                                seed,
+                                args.alpha,
+                                args.scenario_set,
+                            )
 
     aggregate(detail_path, summary_path)
     print(f"Shard:   {args.shard_index}/{args.shard_count}")
