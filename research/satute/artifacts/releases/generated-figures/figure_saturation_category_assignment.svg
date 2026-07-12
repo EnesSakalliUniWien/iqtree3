@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="590" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Why relative-weighted coherence changes abruptly</text>
+<text x="590" y="62" text-anchor="middle" font-size="12" fill="#5f6368">Hard MAP rate categories; fixed GTR+G4 model and 1,000-site alignments</text>
+<text x="95" y="112" font-size="16" font-weight="700" fill="#202124">A  Hard-category occupancy</text>
+<text x="95" y="130" font-size="10.5" fill="#5f6368">Mean fraction of sites assigned to each category</text>
+<rect x="95" y="140" width="450" height="300" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="95" x2="545" y1="440.00" y2="440.00" stroke="#e8eaed"/>
+<text x="88" y="444.00" text-anchor="end" font-size="9.5" fill="#5f6368">0</text>
+<line x1="95" x2="545" y1="365.00" y2="365.00" stroke="#e8eaed"/>
+<text x="88" y="369.00" text-anchor="end" font-size="9.5" fill="#5f6368">0.25</text>
+<line x1="95" x2="545" y1="290.00" y2="290.00" stroke="#e8eaed"/>
+<text x="88" y="294.00" text-anchor="end" font-size="9.5" fill="#5f6368">0.5</text>
+<line x1="95" x2="545" y1="215.00" y2="215.00" stroke="#e8eaed"/>
+<text x="88" y="219.00" text-anchor="end" font-size="9.5" fill="#5f6368">0.75</text>
+<line x1="95" x2="545" y1="140.00" y2="140.00" stroke="#e8eaed"/>
+<text x="88" y="144.00" text-anchor="end" font-size="9.5" fill="#5f6368">1</text>
+<line x1="95.00" x2="95.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="95.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">0.1</text>
+<line x1="185.00" x2="185.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="185.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">1</text>
+<line x1="275.00" x2="275.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="275.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="365.00" x2="365.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="365.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="455.00" x2="455.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="455.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="545.00" x2="545.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="545.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="320.00" y="474" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="49" y="290.0" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 49 290.0)">assigned fraction</text>
+<text x="670" y="112" font-size="16" font-weight="700" fill="#202124">B  Signed contribution to pooled coherence</text>
+<text x="670" y="130" font-size="10.5" fill="#5f6368">Transition region t≥10; contribution = (valid sites / all sites) × category satC</text>
+<rect x="670" y="140" width="450" height="300" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="670" x2="1120" y1="440.00" y2="440.00" stroke="#e8eaed"/>
+<text x="663" y="444.00" text-anchor="end" font-size="9.5" fill="#5f6368">-0.52</text>
+<line x1="670" x2="1120" y1="365.00" y2="365.00" stroke="#e8eaed"/>
+<text x="663" y="369.00" text-anchor="end" font-size="9.5" fill="#5f6368">-0.14</text>
+<line x1="670" x2="1120" y1="290.00" y2="290.00" stroke="#e8eaed"/>
+<text x="663" y="294.00" text-anchor="end" font-size="9.5" fill="#5f6368">0.24</text>
+<line x1="670" x2="1120" y1="215.00" y2="215.00" stroke="#e8eaed"/>
+<text x="663" y="219.00" text-anchor="end" font-size="9.5" fill="#5f6368">0.62</text>
+<line x1="670" x2="1120" y1="140.00" y2="140.00" stroke="#e8eaed"/>
+<text x="663" y="144.00" text-anchor="end" font-size="9.5" fill="#5f6368">1</text>
+<line x1="670.00" x2="670.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="670.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="820.00" x2="820.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="820.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="970.00" x2="970.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="970.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="1120.00" x2="1120.00" y1="140" y2="440" stroke="#f1f3f4"/>
+<text x="1120.00" y="455" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="895.00" y="474" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="624" y="290.0" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 624 290.0)">coherence contribution</text>
+<line x1="670" x2="1120" y1="337.99" y2="337.99" stroke="#3c4043" stroke-dasharray="5,4"/>
+<path d="M 95.00 204.81 L 157.91 243.73 L 185.00 267.78 L 212.09 291.23 L 247.91 319.05 L 275.00 336.80 L 302.09 350.92 L 317.94 359.48 L 337.91 306.71 L 353.76 310.60 L 365.00 186.95 L 380.85 187.34 L 392.09 186.52 L 427.91 187.13 L 545.00 186.89" fill="none" stroke="#0A3FBA" stroke-width="2.2" stroke-dasharray="2,3"/>
+<path d="M 670.00 160.69 L 715.15 201.17 L 741.57 225.85 L 774.85 246.73 L 801.26 252.54 L 820.00 337.65 L 846.41 338.04 L 865.15 337.96 L 924.85 338.03 L 1120.00 337.83" fill="none" stroke="#0A3FBA" stroke-width="2.2" stroke-dasharray="2,3"/>
+<line x1="170" x2="204" y1="84" y2="84" stroke="#0A3FBA" stroke-width="2.3" stroke-dasharray="2,3"/>
+<text x="212" y="88" font-size="10.5" fill="#0A3FBA">category 1, r=0.0334</text>
+<path d="M 95.00 440.00 L 157.91 440.00 L 185.00 440.00 L 212.09 440.00 L 247.91 392.68 L 275.00 290.25 L 302.09 276.39 L 317.94 267.76 L 337.91 320.15 L 353.76 316.26 L 365.00 440.00 L 380.85 440.00 L 392.09 440.00 L 427.91 440.00 L 545.00 440.00" fill="none" stroke="#4778CE" stroke-width="2.2" stroke-dasharray="5,4"/>
+<path d="M 670.00 385.97 L 715.15 377.21 L 741.57 374.95 L 774.85 416.75 L 801.26 419.31 L 820.00 337.99 L 846.41 337.99 L 865.15 337.99 L 924.85 337.99 L 1120.00 337.99" fill="none" stroke="#4778CE" stroke-width="2.2" stroke-dasharray="5,4"/>
+<line x1="395" x2="429" y1="84" y2="84" stroke="#4778CE" stroke-width="2.3" stroke-dasharray="5,4"/>
+<text x="437" y="88" font-size="10.5" fill="#4778CE">category 2, r=0.252</text>
+<path d="M 95.00 440.00 L 157.91 440.00 L 185.00 407.96 L 212.09 335.69 L 247.91 355.65 L 275.00 440.00 L 302.09 440.00 L 317.94 440.00 L 337.91 440.00 L 353.76 440.00 L 365.00 440.00 L 380.85 440.00 L 392.09 440.00 L 427.91 440.00 L 545.00 440.00" fill="none" stroke="#829FE0" stroke-width="2.2" stroke-dasharray="8,5"/>
+<path d="M 670.00 337.99 L 715.15 337.99 L 741.57 337.99 L 774.85 337.99 L 801.26 337.99 L 820.00 337.99 L 846.41 337.99 L 865.15 337.99 L 924.85 337.99 L 1120.00 337.99" fill="none" stroke="#829FE0" stroke-width="2.2" stroke-dasharray="8,5"/>
+<line x1="620" x2="654" y1="84" y2="84" stroke="#829FE0" stroke-width="2.3" stroke-dasharray="8,5"/>
+<text x="662" y="88" font-size="10.5" fill="#829FE0">category 3, r=0.82</text>
+<path d="M 95.00 375.19 L 157.91 336.27 L 185.00 344.27 L 212.09 393.08 L 247.91 392.62 L 275.00 392.94 L 302.09 392.69 L 317.94 392.76 L 337.91 393.14 L 353.76 393.15 L 365.00 393.05 L 380.85 392.66 L 392.09 393.48 L 427.91 392.87 L 545.00 393.11" fill="none" stroke="#B7C7EF" stroke-width="2.2" stroke-dasharray="11,6"/>
+<path d="M 670.00 337.93 L 715.15 337.95 L 741.57 338.02 L 774.85 337.83 L 801.26 337.98 L 820.00 338.13 L 846.41 338.03 L 865.15 337.95 L 924.85 338.33 L 1120.00 338.01" fill="none" stroke="#B7C7EF" stroke-width="2.2" stroke-dasharray="11,6"/>
+<line x1="845" x2="879" y1="84" y2="84" stroke="#B7C7EF" stroke-width="2.3" stroke-dasharray="11,6"/>
+<text x="887" y="88" font-size="10.5" fill="#B7C7EF">category 4, r=2.89</text>
+<path d="M 670.00 208.60 L 715.15 240.34 L 741.57 262.83 L 774.85 325.34 L 801.26 333.85 L 820.00 337.78 L 846.41 338.08 L 865.15 337.91 L 924.85 338.37 L 1120.00 337.85" fill="none" stroke="#202124" stroke-width="2.7"/>
+<text x="1114" y="158" text-anchor="end" font-size="10" fill="#202124">black: pooled total</text>
+<text x="95" y="505" font-size="10.5" fill="#5f6368">Abrupt pooled movement is caused by reassignment and cancellation between signed category contributions, not by discontinuous eigenvalue weights.</text>
+</svg>

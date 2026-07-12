@@ -1,0 +1,14 @@
+/artifacts/local/
+/artifacts/cluster/
+/manuscript/build/
+/.venv/
+/.pytest_cache/
+/.mypy_cache/
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.synctex.gz

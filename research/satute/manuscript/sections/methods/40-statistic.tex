@@ -1,0 +1,41 @@
+% !TEX root = ../../main.tex
+\subsection*{Notation}
+
+We use the notation of SatuTe. A branch \(AB\) separates subtrees \(T_A\) and \(T_B\). A site pattern \(\partial\) induces subpatterns \(\partial_A\) and \(\partial_B\). The partial likelihood vectors at the endpoints are \(L(\partial_A)\) and \(L(\partial_B)\). The stationary distribution is \(\pi\), with \(P(\partial_A)=\langle L(\partial_A),\pi\rangle\) and \(P(\partial_B)=\langle L(\partial_B),\pi\rangle\). The reversible rate matrix has eigenvalues \(\lambda_0=0>\lambda_1\geq\lambda_2\geq\cdots\geq\lambda_d\) and left eigenvectors \(h_i\), where \(d\) is the number of non-stationary components. Coherence coefficients are defined by \cref{eq-coherence}.
+
+\subsection*{Weighted estimator}
+
+For each site \(s\), \(C_{\partial_s i}\) is computed for the non-stationary modes. For branch length \(t\), the mode weight is \(w_i(t)=\exp\{(\lambda_i-\lambda_1)t\}\). The quantities \(\hat C_{\lambda}(t)\), \(\hat\sigma_{\lambda}^{2}(t)\) and \(Z_{\lambda}(t)\) are then computed using \cref{eq-weighted-mean,eq-weighted-variance,eq-weighted-z}. If a model has a repeated second largest eigenvalue, each direction in that eigenspace has weight one. For JC, the estimator is the published SatuTe statistic.
+
+\subsection*{Null distribution}
+
+The weighted statistic keeps the SatuTe null hypothesis. Let
+\[
+X_i(\partial_A)=\left\langle \frac{L(\partial_A)}{P(\partial_A)},h_i\right\rangle,
+\qquad
+Y_i(\partial_B)=\left\langle \frac{L(\partial_B)}{P(\partial_B)},h_i\right\rangle .
+\]
+Then \(C_{\partial i}=X_iY_i\) and
+\[
+C_{\partial}^{\lambda}(t)=\sum_{i=1}^{d}w_i(t)X_iY_i .
+\]
+Under the SatuTe null hypothesis, the two subtree patterns \(\partial_A\) and \(\partial_B\) are independent. The non-stationary eigenvectors are orthogonal to the stationary component, so the original SatuTe argument gives \(\mathbb{E}[X_i]=0\) and \(\mathbb{E}[Y_i]=0\). Therefore \(\mathbb{E}[C_{\partial i}]=0\) for every non-stationary component, and by linearity \(\mathbb{E}[C_{\partial}^{\lambda}(t)]=0\).
+
+The variance follows by expanding the square of the weighted sum. Define the subtree second moments
+\[
+\sigma^2_{A,i,j}
+=\mathbb{E}[X_iX_j],
+\qquad
+\sigma^2_{B,i,j}
+=\mathbb{E}[Y_iY_j].
+\]
+Using independence of the two subtrees under the null,
+\begin{equation}
+\operatorname{Var}\!\left(C_{\partial}^{\lambda}(t)\right)
+=
+\sum_{i=1}^{d}\sum_{j=1}^{d}
+w_i(t)w_j(t)\sigma^2_{A,i,j}\sigma^2_{B,i,j}.
+\label{eq-weighted-null-variance}
+\end{equation}
+For \(n\) independent sites, \(\operatorname{Var}[\hat C_{\lambda}(t)] =
+\operatorname{Var}(C_{\partial}^{\lambda}(t))/n\), which is the population form estimated in \cref{eq-weighted-variance}. With finite fourth moments and a consistent variance estimator, the central limit theorem and Slutsky's theorem give \(Z_{\lambda}(t)\xrightarrow[]{d}N(0,1)\) under subtree independence. Maximum-likelihood topology selection remains a separate model-selection step, so the same Bonferroni correction used by SatuTe is retained for that scenario.

@@ -29,13 +29,9 @@ cmake-build-debug/
 *.py[cod]
 __pycache__/
 *.log
-/doc/satute-wiki/figures/full-run/
-/doc/satute-wiki/results/full-run/
-/doc/satute-wiki/results/local/
-/doc/satute-wiki/results/lisc/
-/doc/satute-wiki/lisc/logs/
-/doc/satute-wiki/lisc/work/
-/doc/satute-phase1/
+/research/satute/artifacts/local/
+/research/satute/artifacts/cluster/
+/research/satute/manuscript/build/
 /tools/seq-gen/
 /.mex/
 /.vs/

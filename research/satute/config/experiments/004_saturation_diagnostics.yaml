@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "experiment": "004_saturation_diagnostics",
+  "sites": 1000,
+  "alternative_replicates": 100,
+  "null_replicates": 500,
+  "output": "artifacts/local/saturation-diagnostics"
+}

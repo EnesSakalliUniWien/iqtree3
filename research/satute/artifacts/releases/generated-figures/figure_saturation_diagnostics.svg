@@ -1,0 +1,412 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1260" viewBox="0 0 1280 1260">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="640" y="38" text-anchor="middle" font-size="25" font-weight="700" fill="#202124">SatuTe movement toward saturation</text>
+<text x="640" y="65" text-anchor="middle" font-size="12.5" fill="#5f6368">Fixed GTR+G4 model and tree; 1,000 sites; 100 alternative and 500 null replicates</text>
+<text x="105" y="117" font-size="16" font-weight="700" fill="#202124">A  Raw coherence</text>
+<text x="105" y="135" font-size="10.5" fill="#5f6368">Mean across replicates; band is 95% CI</text>
+<rect x="105" y="145" width="500" height="275" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="105" x2="605" y1="420.00" y2="420.00" stroke="#e8eaed"/>
+<text x="98" y="424.00" text-anchor="end" font-size="9.5" fill="#5f6368">-0.2</text>
+<line x1="105" x2="605" y1="351.25" y2="351.25" stroke="#e8eaed"/>
+<text x="98" y="355.25" text-anchor="end" font-size="9.5" fill="#5f6368">0.49</text>
+<line x1="105" x2="605" y1="282.50" y2="282.50" stroke="#e8eaed"/>
+<text x="98" y="286.50" text-anchor="end" font-size="9.5" fill="#5f6368">1.2</text>
+<line x1="105" x2="605" y1="213.75" y2="213.75" stroke="#e8eaed"/>
+<text x="98" y="217.75" text-anchor="end" font-size="9.5" fill="#5f6368">1.9</text>
+<line x1="105" x2="605" y1="145.00" y2="145.00" stroke="#e8eaed"/>
+<text x="98" y="149.00" text-anchor="end" font-size="9.5" fill="#5f6368">2.6</text>
+<line x1="105.00" x2="105.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="105.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">0.1</text>
+<line x1="205.00" x2="205.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="205.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">1</text>
+<line x1="305.00" x2="305.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="305.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="405.00" x2="405.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="405.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="505.00" x2="505.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="505.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="605.00" x2="605.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="605.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="355.00" y="454" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="59" y="282.5" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 59 282.5)">raw coherence, C̄</text>
+<polygon points="105.00,317.60 174.90,334.93 205.00,346.77 235.10,358.16 274.90,371.81 305.00,380.03 335.10,387.10 352.71,390.87 374.90,395.11 392.51,397.76 405.00,399.51 422.61,399.71 435.10,399.56 474.90,399.84 605.00,399.92 605.00,400.43 474.90,401.03 435.10,400.84 422.61,400.93 405.00,400.71 392.51,398.97 374.90,396.34 352.71,391.95 335.10,388.25 305.00,381.09 274.90,372.87 235.10,359.17 205.00,347.79 174.90,335.83 105.00,318.16" fill="#0A3FBA" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 317.88 L 174.90 335.38 L 205.00 347.28 L 235.10 358.67 L 274.90 372.34 L 305.00 380.56 L 335.10 387.68 L 352.71 391.41 L 374.90 395.73 L 392.51 398.37 L 405.00 400.11 L 422.61 400.32 L 435.10 400.20 L 474.90 400.44 L 605.00 400.17" fill="none" stroke="#0A3FBA" stroke-width="2.2"/>
+<circle cx="105.00" cy="317.88" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="174.90" cy="335.38" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="205.00" cy="347.28" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="235.10" cy="358.67" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="274.90" cy="372.34" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="305.00" cy="380.56" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="335.10" cy="387.68" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="352.71" cy="391.41" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="374.90" cy="395.73" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="392.51" cy="398.37" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="405.00" cy="400.11" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="422.61" cy="400.32" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="435.10" cy="400.20" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="474.90" cy="400.44" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="605.00" cy="400.17" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<polygon points="105.00,163.97 174.90,214.24 205.00,249.98 235.10,276.32 274.90,317.08 305.00,334.30 335.10,350.37 352.71,361.71 374.90,393.17 392.51,397.49 405.00,399.52 422.61,399.67 435.10,399.56 474.90,399.84 605.00,399.92 605.00,400.43 474.90,401.03 435.10,400.85 422.61,400.91 405.00,400.76 392.51,398.84 374.90,394.60 352.71,363.27 335.10,352.02 305.00,336.21 274.90,319.13 235.10,278.46 205.00,252.41 174.90,216.47 105.00,165.54" fill="#E69504" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 164.75 L 174.90 215.36 L 205.00 251.20 L 235.10 277.39 L 274.90 318.10 L 305.00 335.25 L 335.10 351.19 L 352.71 362.49 L 374.90 393.89 L 392.51 398.16 L 405.00 400.14 L 422.61 400.29 L 435.10 400.20 L 474.90 400.44 L 605.00 400.17" fill="none" stroke="#E69504" stroke-width="2.2" stroke-dasharray="9,5"/>
+<rect x="102.00" y="161.75" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="171.90" y="212.36" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="202.00" y="248.20" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="232.10" y="274.39" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="271.90" y="315.10" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="302.00" y="332.25" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="332.10" y="348.19" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="349.71" y="359.49" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="371.90" y="390.89" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="389.51" y="395.16" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="402.00" y="397.14" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="419.61" y="397.29" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="432.10" y="397.20" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="471.90" y="397.44" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="602.00" y="397.17" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<polygon points="105.00,186.69 174.90,274.29 205.00,314.78 235.10,346.92 274.90,374.32 305.00,385.75 335.10,392.46 352.71,395.56 374.90,398.19 392.51,399.45 405.00,400.02 422.61,400.08 435.10,400.05 474.90,400.08 605.00,400.15 605.00,400.29 474.90,400.42 435.10,400.42 422.61,400.43 405.00,400.37 392.51,399.82 374.90,398.60 352.71,396.01 335.10,392.92 305.00,386.40 274.90,375.11 235.10,348.02 205.00,316.27 174.90,275.99 105.00,188.15" fill="#B6497D" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 187.42 L 174.90 275.14 L 205.00 315.52 L 235.10 347.47 L 274.90 374.71 L 305.00 386.07 L 335.10 392.69 L 352.71 395.78 L 374.90 398.40 L 392.51 399.63 L 405.00 400.20 L 422.61 400.25 L 435.10 400.24 L 474.90 400.25 L 605.00 400.22" fill="none" stroke="#B6497D" stroke-width="2.2" stroke-dasharray="2,4"/>
+<polygon points="105.00,183.62 101.50,190.42 108.50,190.42" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="174.90,271.34 171.40,278.14 178.40,278.14" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="205.00,311.72 201.50,318.52 208.50,318.52" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="235.10,343.67 231.60,350.47 238.60,350.47" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="274.90,370.91 271.40,377.71 278.40,377.71" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="305.00,382.27 301.50,389.07 308.50,389.07" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="335.10,388.89 331.60,395.69 338.60,395.69" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="352.71,391.98 349.21,398.78 356.21,398.78" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="374.90,394.60 371.40,401.40 378.40,401.40" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="392.51,395.83 389.01,402.63 396.01,402.63" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="405.00,396.40 401.50,403.20 408.50,403.20" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="422.61,396.45 419.11,403.25 426.11,403.25" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="435.10,396.44 431.60,403.24 438.60,403.24" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="474.90,396.45 471.40,403.25 478.40,403.25" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="605.00,396.42 601.50,403.22 608.50,403.22" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<text x="700" y="117" font-size="16" font-weight="700" fill="#202124">B  Standard error</text>
+<text x="700" y="135" font-size="10.5" fill="#5f6368">Mean across replicates; logarithmic y-axis</text>
+<rect x="700" y="145" width="500" height="275" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="700" x2="1200" y1="420.00" y2="420.00" stroke="#e8eaed"/>
+<text x="693" y="424.00" text-anchor="end" font-size="9.5" fill="#5f6368">10^-2</text>
+<line x1="700" x2="1200" y1="351.25" y2="351.25" stroke="#e8eaed"/>
+<text x="693" y="355.25" text-anchor="end" font-size="9.5" fill="#5f6368">10^-2</text>
+<line x1="700" x2="1200" y1="282.50" y2="282.50" stroke="#e8eaed"/>
+<text x="693" y="286.50" text-anchor="end" font-size="9.5" fill="#5f6368">10^-2</text>
+<line x1="700" x2="1200" y1="213.75" y2="213.75" stroke="#e8eaed"/>
+<text x="693" y="217.75" text-anchor="end" font-size="9.5" fill="#5f6368">10^-1</text>
+<line x1="700" x2="1200" y1="145.00" y2="145.00" stroke="#e8eaed"/>
+<text x="693" y="149.00" text-anchor="end" font-size="9.5" fill="#5f6368">10^-1</text>
+<line x1="700.00" x2="700.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="700.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">0.1</text>
+<line x1="800.00" x2="800.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="800.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">1</text>
+<line x1="900.00" x2="900.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="900.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="1000.00" x2="1000.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="1000.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="1100.00" x2="1100.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="1100.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="1200.00" x2="1200.00" y1="145" y2="420" stroke="#f1f3f4"/>
+<text x="1200.00" y="435" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="950.00" y="454" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="654" y="282.5" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 654 282.5)">satSE</text>
+<polygon points="700.00,233.75 769.90,234.21 800.00,234.11 830.10,233.35 869.90,233.39 900.00,233.30 930.10,233.31 947.71,233.34 969.90,233.31 987.51,233.23 1000.00,233.25 1017.61,233.33 1030.10,233.24 1069.90,233.35 1200.00,233.35 1200.00,233.44 1069.90,233.55 1030.10,233.45 1017.61,233.53 1000.00,233.45 987.51,233.45 969.90,233.51 947.71,233.56 930.10,233.54 900.00,233.52 869.90,233.63 830.10,233.55 800.00,234.36 769.90,234.47 700.00,233.97" fill="#0A3FBA" fill-opacity="0.10" stroke="none"/>
+<path d="M 700.00 233.86 L 769.90 234.34 L 800.00 234.24 L 830.10 233.45 L 869.90 233.51 L 900.00 233.41 L 930.10 233.43 L 947.71 233.45 L 969.90 233.41 L 987.51 233.34 L 1000.00 233.35 L 1017.61 233.43 L 1030.10 233.34 L 1069.90 233.45 L 1200.00 233.40" fill="none" stroke="#0A3FBA" stroke-width="2.2"/>
+<circle cx="700.00" cy="233.86" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="769.90" cy="234.34" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="800.00" cy="234.24" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="830.10" cy="233.45" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="869.90" cy="233.51" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="900.00" cy="233.41" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="930.10" cy="233.43" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="947.71" cy="233.45" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="969.90" cy="233.41" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="987.51" cy="233.34" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="1000.00" cy="233.35" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="1017.61" cy="233.43" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="1030.10" cy="233.34" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="1069.90" cy="233.45" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="1200.00" cy="233.40" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<polygon points="700.00,163.97 769.90,173.31 800.00,177.68 830.10,183.37 869.90,193.29 900.00,202.42 930.10,215.30 947.71,221.38 969.90,222.56 987.51,228.57 1000.00,229.34 1017.61,232.61 1030.10,233.11 1069.90,233.35 1200.00,233.35 1200.00,233.44 1069.90,233.55 1030.10,233.31 1017.61,232.80 1000.00,229.55 987.51,228.81 969.90,222.84 947.71,221.69 930.10,215.67 900.00,202.89 869.90,193.77 830.10,183.88 800.00,178.32 769.90,173.81 700.00,164.45" fill="#E69504" fill-opacity="0.10" stroke="none"/>
+<path d="M 700.00 164.21 L 769.90 173.56 L 800.00 178.00 L 830.10 183.63 L 869.90 193.53 L 900.00 202.65 L 930.10 215.48 L 947.71 221.53 L 969.90 222.70 L 987.51 228.69 L 1000.00 229.45 L 1017.61 232.70 L 1030.10 233.21 L 1069.90 233.45 L 1200.00 233.40" fill="none" stroke="#E69504" stroke-width="2.2" stroke-dasharray="9,5"/>
+<rect x="697.00" y="161.21" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="766.90" y="170.56" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="797.00" y="175.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="827.10" y="180.63" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="866.90" y="190.53" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="897.00" y="199.65" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="927.10" y="212.48" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="944.71" y="218.53" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="966.90" y="219.70" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="984.51" y="225.69" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="997.00" y="226.45" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="1014.61" y="229.70" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="1027.10" y="230.21" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="1066.90" y="230.45" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="1197.00" y="230.40" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<polygon points="700.00,192.07 769.90,194.92 800.00,211.96 830.10,239.22 869.90,283.70 900.00,314.85 930.10,340.64 947.71,356.45 969.90,376.78 987.51,390.38 1000.00,396.26 1017.61,399.88 1030.10,400.39 1069.90,400.69 1200.00,400.71 1200.00,400.86 1069.90,401.03 1030.10,400.75 1017.61,400.28 1000.00,396.90 987.51,391.12 969.90,377.69 947.71,357.35 930.10,341.49 900.00,315.73 869.90,284.30 830.10,239.79 800.00,212.64 769.90,195.62 700.00,193.17" fill="#B6497D" fill-opacity="0.10" stroke="none"/>
+<path d="M 700.00 192.62 L 769.90 195.27 L 800.00 212.30 L 830.10 239.50 L 869.90 284.00 L 900.00 315.29 L 930.10 341.06 L 947.71 356.90 L 969.90 377.23 L 987.51 390.75 L 1000.00 396.58 L 1017.61 400.08 L 1030.10 400.57 L 1069.90 400.86 L 1200.00 400.79" fill="none" stroke="#B6497D" stroke-width="2.2" stroke-dasharray="2,4"/>
+<polygon points="700.00,188.82 696.50,195.62 703.50,195.62" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="769.90,191.47 766.40,198.27 773.40,198.27" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="800.00,208.50 796.50,215.30 803.50,215.30" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="830.10,235.70 826.60,242.50 833.60,242.50" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="869.90,280.20 866.40,287.00 873.40,287.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="900.00,311.49 896.50,318.29 903.50,318.29" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="930.10,337.26 926.60,344.06 933.60,344.06" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="947.71,353.10 944.21,359.90 951.21,359.90" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="969.90,373.43 966.40,380.23 973.40,380.23" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="987.51,386.95 984.01,393.75 991.01,393.75" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="1000.00,392.78 996.50,399.58 1003.50,399.58" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="1017.61,396.28 1014.11,403.08 1021.11,403.08" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="1030.10,396.77 1026.60,403.57 1033.60,403.57" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="1069.90,397.06 1066.40,403.86 1073.40,403.86" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="1200.00,396.99 1196.50,403.79 1203.50,403.79" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<text x="105" y="487" font-size="16" font-weight="700" fill="#202124">C  Standardized statistic</text>
+<text x="105" y="505" font-size="10.5" fill="#5f6368">Median; band is the 10th–90th percentile</text>
+<rect x="105" y="515" width="500" height="275" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="105" x2="605" y1="790.00" y2="790.00" stroke="#e8eaed"/>
+<text x="98" y="794.00" text-anchor="end" font-size="9.5" fill="#5f6368">-5.9</text>
+<line x1="105" x2="605" y1="721.25" y2="721.25" stroke="#e8eaed"/>
+<text x="98" y="725.25" text-anchor="end" font-size="9.5" fill="#5f6368">10</text>
+<line x1="105" x2="605" y1="652.50" y2="652.50" stroke="#e8eaed"/>
+<text x="98" y="656.50" text-anchor="end" font-size="9.5" fill="#5f6368">26</text>
+<line x1="105" x2="605" y1="583.75" y2="583.75" stroke="#e8eaed"/>
+<text x="98" y="587.75" text-anchor="end" font-size="9.5" fill="#5f6368">43</text>
+<line x1="105" x2="605" y1="515.00" y2="515.00" stroke="#e8eaed"/>
+<text x="98" y="519.00" text-anchor="end" font-size="9.5" fill="#5f6368">59</text>
+<line x1="105.00" x2="105.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="105.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">0.1</text>
+<line x1="205.00" x2="205.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="205.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">1</text>
+<line x1="305.00" x2="305.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="305.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="405.00" x2="405.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="405.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="505.00" x2="505.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="505.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="605.00" x2="605.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="605.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="355.00" y="824" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="59" y="652.5" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 59 652.5)">satZ</text>
+<line x1="105" x2="605" y1="757.90" y2="757.90" stroke="#3c4043" stroke-dasharray="5,4"/>
+<text x="601" y="752.90" text-anchor="end" font-size="9" fill="#3c4043">nominal 5% threshold</text>
+<polygon points="105.00,645.66 174.90,668.34 205.00,684.55 235.10,701.41 274.90,721.36 305.00,732.24 335.10,741.73 352.71,747.74 374.90,753.30 392.51,756.29 405.00,758.72 422.61,759.62 435.10,758.87 474.90,759.47 605.00,759.69 605.00,769.50 474.90,770.52 435.10,770.80 422.61,770.71 405.00,770.06 392.51,767.56 374.90,763.76 352.71,756.95 335.10,752.16 305.00,741.16 274.90,729.44 235.10,710.22 205.00,694.54 174.90,676.45 105.00,649.81" fill="#0A3FBA" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 647.46 L 174.90 672.49 L 205.00 688.96 L 235.10 706.31 L 274.90 725.52 L 305.00 737.40 L 335.10 746.81 L 352.71 752.54 L 374.90 758.87 L 392.51 762.26 L 405.00 764.72 L 422.61 765.06 L 435.10 764.95 L 474.90 765.28 L 605.00 765.10" fill="none" stroke="#0A3FBA" stroke-width="2.2"/>
+<circle cx="105.00" cy="647.46" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="174.90" cy="672.49" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="205.00" cy="688.96" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="235.10" cy="706.31" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="274.90" cy="725.52" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="305.00" cy="737.40" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="335.10" cy="746.81" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="352.71" cy="752.54" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="374.90" cy="758.87" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="392.51" cy="762.26" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="405.00" cy="764.72" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="422.61" cy="765.06" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="435.10" cy="764.95" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="474.90" cy="765.28" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="605.00" cy="765.10" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<polygon points="105.00,564.15 174.90,593.66 205.00,620.54 235.10,639.72 274.90,673.76 305.00,685.07 335.10,698.37 352.71,709.69 374.90,749.44 392.51,755.44 405.00,759.35 422.61,759.55 435.10,758.86 474.90,759.47 605.00,759.69 605.00,769.50 474.90,770.52 435.10,770.68 422.61,770.58 405.00,771.03 392.51,768.05 374.90,762.38 352.71,721.82 335.10,710.74 305.00,697.60 274.90,683.68 235.10,651.03 205.00,631.71 174.90,602.67 105.00,569.87" fill="#E69504" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 566.92 L 174.90 597.77 L 205.00 626.23 L 235.10 645.66 L 274.90 678.93 L 305.00 692.65 L 335.10 703.90 L 352.71 716.64 L 374.90 756.78 L 392.51 761.93 L 405.00 764.84 L 422.61 764.88 L 435.10 764.93 L 474.90 765.28 L 605.00 765.10" fill="none" stroke="#E69504" stroke-width="2.2" stroke-dasharray="9,5"/>
+<rect x="102.00" y="563.92" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="171.90" y="594.77" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="202.00" y="623.23" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="232.10" y="642.66" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="271.90" y="675.93" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="302.00" y="689.65" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="332.10" y="700.90" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="349.71" y="713.64" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="371.90" y="753.78" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="389.51" y="758.93" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="402.00" y="761.84" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="419.61" y="761.88" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="432.10" y="761.93" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="471.90" y="762.28" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="602.00" y="762.10" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<polygon points="105.00,533.97 174.90,624.28 205.00,656.05 235.10,681.24 274.90,707.85 305.00,722.14 335.10,736.41 352.71,743.35 374.90,750.86 392.51,755.83 405.00,759.58 422.61,759.78 435.10,758.97 474.90,759.39 605.00,759.59 605.00,769.52 474.90,770.13 435.10,770.61 422.61,770.72 405.00,770.28 392.51,767.34 374.90,761.97 352.71,753.81 335.10,745.60 305.00,732.66 274.90,715.97 235.10,691.74 205.00,668.43 174.90,639.00 105.00,552.41" fill="#B6497D" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 542.89 L 174.90 631.31 L 205.00 663.19 L 235.10 686.40 L 274.90 711.84 L 305.00 728.11 L 335.10 740.56 L 352.71 749.40 L 374.90 757.42 L 392.51 762.18 L 405.00 764.99 L 422.61 764.73 L 435.10 765.02 L 474.90 765.38 L 605.00 764.99" fill="none" stroke="#B6497D" stroke-width="2.2" stroke-dasharray="2,4"/>
+<polygon points="105.00,539.09 101.50,545.89 108.50,545.89" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="174.90,627.51 171.40,634.31 178.40,634.31" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="205.00,659.39 201.50,666.19 208.50,666.19" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="235.10,682.60 231.60,689.40 238.60,689.40" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="274.90,708.04 271.40,714.84 278.40,714.84" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="305.00,724.31 301.50,731.11 308.50,731.11" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="335.10,736.76 331.60,743.56 338.60,743.56" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="352.71,745.60 349.21,752.40 356.21,752.40" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="374.90,753.62 371.40,760.42 378.40,760.42" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="392.51,758.38 389.01,765.18 396.01,765.18" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="405.00,761.19 401.50,767.99 408.50,767.99" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="422.61,760.93 419.11,767.73 426.11,767.73" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="435.10,761.22 431.60,768.02 438.60,768.02" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="474.90,761.58 471.40,768.38 478.40,768.38" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="605.00,761.19 601.50,767.99 608.50,767.99" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<text x="105" y="857" font-size="16" font-weight="700" fill="#202124">E  Calibrated informative probability</text>
+<text x="105" y="875" font-size="10.5" fill="#5f6368">Formula-specific null threshold; held-out null evaluation</text>
+<rect x="105" y="885" width="500" height="275" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="105" x2="605" y1="1160.00" y2="1160.00" stroke="#e8eaed"/>
+<text x="98" y="1164.00" text-anchor="end" font-size="9.5" fill="#5f6368">0</text>
+<line x1="105" x2="605" y1="1091.25" y2="1091.25" stroke="#e8eaed"/>
+<text x="98" y="1095.25" text-anchor="end" font-size="9.5" fill="#5f6368">0.25</text>
+<line x1="105" x2="605" y1="1022.50" y2="1022.50" stroke="#e8eaed"/>
+<text x="98" y="1026.50" text-anchor="end" font-size="9.5" fill="#5f6368">0.5</text>
+<line x1="105" x2="605" y1="953.75" y2="953.75" stroke="#e8eaed"/>
+<text x="98" y="957.75" text-anchor="end" font-size="9.5" fill="#5f6368">0.75</text>
+<line x1="105" x2="605" y1="885.00" y2="885.00" stroke="#e8eaed"/>
+<text x="98" y="889.00" text-anchor="end" font-size="9.5" fill="#5f6368">1</text>
+<line x1="105.00" x2="105.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="105.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">0.1</text>
+<line x1="205.00" x2="205.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="205.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">1</text>
+<line x1="305.00" x2="305.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="305.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="405.00" x2="405.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="405.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="505.00" x2="505.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="505.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="605.00" x2="605.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="605.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="355.00" y="1194" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="59" y="1022.5" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 59 1022.5)">probability informative</text>
+<line x1="105" x2="605" y1="1146.25" y2="1146.25" stroke="#3c4043" stroke-dasharray="5,4"/>
+<polygon points="105.00,885.00 174.90,885.00 205.00,885.00 235.10,885.00 274.90,885.00 305.00,885.00 335.10,885.00 352.71,892.64 374.90,1009.42 392.51,1077.55 405.00,1115.38 422.61,1122.19 435.10,1115.38 474.90,1122.19 605.00,1136.10 605.00,1151.57 474.90,1150.56 435.10,1146.78 422.61,1150.56 405.00,1146.78 392.51,1121.04 374.90,1062.06 352.71,919.31 335.10,895.17 305.00,895.17 274.90,895.17 235.10,895.17 205.00,895.17 174.90,895.17 105.00,895.17" fill="#0A3FBA" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 885.00 L 174.90 885.00 L 205.00 885.00 L 235.10 885.00 L 274.90 885.00 L 305.00 885.00 L 335.10 885.00 L 352.71 901.50 L 374.90 1036.25 L 392.51 1102.25 L 405.00 1135.25 L 422.61 1140.75 L 435.10 1135.25 L 474.90 1140.75 L 605.00 1145.70" fill="none" stroke="#0A3FBA" stroke-width="2.2"/>
+<circle cx="105.00" cy="885.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="174.90" cy="885.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="205.00" cy="885.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="235.10" cy="885.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="274.90" cy="885.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="305.00" cy="885.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="335.10" cy="885.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="352.71" cy="901.50" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="374.90" cy="1036.25" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="392.51" cy="1102.25" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="405.00" cy="1135.25" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="422.61" cy="1140.75" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="435.10" cy="1135.25" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="474.90" cy="1140.75" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<circle cx="605.00" cy="1145.70" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<polygon points="105.00,885.00 174.90,885.00 205.00,885.00 235.10,885.00 274.90,885.00 305.00,885.00 335.10,885.00 352.71,885.00 374.90,965.02 392.51,1077.55 405.00,1115.38 422.61,1125.69 435.10,1115.38 474.90,1122.19 605.00,1136.10 605.00,1151.57 474.90,1150.56 435.10,1146.78 422.61,1152.36 405.00,1146.78 392.51,1121.04 374.90,1016.42 352.71,895.17 335.10,895.17 305.00,895.17 274.90,895.17 235.10,895.17 205.00,895.17 174.90,895.17 105.00,895.17" fill="#E69504" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 885.00 L 174.90 885.00 L 205.00 885.00 L 235.10 885.00 L 274.90 885.00 L 305.00 885.00 L 335.10 885.00 L 352.71 885.00 L 374.90 989.50 L 392.51 1102.25 L 405.00 1135.25 L 422.61 1143.50 L 435.10 1135.25 L 474.90 1140.75 L 605.00 1145.70" fill="none" stroke="#E69504" stroke-width="2.2" stroke-dasharray="9,5"/>
+<rect x="102.00" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="171.90" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="202.00" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="232.10" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="271.90" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="302.00" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="332.10" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="349.71" y="882.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="371.90" y="986.50" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="389.51" y="1099.25" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="402.00" y="1132.25" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="419.61" y="1140.50" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="432.10" y="1132.25" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="471.90" y="1137.75" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<rect x="602.00" y="1142.70" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<polygon points="105.00,885.00 174.90,885.00 205.00,885.00 235.10,885.00 274.90,885.00 305.00,885.00 335.10,885.00 352.71,885.49 374.90,962.50 392.51,1086.66 405.00,1122.19 422.61,1122.19 435.10,1112.05 474.90,1122.19 605.00,1130.80 605.00,1148.21 474.90,1150.56 435.10,1144.81 422.61,1150.56 405.00,1150.56 392.51,1127.82 374.90,1013.64 352.71,899.98 335.10,895.17 305.00,895.17 274.90,895.17 235.10,895.17 205.00,895.17 174.90,895.17 105.00,895.17" fill="#B6497D" fill-opacity="0.10" stroke="none"/>
+<path d="M 105.00 885.00 L 174.90 885.00 L 205.00 885.00 L 235.10 885.00 L 274.90 885.00 L 305.00 885.00 L 335.10 885.00 L 352.71 887.75 L 374.90 986.75 L 392.51 1110.50 L 405.00 1140.75 L 422.61 1140.75 L 435.10 1132.50 L 474.90 1140.75 L 605.00 1141.30" fill="none" stroke="#B6497D" stroke-width="2.2" stroke-dasharray="2,4"/>
+<polygon points="105.00,881.20 101.50,888.00 108.50,888.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="174.90,881.20 171.40,888.00 178.40,888.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="205.00,881.20 201.50,888.00 208.50,888.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="235.10,881.20 231.60,888.00 238.60,888.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="274.90,881.20 271.40,888.00 278.40,888.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="305.00,881.20 301.50,888.00 308.50,888.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="335.10,881.20 331.60,888.00 338.60,888.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="352.71,883.95 349.21,890.75 356.21,890.75" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="374.90,982.95 371.40,989.75 378.40,989.75" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="392.51,1106.70 389.01,1113.50 396.01,1113.50" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="405.00,1136.95 401.50,1143.75 408.50,1143.75" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="422.61,1136.95 419.11,1143.75 426.11,1143.75" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="435.10,1128.70 431.60,1135.50 438.60,1135.50" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="474.90,1136.95 471.40,1143.75 478.40,1143.75" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<polygon points="605.00,1137.50 601.50,1144.30 608.50,1144.30" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<text x="700" y="487" font-size="16" font-weight="700" fill="#202124">D  Category-specific persistence</text>
+<text x="700" y="505" font-size="10.5" fill="#5f6368">Dominant mode; values below 10⁻¹² are clipped</text>
+<rect x="700" y="515" width="500" height="275" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="700" x2="1200" y1="790.00" y2="790.00" stroke="#e8eaed"/>
+<text x="693" y="794.00" text-anchor="end" font-size="9.5" fill="#5f6368">10^-12</text>
+<line x1="700" x2="1200" y1="721.25" y2="721.25" stroke="#e8eaed"/>
+<text x="693" y="725.25" text-anchor="end" font-size="9.5" fill="#5f6368">10^-9</text>
+<line x1="700" x2="1200" y1="652.50" y2="652.50" stroke="#e8eaed"/>
+<text x="693" y="656.50" text-anchor="end" font-size="9.5" fill="#5f6368">10^-6</text>
+<line x1="700" x2="1200" y1="583.75" y2="583.75" stroke="#e8eaed"/>
+<text x="693" y="587.75" text-anchor="end" font-size="9.5" fill="#5f6368">10^-3</text>
+<line x1="700" x2="1200" y1="515.00" y2="515.00" stroke="#e8eaed"/>
+<text x="693" y="519.00" text-anchor="end" font-size="9.5" fill="#5f6368">10^0</text>
+<line x1="700.00" x2="700.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="700.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">0.1</text>
+<line x1="800.00" x2="800.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="800.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">1</text>
+<line x1="900.00" x2="900.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="900.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="1000.00" x2="1000.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="1000.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="1100.00" x2="1100.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="1100.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="1200.00" x2="1200.00" y1="515" y2="790" stroke="#f1f3f4"/>
+<text x="1200.00" y="805" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="950.00" y="824" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="654" y="652.5" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 654 652.5)">dominant persistence</text>
+<path d="M 700.00 515.03 L 702.09 515.04 L 704.18 515.04 L 706.28 515.04 L 708.37 515.04 L 710.46 515.04 L 712.55 515.05 L 714.64 515.05 L 716.74 515.05 L 718.83 515.05 L 720.92 515.05 L 723.01 515.06 L 725.10 515.06 L 727.20 515.06 L 729.29 515.07 L 731.38 515.07 L 733.47 515.07 L 735.56 515.08 L 737.66 515.08 L 739.75 515.08 L 741.84 515.09 L 743.93 515.09 L 746.03 515.10 L 748.12 515.10 L 750.21 515.11 L 752.30 515.11 L 754.39 515.12 L 756.49 515.12 L 758.58 515.13 L 760.67 515.14 L 762.76 515.14 L 764.85 515.15 L 766.95 515.16 L 769.04 515.17 L 771.13 515.17 L 773.22 515.18 L 775.31 515.19 L 777.41 515.20 L 779.50 515.21 L 781.59 515.22 L 783.68 515.23 L 785.77 515.24 L 787.87 515.26 L 789.96 515.27 L 792.05 515.28 L 794.14 515.30 L 796.23 515.31 L 798.33 515.33 L 800.42 515.34 L 802.51 515.36 L 804.60 515.38 L 806.69 515.40 L 808.79 515.42 L 810.88 515.44 L 812.97 515.46 L 815.06 515.48 L 817.15 515.50 L 819.25 515.53 L 821.34 515.55 L 823.43 515.58 L 825.52 515.61 L 827.62 515.64 L 829.71 515.67 L 831.80 515.71 L 833.89 515.74 L 835.98 515.78 L 838.08 515.81 L 840.17 515.86 L 842.26 515.90 L 844.35 515.94 L 846.44 515.99 L 848.54 516.04 L 850.63 516.09 L 852.72 516.14 L 854.81 516.20 L 856.90 516.26 L 859.00 516.32 L 861.09 516.38 L 863.18 516.45 L 865.27 516.52 L 867.36 516.60 L 869.46 516.68 L 871.55 516.76 L 873.64 516.85 L 875.73 516.94 L 877.82 517.04 L 879.92 517.14 L 882.01 517.24 L 884.10 517.35 L 886.19 517.47 L 888.28 517.59 L 890.38 517.72 L 892.47 517.85 L 894.56 517.99 L 896.65 518.14 L 898.74 518.29 L 900.84 518.46 L 902.93 518.63 L 905.02 518.81 L 907.11 518.99 L 909.21 519.19 L 911.30 519.40 L 913.39 519.62 L 915.48 519.84 L 917.57 520.08 L 919.67 520.33 L 921.76 520.60 L 923.85 520.87 L 925.94 521.16 L 928.03 521.47 L 930.13 521.79 L 932.22 522.12 L 934.31 522.47 L 936.40 522.84 L 938.49 523.23 L 940.59 523.63 L 942.68 524.06 L 944.77 524.51 L 946.86 524.98 L 948.95 525.47 L 951.05 525.98 L 953.14 526.53 L 955.23 527.10 L 957.32 527.69 L 959.41 528.32 L 961.51 528.98 L 963.60 529.67 L 965.69 530.39 L 967.78 531.15 L 969.87 531.95 L 971.97 532.78 L 974.06 533.66 L 976.15 534.58 L 978.24 535.55 L 980.33 536.56 L 982.43 537.63 L 984.52 538.74 L 986.61 539.91 L 988.70 541.14 L 990.79 542.43 L 992.89 543.79 L 994.98 545.21 L 997.07 546.70 L 999.16 548.26 L 1001.26 549.90 L 1003.35 551.63 L 1005.44 553.43 L 1007.53 555.33 L 1009.62 557.32 L 1011.72 559.41 L 1013.81 561.60 L 1015.90 563.90 L 1017.99 566.31 L 1020.08 568.85 L 1022.18 571.50 L 1024.27 574.29 L 1026.36 577.22 L 1028.45 580.29 L 1030.54 583.51 L 1032.64 586.89 L 1034.73 590.44 L 1036.82 594.16 L 1038.91 598.07 L 1041.00 602.17 L 1043.10 606.47 L 1045.19 610.99 L 1047.28 615.72 L 1049.37 620.69 L 1051.46 625.91 L 1053.56 631.38 L 1055.65 637.13 L 1057.74 643.15 L 1059.83 649.48 L 1061.92 656.11 L 1064.02 663.08 L 1066.11 670.39 L 1068.20 678.06 L 1070.29 686.10 L 1072.38 694.55 L 1074.48 703.41 L 1076.57 712.70 L 1078.66 722.46 L 1080.75 732.70 L 1082.85 743.44 L 1084.94 754.72 L 1087.03 766.55 L 1089.12 778.96 L 1091.21 790.00 L 1093.31 790.00 L 1095.40 790.00 L 1097.49 790.00 L 1099.58 790.00 L 1101.67 790.00 L 1103.77 790.00 L 1105.86 790.00 L 1107.95 790.00 L 1110.04 790.00 L 1112.13 790.00 L 1114.23 790.00 L 1116.32 790.00 L 1118.41 790.00 L 1120.50 790.00 L 1122.59 790.00 L 1124.69 790.00 L 1126.78 790.00 L 1128.87 790.00 L 1130.96 790.00 L 1133.05 790.00 L 1135.15 790.00 L 1137.24 790.00 L 1139.33 790.00 L 1141.42 790.00 L 1143.51 790.00 L 1145.61 790.00 L 1147.70 790.00 L 1149.79 790.00 L 1151.88 790.00 L 1153.97 790.00 L 1156.07 790.00 L 1158.16 790.00 L 1160.25 790.00 L 1162.34 790.00 L 1164.44 790.00 L 1166.53 790.00 L 1168.62 790.00 L 1170.71 790.00 L 1172.80 790.00 L 1174.90 790.00 L 1176.99 790.00 L 1179.08 790.00 L 1181.17 790.00 L 1183.26 790.00 L 1185.36 790.00 L 1187.45 790.00 L 1189.54 790.00 L 1191.63 790.00 L 1193.72 790.00 L 1195.82 790.00 L 1197.91 790.00 L 1200.00 790.00" fill="none" stroke="#0A3FBA" stroke-width="2.1" stroke-dasharray="2,3"/>
+<line x1="712" x2="737" y1="532" y2="532" stroke="#0A3FBA" stroke-width="2.1" stroke-dasharray="2,3"/>
+<text x="743" y="535.5" font-size="9.5" fill="#0A3FBA">c1: r=0.0334</text>
+<path d="M 700.00 515.26 L 702.09 515.27 L 704.18 515.28 L 706.28 515.30 L 708.37 515.31 L 710.46 515.33 L 712.55 515.34 L 714.64 515.36 L 716.74 515.38 L 718.83 515.39 L 720.92 515.41 L 723.01 515.43 L 725.10 515.46 L 727.20 515.48 L 729.29 515.50 L 731.38 515.53 L 733.47 515.55 L 735.56 515.58 L 737.66 515.61 L 739.75 515.64 L 741.84 515.67 L 743.93 515.70 L 746.03 515.74 L 748.12 515.77 L 750.21 515.81 L 752.30 515.85 L 754.39 515.90 L 756.49 515.94 L 758.58 515.99 L 760.67 516.03 L 762.76 516.09 L 764.85 516.14 L 766.95 516.20 L 769.04 516.25 L 771.13 516.32 L 773.22 516.38 L 775.31 516.45 L 777.41 516.52 L 779.50 516.60 L 781.59 516.67 L 783.68 516.76 L 785.77 516.84 L 787.87 516.93 L 789.96 517.03 L 792.05 517.13 L 794.14 517.24 L 796.23 517.35 L 798.33 517.46 L 800.42 517.58 L 802.51 517.71 L 804.60 517.84 L 806.69 517.98 L 808.79 518.13 L 810.88 518.29 L 812.97 518.45 L 815.06 518.62 L 817.15 518.80 L 819.25 518.98 L 821.34 519.18 L 823.43 519.39 L 825.52 519.60 L 827.62 519.83 L 829.71 520.07 L 831.80 520.32 L 833.89 520.58 L 835.98 520.86 L 838.08 521.15 L 840.17 521.45 L 842.26 521.77 L 844.35 522.10 L 846.44 522.45 L 848.54 522.82 L 850.63 523.21 L 852.72 523.61 L 854.81 524.04 L 856.90 524.48 L 859.00 524.95 L 861.09 525.44 L 863.18 525.96 L 865.27 526.50 L 867.36 527.07 L 869.46 527.66 L 871.55 528.29 L 873.64 528.94 L 875.73 529.63 L 877.82 530.35 L 879.92 531.11 L 882.01 531.91 L 884.10 532.74 L 886.19 533.61 L 888.28 534.53 L 890.38 535.50 L 892.47 536.51 L 894.56 537.57 L 896.65 538.68 L 898.74 539.85 L 900.84 541.08 L 902.93 542.37 L 905.02 543.72 L 907.11 545.13 L 909.21 546.62 L 911.30 548.18 L 913.39 549.82 L 915.48 551.54 L 917.57 553.34 L 919.67 555.23 L 921.76 557.22 L 923.85 559.30 L 925.94 561.49 L 928.03 563.78 L 930.13 566.19 L 932.22 568.72 L 934.31 571.37 L 936.40 574.15 L 938.49 577.07 L 940.59 580.13 L 942.68 583.35 L 944.77 586.72 L 946.86 590.26 L 948.95 593.97 L 951.05 597.87 L 953.14 601.96 L 955.23 606.25 L 957.32 610.75 L 959.41 615.48 L 961.51 620.44 L 963.60 625.64 L 965.69 631.10 L 967.78 636.83 L 969.87 642.84 L 971.97 649.15 L 974.06 655.77 L 976.15 662.72 L 978.24 670.01 L 980.33 677.66 L 982.43 685.69 L 984.52 694.11 L 986.61 702.95 L 988.70 712.23 L 990.79 721.96 L 992.89 732.17 L 994.98 742.89 L 997.07 754.14 L 999.16 765.94 L 1001.26 778.32 L 1003.35 790.00 L 1005.44 790.00 L 1007.53 790.00 L 1009.62 790.00 L 1011.72 790.00 L 1013.81 790.00 L 1015.90 790.00 L 1017.99 790.00 L 1020.08 790.00 L 1022.18 790.00 L 1024.27 790.00 L 1026.36 790.00 L 1028.45 790.00 L 1030.54 790.00 L 1032.64 790.00 L 1034.73 790.00 L 1036.82 790.00 L 1038.91 790.00 L 1041.00 790.00 L 1043.10 790.00 L 1045.19 790.00 L 1047.28 790.00 L 1049.37 790.00 L 1051.46 790.00 L 1053.56 790.00 L 1055.65 790.00 L 1057.74 790.00 L 1059.83 790.00 L 1061.92 790.00 L 1064.02 790.00 L 1066.11 790.00 L 1068.20 790.00 L 1070.29 790.00 L 1072.38 790.00 L 1074.48 790.00 L 1076.57 790.00 L 1078.66 790.00 L 1080.75 790.00 L 1082.85 790.00 L 1084.94 790.00 L 1087.03 790.00 L 1089.12 790.00 L 1091.21 790.00 L 1093.31 790.00 L 1095.40 790.00 L 1097.49 790.00 L 1099.58 790.00 L 1101.67 790.00 L 1103.77 790.00 L 1105.86 790.00 L 1107.95 790.00 L 1110.04 790.00 L 1112.13 790.00 L 1114.23 790.00 L 1116.32 790.00 L 1118.41 790.00 L 1120.50 790.00 L 1122.59 790.00 L 1124.69 790.00 L 1126.78 790.00 L 1128.87 790.00 L 1130.96 790.00 L 1133.05 790.00 L 1135.15 790.00 L 1137.24 790.00 L 1139.33 790.00 L 1141.42 790.00 L 1143.51 790.00 L 1145.61 790.00 L 1147.70 790.00 L 1149.79 790.00 L 1151.88 790.00 L 1153.97 790.00 L 1156.07 790.00 L 1158.16 790.00 L 1160.25 790.00 L 1162.34 790.00 L 1164.44 790.00 L 1166.53 790.00 L 1168.62 790.00 L 1170.71 790.00 L 1172.80 790.00 L 1174.90 790.00 L 1176.99 790.00 L 1179.08 790.00 L 1181.17 790.00 L 1183.26 790.00 L 1185.36 790.00 L 1187.45 790.00 L 1189.54 790.00 L 1191.63 790.00 L 1193.72 790.00 L 1195.82 790.00 L 1197.91 790.00 L 1200.00 790.00" fill="none" stroke="#4778CE" stroke-width="2.1" stroke-dasharray="5,4"/>
+<line x1="712" x2="737" y1="547" y2="547" stroke="#4778CE" stroke-width="2.1" stroke-dasharray="5,4"/>
+<text x="743" y="550.5" font-size="9.5" fill="#4778CE">c2: r=0.252</text>
+<path d="M 700.00 515.83 L 702.09 515.87 L 704.18 515.92 L 706.28 515.96 L 708.37 516.01 L 710.46 516.06 L 712.55 516.11 L 714.64 516.17 L 716.74 516.22 L 718.83 516.29 L 720.92 516.35 L 723.01 516.42 L 725.10 516.49 L 727.20 516.56 L 729.29 516.64 L 731.38 516.72 L 733.47 516.80 L 735.56 516.89 L 737.66 516.98 L 739.75 517.08 L 741.84 517.18 L 743.93 517.29 L 746.03 517.40 L 748.12 517.52 L 750.21 517.65 L 752.30 517.78 L 754.39 517.91 L 756.49 518.06 L 758.58 518.21 L 760.67 518.37 L 762.76 518.53 L 764.85 518.71 L 766.95 518.89 L 769.04 519.08 L 771.13 519.29 L 773.22 519.50 L 775.31 519.72 L 777.41 519.95 L 779.50 520.20 L 781.59 520.45 L 783.68 520.72 L 785.77 521.00 L 787.87 521.30 L 789.96 521.61 L 792.05 521.94 L 794.14 522.28 L 796.23 522.64 L 798.33 523.02 L 800.42 523.41 L 802.51 523.83 L 804.60 524.26 L 806.69 524.72 L 808.79 525.20 L 810.88 525.70 L 812.97 526.23 L 815.06 526.78 L 817.15 527.37 L 819.25 527.98 L 821.34 528.62 L 823.43 529.29 L 825.52 529.99 L 827.62 530.73 L 829.71 531.51 L 831.80 532.33 L 833.89 533.18 L 835.98 534.08 L 838.08 535.02 L 840.17 536.01 L 842.26 537.04 L 844.35 538.13 L 846.44 539.27 L 848.54 540.47 L 850.63 541.73 L 852.72 543.05 L 854.81 544.43 L 856.90 545.88 L 859.00 547.41 L 861.09 549.01 L 863.18 550.68 L 865.27 552.45 L 867.36 554.29 L 869.46 556.23 L 871.55 558.27 L 873.64 560.40 L 875.73 562.64 L 877.82 564.99 L 879.92 567.46 L 882.01 570.05 L 884.10 572.77 L 886.19 575.62 L 888.28 578.61 L 890.38 581.75 L 892.47 585.04 L 894.56 588.50 L 896.65 592.13 L 898.74 595.93 L 900.84 599.93 L 902.93 604.12 L 905.02 608.52 L 907.11 613.13 L 909.21 617.98 L 911.30 623.06 L 913.39 628.39 L 915.48 633.99 L 917.57 639.86 L 919.67 646.02 L 921.76 652.49 L 923.85 659.27 L 925.94 666.39 L 928.03 673.86 L 930.13 681.70 L 932.22 689.93 L 934.31 698.56 L 936.40 707.62 L 938.49 717.12 L 940.59 727.10 L 942.68 737.57 L 944.77 748.55 L 946.86 760.08 L 948.95 772.17 L 951.05 784.86 L 953.14 790.00 L 955.23 790.00 L 957.32 790.00 L 959.41 790.00 L 961.51 790.00 L 963.60 790.00 L 965.69 790.00 L 967.78 790.00 L 969.87 790.00 L 971.97 790.00 L 974.06 790.00 L 976.15 790.00 L 978.24 790.00 L 980.33 790.00 L 982.43 790.00 L 984.52 790.00 L 986.61 790.00 L 988.70 790.00 L 990.79 790.00 L 992.89 790.00 L 994.98 790.00 L 997.07 790.00 L 999.16 790.00 L 1001.26 790.00 L 1003.35 790.00 L 1005.44 790.00 L 1007.53 790.00 L 1009.62 790.00 L 1011.72 790.00 L 1013.81 790.00 L 1015.90 790.00 L 1017.99 790.00 L 1020.08 790.00 L 1022.18 790.00 L 1024.27 790.00 L 1026.36 790.00 L 1028.45 790.00 L 1030.54 790.00 L 1032.64 790.00 L 1034.73 790.00 L 1036.82 790.00 L 1038.91 790.00 L 1041.00 790.00 L 1043.10 790.00 L 1045.19 790.00 L 1047.28 790.00 L 1049.37 790.00 L 1051.46 790.00 L 1053.56 790.00 L 1055.65 790.00 L 1057.74 790.00 L 1059.83 790.00 L 1061.92 790.00 L 1064.02 790.00 L 1066.11 790.00 L 1068.20 790.00 L 1070.29 790.00 L 1072.38 790.00 L 1074.48 790.00 L 1076.57 790.00 L 1078.66 790.00 L 1080.75 790.00 L 1082.85 790.00 L 1084.94 790.00 L 1087.03 790.00 L 1089.12 790.00 L 1091.21 790.00 L 1093.31 790.00 L 1095.40 790.00 L 1097.49 790.00 L 1099.58 790.00 L 1101.67 790.00 L 1103.77 790.00 L 1105.86 790.00 L 1107.95 790.00 L 1110.04 790.00 L 1112.13 790.00 L 1114.23 790.00 L 1116.32 790.00 L 1118.41 790.00 L 1120.50 790.00 L 1122.59 790.00 L 1124.69 790.00 L 1126.78 790.00 L 1128.87 790.00 L 1130.96 790.00 L 1133.05 790.00 L 1135.15 790.00 L 1137.24 790.00 L 1139.33 790.00 L 1141.42 790.00 L 1143.51 790.00 L 1145.61 790.00 L 1147.70 790.00 L 1149.79 790.00 L 1151.88 790.00 L 1153.97 790.00 L 1156.07 790.00 L 1158.16 790.00 L 1160.25 790.00 L 1162.34 790.00 L 1164.44 790.00 L 1166.53 790.00 L 1168.62 790.00 L 1170.71 790.00 L 1172.80 790.00 L 1174.90 790.00 L 1176.99 790.00 L 1179.08 790.00 L 1181.17 790.00 L 1183.26 790.00 L 1185.36 790.00 L 1187.45 790.00 L 1189.54 790.00 L 1191.63 790.00 L 1193.72 790.00 L 1195.82 790.00 L 1197.91 790.00 L 1200.00 790.00" fill="none" stroke="#829FE0" stroke-width="2.1" stroke-dasharray="8,5"/>
+<line x1="712" x2="737" y1="562" y2="562" stroke="#829FE0" stroke-width="2.1" stroke-dasharray="8,5"/>
+<text x="743" y="565.5" font-size="9.5" fill="#829FE0">c3: r=0.82</text>
+<path d="M 700.00 517.94 L 702.09 518.08 L 704.18 518.24 L 706.28 518.40 L 708.37 518.56 L 710.46 518.74 L 712.55 518.92 L 714.64 519.12 L 716.74 519.32 L 718.83 519.53 L 720.92 519.76 L 723.01 519.99 L 725.10 520.24 L 727.20 520.50 L 729.29 520.77 L 731.38 521.05 L 733.47 521.35 L 735.56 521.67 L 737.66 521.99 L 739.75 522.34 L 741.84 522.70 L 743.93 523.08 L 746.03 523.48 L 748.12 523.90 L 750.21 524.34 L 752.30 524.80 L 754.39 525.28 L 756.49 525.79 L 758.58 526.32 L 760.67 526.88 L 762.76 527.47 L 764.85 528.08 L 766.95 528.73 L 769.04 529.41 L 771.13 530.12 L 773.22 530.86 L 775.31 531.65 L 777.41 532.47 L 779.50 533.33 L 781.59 534.24 L 783.68 535.18 L 785.77 536.18 L 787.87 537.23 L 789.96 538.32 L 792.05 539.47 L 794.14 540.68 L 796.23 541.95 L 798.33 543.28 L 800.42 544.68 L 802.51 546.14 L 804.60 547.68 L 806.69 549.29 L 808.79 550.98 L 810.88 552.76 L 812.97 554.62 L 815.06 556.58 L 817.15 558.63 L 819.25 560.78 L 821.34 563.04 L 823.43 565.41 L 825.52 567.90 L 827.62 570.51 L 829.71 573.25 L 831.80 576.12 L 833.89 579.14 L 835.98 582.30 L 838.08 585.63 L 840.17 589.11 L 842.26 592.77 L 844.35 596.61 L 846.44 600.63 L 848.54 604.86 L 850.63 609.29 L 852.72 613.95 L 854.81 618.83 L 856.90 623.95 L 859.00 629.33 L 861.09 634.97 L 863.18 640.89 L 865.27 647.11 L 867.36 653.63 L 869.46 660.47 L 871.55 667.65 L 873.64 675.18 L 875.73 683.09 L 877.82 691.38 L 879.92 700.09 L 882.01 709.22 L 884.10 718.80 L 886.19 728.86 L 888.28 739.42 L 890.38 750.49 L 892.47 762.11 L 894.56 774.31 L 896.65 787.10 L 898.74 790.00 L 900.84 790.00 L 902.93 790.00 L 905.02 790.00 L 907.11 790.00 L 909.21 790.00 L 911.30 790.00 L 913.39 790.00 L 915.48 790.00 L 917.57 790.00 L 919.67 790.00 L 921.76 790.00 L 923.85 790.00 L 925.94 790.00 L 928.03 790.00 L 930.13 790.00 L 932.22 790.00 L 934.31 790.00 L 936.40 790.00 L 938.49 790.00 L 940.59 790.00 L 942.68 790.00 L 944.77 790.00 L 946.86 790.00 L 948.95 790.00 L 951.05 790.00 L 953.14 790.00 L 955.23 790.00 L 957.32 790.00 L 959.41 790.00 L 961.51 790.00 L 963.60 790.00 L 965.69 790.00 L 967.78 790.00 L 969.87 790.00 L 971.97 790.00 L 974.06 790.00 L 976.15 790.00 L 978.24 790.00 L 980.33 790.00 L 982.43 790.00 L 984.52 790.00 L 986.61 790.00 L 988.70 790.00 L 990.79 790.00 L 992.89 790.00 L 994.98 790.00 L 997.07 790.00 L 999.16 790.00 L 1001.26 790.00 L 1003.35 790.00 L 1005.44 790.00 L 1007.53 790.00 L 1009.62 790.00 L 1011.72 790.00 L 1013.81 790.00 L 1015.90 790.00 L 1017.99 790.00 L 1020.08 790.00 L 1022.18 790.00 L 1024.27 790.00 L 1026.36 790.00 L 1028.45 790.00 L 1030.54 790.00 L 1032.64 790.00 L 1034.73 790.00 L 1036.82 790.00 L 1038.91 790.00 L 1041.00 790.00 L 1043.10 790.00 L 1045.19 790.00 L 1047.28 790.00 L 1049.37 790.00 L 1051.46 790.00 L 1053.56 790.00 L 1055.65 790.00 L 1057.74 790.00 L 1059.83 790.00 L 1061.92 790.00 L 1064.02 790.00 L 1066.11 790.00 L 1068.20 790.00 L 1070.29 790.00 L 1072.38 790.00 L 1074.48 790.00 L 1076.57 790.00 L 1078.66 790.00 L 1080.75 790.00 L 1082.85 790.00 L 1084.94 790.00 L 1087.03 790.00 L 1089.12 790.00 L 1091.21 790.00 L 1093.31 790.00 L 1095.40 790.00 L 1097.49 790.00 L 1099.58 790.00 L 1101.67 790.00 L 1103.77 790.00 L 1105.86 790.00 L 1107.95 790.00 L 1110.04 790.00 L 1112.13 790.00 L 1114.23 790.00 L 1116.32 790.00 L 1118.41 790.00 L 1120.50 790.00 L 1122.59 790.00 L 1124.69 790.00 L 1126.78 790.00 L 1128.87 790.00 L 1130.96 790.00 L 1133.05 790.00 L 1135.15 790.00 L 1137.24 790.00 L 1139.33 790.00 L 1141.42 790.00 L 1143.51 790.00 L 1145.61 790.00 L 1147.70 790.00 L 1149.79 790.00 L 1151.88 790.00 L 1153.97 790.00 L 1156.07 790.00 L 1158.16 790.00 L 1160.25 790.00 L 1162.34 790.00 L 1164.44 790.00 L 1166.53 790.00 L 1168.62 790.00 L 1170.71 790.00 L 1172.80 790.00 L 1174.90 790.00 L 1176.99 790.00 L 1179.08 790.00 L 1181.17 790.00 L 1183.26 790.00 L 1185.36 790.00 L 1187.45 790.00 L 1189.54 790.00 L 1191.63 790.00 L 1193.72 790.00 L 1195.82 790.00 L 1197.91 790.00 L 1200.00 790.00" fill="none" stroke="#B7C7EF" stroke-width="2.1" stroke-dasharray="11,6"/>
+<line x1="712" x2="737" y1="577" y2="577" stroke="#B7C7EF" stroke-width="2.1" stroke-dasharray="11,6"/>
+<text x="743" y="580.5" font-size="9.5" fill="#B7C7EF">c4: r=2.89</text>
+<text x="700" y="857" font-size="16" font-weight="700" fill="#202124">F  Model-based saturation index</text>
+<text x="700" y="875" font-size="10.5" fill="#5f6368">Equal spectral coefficients, a_k=1; independent of alignment size</text>
+<rect x="700" y="885" width="500" height="275" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>
+<line x1="700" x2="1200" y1="1160.00" y2="1160.00" stroke="#e8eaed"/>
+<text x="693" y="1164.00" text-anchor="end" font-size="9.5" fill="#5f6368">0</text>
+<line x1="700" x2="1200" y1="1091.25" y2="1091.25" stroke="#e8eaed"/>
+<text x="693" y="1095.25" text-anchor="end" font-size="9.5" fill="#5f6368">0.25</text>
+<line x1="700" x2="1200" y1="1022.50" y2="1022.50" stroke="#e8eaed"/>
+<text x="693" y="1026.50" text-anchor="end" font-size="9.5" fill="#5f6368">0.5</text>
+<line x1="700" x2="1200" y1="953.75" y2="953.75" stroke="#e8eaed"/>
+<text x="693" y="957.75" text-anchor="end" font-size="9.5" fill="#5f6368">0.75</text>
+<line x1="700" x2="1200" y1="885.00" y2="885.00" stroke="#e8eaed"/>
+<text x="693" y="889.00" text-anchor="end" font-size="9.5" fill="#5f6368">1</text>
+<line x1="700.00" x2="700.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="700.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">0.1</text>
+<line x1="800.00" x2="800.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="800.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">1</text>
+<line x1="900.00" x2="900.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="900.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">10</text>
+<line x1="1000.00" x2="1000.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="1000.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">100</text>
+<line x1="1100.00" x2="1100.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="1100.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">1000</text>
+<line x1="1200.00" x2="1200.00" y1="885" y2="1160" stroke="#f1f3f4"/>
+<text x="1200.00" y="1175" text-anchor="middle" font-size="9.5" fill="#5f6368">10000</text>
+<text x="950.00" y="1194" text-anchor="middle" font-size="10.5" fill="#3c4043">target branch length (log scale)</text>
+<text x="654" y="1022.5" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 654 1022.5)">1 − I(t)/I(0)</text>
+<path d="M 700.00 1103.96 L 702.09 1101.94 L 704.18 1099.88 L 706.28 1097.78 L 708.37 1095.63 L 710.46 1093.45 L 712.55 1091.23 L 714.64 1088.98 L 716.74 1086.69 L 718.83 1084.37 L 720.92 1082.02 L 723.01 1079.64 L 725.10 1077.25 L 727.20 1074.83 L 729.29 1072.39 L 731.38 1069.93 L 733.47 1067.46 L 735.56 1064.98 L 737.66 1062.49 L 739.75 1059.99 L 741.84 1057.49 L 743.93 1054.99 L 746.03 1052.49 L 748.12 1049.98 L 750.21 1047.48 L 752.30 1044.99 L 754.39 1042.50 L 756.49 1040.02 L 758.58 1037.54 L 760.67 1035.08 L 762.76 1032.62 L 764.85 1030.17 L 766.95 1027.74 L 769.04 1025.31 L 771.13 1022.89 L 773.22 1020.48 L 775.31 1018.09 L 777.41 1015.70 L 779.50 1013.33 L 781.59 1010.96 L 783.68 1008.61 L 785.77 1006.27 L 787.87 1003.95 L 789.96 1001.64 L 792.05 999.34 L 794.14 997.06 L 796.23 994.80 L 798.33 992.56 L 800.42 990.33 L 802.51 988.13 L 804.60 985.95 L 806.69 983.79 L 808.79 981.66 L 810.88 979.55 L 812.97 977.47 L 815.06 975.41 L 817.15 973.38 L 819.25 971.38 L 821.34 969.41 L 823.43 967.47 L 825.52 965.55 L 827.62 963.67 L 829.71 961.81 L 831.80 959.98 L 833.89 958.19 L 835.98 956.42 L 838.08 954.67 L 840.17 952.96 L 842.26 951.28 L 844.35 949.62 L 846.44 947.99 L 848.54 946.39 L 850.63 944.82 L 852.72 943.28 L 854.81 941.76 L 856.90 940.27 L 859.00 938.80 L 861.09 937.35 L 863.18 935.94 L 865.27 934.54 L 867.36 933.16 L 869.46 931.81 L 871.55 930.47 L 873.64 929.14 L 875.73 927.84 L 877.82 926.54 L 879.92 925.26 L 882.01 923.98 L 884.10 922.71 L 886.19 921.45 L 888.28 920.20 L 890.38 918.95 L 892.47 917.70 L 894.56 916.46 L 896.65 915.22 L 898.74 913.98 L 900.84 912.75 L 902.93 911.52 L 905.02 910.29 L 907.11 909.08 L 909.21 907.87 L 911.30 906.67 L 913.39 905.49 L 915.48 904.32 L 917.57 903.17 L 919.67 902.04 L 921.76 900.93 L 923.85 899.85 L 925.94 898.80 L 928.03 897.78 L 930.13 896.79 L 932.22 895.84 L 934.31 894.93 L 936.40 894.05 L 938.49 893.22 L 940.59 892.44 L 942.68 891.70 L 944.77 891.00 L 946.86 890.35 L 948.95 889.75 L 951.05 889.19 L 953.14 888.68 L 955.23 888.21 L 957.32 887.79 L 959.41 887.40 L 961.51 887.06 L 963.60 886.75 L 965.69 886.48 L 967.78 886.25 L 969.87 886.04 L 971.97 885.86 L 974.06 885.70 L 976.15 885.57 L 978.24 885.46 L 980.33 885.37 L 982.43 885.29 L 984.52 885.23 L 986.61 885.18 L 988.70 885.14 L 990.79 885.10 L 992.89 885.08 L 994.98 885.06 L 997.07 885.04 L 999.16 885.03 L 1001.26 885.02 L 1003.35 885.02 L 1005.44 885.01 L 1007.53 885.01 L 1009.62 885.00 L 1011.72 885.00 L 1013.81 885.00 L 1015.90 885.00 L 1017.99 885.00 L 1020.08 885.00 L 1022.18 885.00 L 1024.27 885.00 L 1026.36 885.00 L 1028.45 885.00 L 1030.54 885.00 L 1032.64 885.00 L 1034.73 885.00 L 1036.82 885.00 L 1038.91 885.00 L 1041.00 885.00 L 1043.10 885.00 L 1045.19 885.00 L 1047.28 885.00 L 1049.37 885.00 L 1051.46 885.00 L 1053.56 885.00 L 1055.65 885.00 L 1057.74 885.00 L 1059.83 885.00 L 1061.92 885.00 L 1064.02 885.00 L 1066.11 885.00 L 1068.20 885.00 L 1070.29 885.00 L 1072.38 885.00 L 1074.48 885.00 L 1076.57 885.00 L 1078.66 885.00 L 1080.75 885.00 L 1082.85 885.00 L 1084.94 885.00 L 1087.03 885.00 L 1089.12 885.00 L 1091.21 885.00 L 1093.31 885.00 L 1095.40 885.00 L 1097.49 885.00 L 1099.58 885.00 L 1101.67 885.00 L 1103.77 885.00 L 1105.86 885.00 L 1107.95 885.00 L 1110.04 885.00 L 1112.13 885.00 L 1114.23 885.00 L 1116.32 885.00 L 1118.41 885.00 L 1120.50 885.00 L 1122.59 885.00 L 1124.69 885.00 L 1126.78 885.00 L 1128.87 885.00 L 1130.96 885.00 L 1133.05 885.00 L 1135.15 885.00 L 1137.24 885.00 L 1139.33 885.00 L 1141.42 885.00 L 1143.51 885.00 L 1145.61 885.00 L 1147.70 885.00 L 1149.79 885.00 L 1151.88 885.00 L 1153.97 885.00 L 1156.07 885.00 L 1158.16 885.00 L 1160.25 885.00 L 1162.34 885.00 L 1164.44 885.00 L 1166.53 885.00 L 1168.62 885.00 L 1170.71 885.00 L 1172.80 885.00 L 1174.90 885.00 L 1176.99 885.00 L 1179.08 885.00 L 1181.17 885.00 L 1183.26 885.00 L 1185.36 885.00 L 1187.45 885.00 L 1189.54 885.00 L 1191.63 885.00 L 1193.72 885.00 L 1195.82 885.00 L 1197.91 885.00 L 1200.00 885.00" fill="none" stroke="#202124" stroke-width="2.6"/>
+<circle cx="700.00" cy="1103.96" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="769.90" cy="1024.31" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="800.00" cy="990.78" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="830.10" cy="961.46" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="869.90" cy="931.52" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="900.00" cy="913.24" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="930.10" cy="896.80" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="947.71" cy="890.10" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="969.90" cy="886.04" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="987.51" cy="885.16" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="1000.00" cy="885.03" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="1017.61" cy="885.00" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="1030.10" cy="885.00" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="1069.90" cy="885.00" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<circle cx="1200.00" cy="885.00" r="3.2" fill="#ffffff" stroke="#202124" stroke-width="1.5"/>
+<line x1="175" x2="213" y1="98" y2="98" stroke="#0A3FBA" stroke-width="2.5"/>
+<circle cx="194.00" cy="98.00" r="3" fill="white" stroke="#0A3FBA" stroke-width="1.7"/>
+<text x="223" y="102" font-size="11" fill="#3c4043">Dominant</text>
+<line x1="505" x2="543" y1="98" y2="98" stroke="#E69504" stroke-width="2.5" stroke-dasharray="9,5"/>
+<rect x="521.00" y="95.00" width="6" height="6" fill="white" stroke="#E69504" stroke-width="1.7"/>
+<text x="553" y="102" font-size="11" fill="#3c4043">Relative eigenvalue-weighted</text>
+<line x1="835" x2="873" y1="98" y2="98" stroke="#B6497D" stroke-width="2.5" stroke-dasharray="2,4"/>
+<polygon points="854.00,94.20 850.50,101.00 857.50,101.00" fill="white" stroke="#B6497D" stroke-width="1.7"/>
+<text x="883" y="102" font-size="11" fill="#3c4043">Soft likelihood mixture</text>
+<text x="105" y="1240" font-size="10.5" fill="#5f6368">Raw coherence is formula-scale dependent. satZ is a detection statistic; the saturation index is the monotonic model-based ruler.</text>
+</svg>

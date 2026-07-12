@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "experiment": "005_biological_windows",
+  "window_size": 36,
+  "output": "artifacts/local/biological-windows"
+}

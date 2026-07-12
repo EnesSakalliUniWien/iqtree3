@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "experiment": "003_invariant_mixture",
+  "seed": 20260711,
+  "models": ["+I+G4", "+I+R4"],
+  "site_lengths": [100, 500, 1000, 5000, 10000],
+  "branch_lengths": [0.5, 1, 2, 3, 4, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 30, 35, 40, 45, 50, 60, 75, 100, 150, 200, 500, 1000, 10000],
+  "null_replicates": 20000,
+  "alternative_replicates": 20000,
+  "null_training_fraction": 0.5,
+  "alpha": 0.05,
+  "bootstrap_replicates": 4000,
+  "png_scale": 3,
+  "output": "artifacts/local/weighted-invariant-full"
+}

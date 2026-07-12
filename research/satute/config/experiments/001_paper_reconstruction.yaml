@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "experiment": "001_paper_reconstruction",
+  "status": "historical-baseline",
+  "output": "artifacts/local/paper-reconstruction"
+}

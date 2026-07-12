@@ -1,0 +1,94 @@
+{
+  "command": [
+    "tools/maintenance/create_release_manifest.py",
+    "--experiment",
+    "003_invariant_mixture",
+    "--version",
+    "v1"
+  ],
+  "config": {
+    "alpha": 0.05,
+    "alternative_replicates": 20000,
+    "bootstrap_replicates": 4000,
+    "branch_lengths": [
+      0.5,
+      1,
+      2,
+      3,
+      4,
+      5,
+      7.5,
+      10,
+      12.5,
+      15,
+      17.5,
+      20,
+      22.5,
+      25,
+      30,
+      35,
+      40,
+      45,
+      50,
+      60,
+      75,
+      100,
+      150,
+      200,
+      500,
+      1000,
+      10000
+    ],
+    "experiment": "003_invariant_mixture",
+    "models": [
+      "+I+G4",
+      "+I+R4"
+    ],
+    "null_replicates": 20000,
+    "null_training_fraction": 0.5,
+    "output": "artifacts/local/weighted-invariant-full",
+    "png_scale": 3,
+    "schema_version": 1,
+    "seed": 20260711,
+    "site_lengths": [
+      100,
+      500,
+      1000,
+      5000,
+      10000
+    ]
+  },
+  "created_utc": "2026-07-12T18:06:15.450821+00:00",
+  "experiment": "003_invariant_mixture",
+  "git_commit": "07b02c3fabe257e9239ecc96deca5f232ba2a3bb",
+  "git_dirty": true,
+  "outputs": [
+    {
+      "path": "research/satute/artifacts/releases/invariant-mixture-v1/figures/full-analysis.pdf",
+      "sha256": "55467363bccd85de0ca74716a84571d78cc07bdc5cf4a14a83c0f21376b56263"
+    },
+    {
+      "path": "research/satute/artifacts/releases/invariant-mixture-v1/figures/full-analysis.png",
+      "sha256": "018c9e56cae7e521628493df4d6b1c6789454744e069532133a947fae3bcb7c0"
+    },
+    {
+      "path": "research/satute/artifacts/releases/invariant-mixture-v1/figures/full-analysis.svg",
+      "sha256": "9fa98d157bd1170796c717fa634c04f1fe4a12556dfbdb1753d0678875016f61"
+    },
+    {
+      "path": "research/satute/artifacts/releases/invariant-mixture-v1/tables/assumptions.tsv",
+      "sha256": "4ba9624f15bad293c8894a323de2bc60149509be2ae4425bce7c0788e6d1ba78"
+    },
+    {
+      "path": "research/satute/artifacts/releases/invariant-mixture-v1/tables/paired.tsv",
+      "sha256": "54257f25cecaabc2a043bee3f55d80a3b9c4570d67c7e52fe899b81d6a8dd376"
+    },
+    {
+      "path": "research/satute/artifacts/releases/invariant-mixture-v1/tables/summary.tsv",
+      "sha256": "72a3b01a8cec607b649e932a4d6cf09ecfad8f0db2c93dbfa7fbfd6ea70e8cf2"
+    }
+  ],
+  "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "python": "3.13.2 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 12:55:35) [Clang 14.0.6 ]",
+  "schema_version": 1
+}

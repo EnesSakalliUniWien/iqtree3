@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "experiments": [
+    {
+      "id": "001_paper_reconstruction",
+      "question": "Can the original SatuTe simulation design and figure inputs be reconstructed?",
+      "status": "historical-baseline",
+      "driver": "experiments/001_paper_reconstruction/run.py",
+      "config": "config/experiments/001_paper_reconstruction.yaml",
+      "consumers": ["docs", "manuscript"]
+    },
+    {
+      "id": "002_relative_weighting",
+      "question": "How does relative eigenvalue weighting change SatuTe decisions under rate heterogeneity?",
+      "status": "reviewed",
+      "driver": "experiments/002_relative_weighting/run.py",
+      "config": "config/experiments/002_relative_weighting.yaml",
+      "consumers": ["manuscript"]
+    },
+    {
+      "id": "003_invariant_mixture",
+      "question": "Does the corrected invariant-mixture null control false positives and improve boundary power?",
+      "status": "released",
+      "driver": "experiments/003_invariant_mixture/run.py",
+      "config": "config/experiments/003_invariant_mixture.yaml",
+      "release": "artifacts/releases/invariant-mixture-v1",
+      "consumers": ["manuscript", "docs"]
+    },
+    {
+      "id": "004_saturation_diagnostics",
+      "question": "How do coherence, uncertainty, detection, persistence, and the monotonic saturation scale move with branch length?",
+      "status": "reviewed",
+      "driver": "experiments/004_saturation_diagnostics/run.py",
+      "config": "config/experiments/004_saturation_diagnostics.yaml",
+      "consumers": ["docs"]
+    },
+    {
+      "id": "005_biological_windows",
+      "question": "How do weighted statistics change biological sliding-window calls?",
+      "status": "reviewed-example",
+      "driver": "experiments/005_biological_windows/analyze_dataset.py",
+      "config": "config/experiments/005_biological_windows.yaml",
+      "consumers": ["manuscript"]
+    }
+  ]
+}

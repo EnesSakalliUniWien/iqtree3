@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="850" viewBox="0 0 1240 850">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="620" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Weighted +I correction: paired exact-pattern simulation</text>
+<text x="620" y="64" text-anchor="middle" font-size="12" fill="#5f6368">Same multinomial alignment counts evaluated by both formulas; one-sided alpha = 0.05</text>
+<text x="90" y="127" font-size="15" font-weight="700" fill="#202124">A  Extreme-branch false positives</text>
+<text x="90" y="145" font-size="10.5" fill="#5f6368">t = 10,000 under the correct +I null</text>
+<rect x="90" y="155" width="480" height="250" fill="#fff" stroke="#3c4043"/>
+<line x1="90" x2="570" y1="405.00" y2="405.00" stroke="#eceff1"/>
+<text x="83" y="409.00" text-anchor="end" font-size="9" fill="#5f6368">0</text>
+<line x1="90" x2="570" y1="342.50" y2="342.50" stroke="#eceff1"/>
+<text x="83" y="346.50" text-anchor="end" font-size="9" fill="#5f6368">0.25</text>
+<line x1="90" x2="570" y1="280.00" y2="280.00" stroke="#eceff1"/>
+<text x="83" y="284.00" text-anchor="end" font-size="9" fill="#5f6368">0.5</text>
+<line x1="90" x2="570" y1="217.50" y2="217.50" stroke="#eceff1"/>
+<text x="83" y="221.50" text-anchor="end" font-size="9" fill="#5f6368">0.75</text>
+<line x1="90" x2="570" y1="155.00" y2="155.00" stroke="#eceff1"/>
+<text x="83" y="159.00" text-anchor="end" font-size="9" fill="#5f6368">1</text>
+<text x="90.00" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">100</text>
+<text x="257.75" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">500</text>
+<text x="330.00" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">1000</text>
+<text x="497.75" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">5000</text>
+<text x="570.00" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">10000</text>
+<text x="330.0" y="441" text-anchor="middle" font-size="10" fill="#3c4043">alignment length, n (log scale)</text>
+<text x="37" y="280.0" text-anchor="middle" font-size="10" fill="#3c4043" transform="rotate(-90 37 280.0)">nominal rejection</text>
+<line x1="90" x2="570" y1="392.50" y2="392.50" stroke="#3c4043" stroke-dasharray="4,4"/>
+<polyline points="90.00,277.77 257.75,158.12 330.00,155.00 497.75,155.00 570.00,155.00" fill="none" stroke="#C23B33" stroke-width="2.2"/>
+<circle cx="90.00" cy="277.77" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="257.75" cy="158.12" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="330.00" cy="155.00" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="497.75" cy="155.00" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="570.00" cy="155.00" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<polyline points="90.00,391.92 257.75,391.12 330.00,392.25 497.75,392.35 570.00,392.08" fill="none" stroke="#0A6F5A" stroke-width="2.2"/>
+<circle cx="90.00" cy="391.92" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="257.75" cy="391.12" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="330.00" cy="392.25" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="497.75" cy="392.35" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="570.00" cy="392.08" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<polyline points="90.00,277.32 257.75,158.12 330.00,155.03 497.75,155.00 570.00,155.00" fill="none" stroke="#C23B33" stroke-width="2.2" stroke-dasharray="7,4"/>
+<circle cx="90.00" cy="277.32" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="257.75" cy="158.12" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="330.00" cy="155.03" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="497.75" cy="155.00" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="570.00" cy="155.00" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<polyline points="90.00,391.80 257.75,392.52 330.00,392.93 497.75,392.52 570.00,392.60" fill="none" stroke="#0A6F5A" stroke-width="2.2" stroke-dasharray="7,4"/>
+<circle cx="90.00" cy="391.80" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="257.75" cy="392.52" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="330.00" cy="392.93" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="497.75" cy="392.52" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="570.00" cy="392.60" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<text x="675" y="127" font-size="15" font-weight="700" fill="#202124">B  +I+G4 calibrated power</text>
+<text x="675" y="145" font-size="10.5" fill="#5f6368">n = 1,000; formula-specific training-null threshold</text>
+<rect x="675" y="155" width="480" height="250" fill="#fff" stroke="#3c4043"/>
+<line x1="675" x2="1155" y1="405.00" y2="405.00" stroke="#eceff1"/>
+<text x="668" y="409.00" text-anchor="end" font-size="9" fill="#5f6368">0</text>
+<line x1="675" x2="1155" y1="342.50" y2="342.50" stroke="#eceff1"/>
+<text x="668" y="346.50" text-anchor="end" font-size="9" fill="#5f6368">0.25</text>
+<line x1="675" x2="1155" y1="280.00" y2="280.00" stroke="#eceff1"/>
+<text x="668" y="284.00" text-anchor="end" font-size="9" fill="#5f6368">0.5</text>
+<line x1="675" x2="1155" y1="217.50" y2="217.50" stroke="#eceff1"/>
+<text x="668" y="221.50" text-anchor="end" font-size="9" fill="#5f6368">0.75</text>
+<line x1="675" x2="1155" y1="155.00" y2="155.00" stroke="#eceff1"/>
+<text x="668" y="159.00" text-anchor="end" font-size="9" fill="#5f6368">1</text>
+<text x="675.00" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">0.5</text>
+<text x="742.19" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">2</text>
+<text x="786.60" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">5</text>
+<text x="820.20" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">10</text>
+<text x="853.79" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">20</text>
+<text x="898.20" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">50</text>
+<text x="965.39" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">200</text>
+<text x="1155.00" y="421" text-anchor="middle" font-size="8.5" fill="#5f6368">10000</text>
+<text x="915.0" y="441" text-anchor="middle" font-size="10" fill="#3c4043">target branch length (log scale)</text>
+<text x="622" y="280.0" text-anchor="middle" font-size="10" fill="#3c4043" transform="rotate(-90 622 280.0)">power</text>
+<polyline points="853.79,155.70 898.20,325.76 1155.00,393.85" fill="none" stroke="#C23B33" stroke-width="2.2"/>
+<circle cx="853.79" cy="155.70" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="898.20" cy="325.76" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="1155.00" cy="393.85" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<polyline points="853.79,155.49 898.20,317.96 1155.00,393.34" fill="none" stroke="#0A6F5A" stroke-width="2.2"/>
+<circle cx="853.79" cy="155.49" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="898.20" cy="317.96" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="1155.00" cy="393.34" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<text x="90" y="517" font-size="15" font-weight="700" fill="#202124">C  +I+R4 calibrated power</text>
+<text x="90" y="535" font-size="10.5" fill="#5f6368">n = 1,000; formula-specific training-null threshold</text>
+<rect x="90" y="545" width="480" height="250" fill="#fff" stroke="#3c4043"/>
+<line x1="90" x2="570" y1="795.00" y2="795.00" stroke="#eceff1"/>
+<text x="83" y="799.00" text-anchor="end" font-size="9" fill="#5f6368">0</text>
+<line x1="90" x2="570" y1="732.50" y2="732.50" stroke="#eceff1"/>
+<text x="83" y="736.50" text-anchor="end" font-size="9" fill="#5f6368">0.25</text>
+<line x1="90" x2="570" y1="670.00" y2="670.00" stroke="#eceff1"/>
+<text x="83" y="674.00" text-anchor="end" font-size="9" fill="#5f6368">0.5</text>
+<line x1="90" x2="570" y1="607.50" y2="607.50" stroke="#eceff1"/>
+<text x="83" y="611.50" text-anchor="end" font-size="9" fill="#5f6368">0.75</text>
+<line x1="90" x2="570" y1="545.00" y2="545.00" stroke="#eceff1"/>
+<text x="83" y="549.00" text-anchor="end" font-size="9" fill="#5f6368">1</text>
+<text x="90.00" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">0.5</text>
+<text x="157.19" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">2</text>
+<text x="201.60" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">5</text>
+<text x="235.20" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">10</text>
+<text x="268.79" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">20</text>
+<text x="313.20" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">50</text>
+<text x="380.39" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">200</text>
+<text x="570.00" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">10000</text>
+<text x="330.0" y="831" text-anchor="middle" font-size="10" fill="#3c4043">target branch length (log scale)</text>
+<text x="37" y="670.0" text-anchor="middle" font-size="10" fill="#3c4043" transform="rotate(-90 37 670.0)">power</text>
+<polyline points="268.79,636.59 313.20,779.96 570.00,781.70" fill="none" stroke="#C23B33" stroke-width="2.2"/>
+<circle cx="268.79" cy="636.59" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="313.20" cy="779.96" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<circle cx="570.00" cy="781.70" r="2.7" fill="#fff" stroke="#C23B33" stroke-width="1.5"/>
+<polyline points="268.79,624.06 313.20,778.11 570.00,782.25" fill="none" stroke="#0A6F5A" stroke-width="2.2"/>
+<circle cx="268.79" cy="624.06" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="313.20" cy="778.11" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<circle cx="570.00" cy="782.25" r="2.7" fill="#fff" stroke="#0A6F5A" stroke-width="1.5"/>
+<text x="675" y="517" font-size="15" font-weight="700" fill="#202124">D  Paired calibrated-power difference</text>
+<text x="675" y="535" font-size="10.5" fill="#5f6368">refined minus legacy; t = 20</text>
+<rect x="675" y="545" width="480" height="250" fill="#fff" stroke="#3c4043"/>
+<line x1="675" x2="1155" y1="795.00" y2="795.00" stroke="#eceff1"/>
+<text x="668" y="799.00" text-anchor="end" font-size="9" fill="#5f6368">-0.08</text>
+<line x1="675" x2="1155" y1="732.50" y2="732.50" stroke="#eceff1"/>
+<text x="668" y="736.50" text-anchor="end" font-size="9" fill="#5f6368">-0.04</text>
+<line x1="675" x2="1155" y1="670.00" y2="670.00" stroke="#eceff1"/>
+<text x="668" y="674.00" text-anchor="end" font-size="9" fill="#5f6368">0</text>
+<line x1="675" x2="1155" y1="607.50" y2="607.50" stroke="#eceff1"/>
+<text x="668" y="611.50" text-anchor="end" font-size="9" fill="#5f6368">0.04</text>
+<line x1="675" x2="1155" y1="545.00" y2="545.00" stroke="#eceff1"/>
+<text x="668" y="549.00" text-anchor="end" font-size="9" fill="#5f6368">0.08</text>
+<text x="675.00" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">100</text>
+<text x="842.75" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">500</text>
+<text x="915.00" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">1000</text>
+<text x="1082.75" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">5000</text>
+<text x="1155.00" y="811" text-anchor="middle" font-size="8.5" fill="#5f6368">10000</text>
+<text x="915.0" y="831" text-anchor="middle" font-size="10" fill="#3c4043">alignment length, n (log scale)</text>
+<text x="622" y="670.0" text-anchor="middle" font-size="10" fill="#3c4043" transform="rotate(-90 622 670.0)">power difference</text>
+<line x1="675" x2="1155" y1="670.00" y2="670.00" stroke="#3c4043" stroke-dasharray="4,4"/>
+<polyline points="675.00,673.52 842.75,662.03 915.00,668.67 1082.75,670.00 1155.00,670.00" fill="none" stroke="#0A3FBA" stroke-width="2.2"/>
+<circle cx="675.00" cy="673.52" r="2.7" fill="#fff" stroke="#0A3FBA" stroke-width="1.5"/>
+<circle cx="842.75" cy="662.03" r="2.7" fill="#fff" stroke="#0A3FBA" stroke-width="1.5"/>
+<circle cx="915.00" cy="668.67" r="2.7" fill="#fff" stroke="#0A3FBA" stroke-width="1.5"/>
+<circle cx="1082.75" cy="670.00" r="2.7" fill="#fff" stroke="#0A3FBA" stroke-width="1.5"/>
+<circle cx="1155.00" cy="670.00" r="2.7" fill="#fff" stroke="#0A3FBA" stroke-width="1.5"/>
+<polyline points="675.00,649.69 842.75,601.02 915.00,591.72 1082.75,667.27 1155.00,670.00" fill="none" stroke="#B6497D" stroke-width="2.2" stroke-dasharray="7,4"/>
+<circle cx="675.00" cy="649.69" r="2.7" fill="#fff" stroke="#B6497D" stroke-width="1.5"/>
+<circle cx="842.75" cy="601.02" r="2.7" fill="#fff" stroke="#B6497D" stroke-width="1.5"/>
+<circle cx="915.00" cy="591.72" r="2.7" fill="#fff" stroke="#B6497D" stroke-width="1.5"/>
+<circle cx="1082.75" cy="667.27" r="2.7" fill="#fff" stroke="#B6497D" stroke-width="1.5"/>
+<circle cx="1155.00" cy="670.00" r="2.7" fill="#fff" stroke="#B6497D" stroke-width="1.5"/>
+<line x1="120" x2="154" y1="88" y2="88" stroke="#C23B33" stroke-width="2.4"/>
+<text x="163" y="92" font-size="10.5" fill="#3c4043">Legacy counterfactual</text>
+<line x1="395" x2="429" y1="88" y2="88" stroke="#0A6F5A" stroke-width="2.4"/>
+<text x="438" y="92" font-size="10.5" fill="#3c4043">Refined invariant null</text>
+<line x1="670" x2="704" y1="88" y2="88" stroke="#0A3FBA" stroke-width="2.4"/>
+<text x="713" y="92" font-size="10.5" fill="#3c4043">+I+G4 (solid in A; blue in D)</text>
+<line x1="945" x2="979" y1="88" y2="88" stroke="#B6497D" stroke-width="2.4" stroke-dasharray="7,4"/>
+<text x="988" y="92" font-size="10.5" fill="#3c4043">+I+R4 (dashed in A; pink in D)</text>
+</svg>

@@ -1,0 +1,94 @@
+% !TEX root = ../../main.tex
+\subsection*{A weighted coefficient keeps the SatuTe test}
+
+The spectral decomposition used by SatuTe gives
+\begin{equation}
+\frac{P(\partial\mid t)}{P(\partial_A)P(\partial_B)}
+=
+1+\sum_{i=1}^{d} C_{\partial i}\exp(\lambda_i t).
+\label{eq-central}
+\end{equation}
+Here \(d\) is the number of non-stationary eigenvalues: \(d=3\) for DNA and \(d=19\) for an amino-acid model. The coefficient \(C_{\partial i}\) measures agreement between the two subtrees in spectral direction \(h_i\). The factor \(\exp(\lambda_i t)\) measures how much of that direction remains after evolution across branch \(AB\). Because all non-stationary eigenvalues are negative, components with more negative \(\lambda_i\) decay faster.
+
+We define the eigenvalue-weighted coherence for pattern \(\partial\) as
+\begin{equation}
+C_{\partial}^{\lambda}(t)
+=
+\sum_{i=1}^{d} w_i(t)C_{\partial i},
+\qquad
+w_i(t)=\exp\{(\lambda_i-\lambda_1)t\}.
+\label{eq-weighted-coherence}
+\end{equation}
+The relative weight \(w_i(t)\) sets \(w_1(t)=1\) and downweights components that decay faster than the second-largest-eigenvalue component. Thus the published SatuTe coefficient remains the reference scale, while the other components contribute according to the fitted branch length.
+
+For an alignment of \(n\) independently evolving sites, the empirical coefficient is
+\begin{equation}
+\hat C_{\lambda}(t)=\frac{1}{n}\sum_{s=1}^{n}C_{\partial_s}^{\lambda}(t).
+\label{eq-weighted-mean}
+\end{equation}
+The variance estimator has the same form as the SatuTe estimator for a repeated second largest eigenvalue, with the mode weights included:
+\begin{equation}
+\hat\sigma_{\lambda}^{2}(t)
+=
+\sum_{i=1}^{d}\sum_{j=1}^{d}
+w_i(t)w_j(t)\hat\sigma_{A,i,j}^{2}\hat\sigma_{B,i,j}^{2}.
+\label{eq-weighted-variance}
+\end{equation}
+The corresponding test statistic is
+\begin{equation}
+Z_{\lambda}(t)=\frac{\sqrt{n}\hat C_{\lambda}(t)}{\hat\sigma_{\lambda}(t)}.
+\label{eq-weighted-z}
+\end{equation}
+The decision rule is unchanged. Branch \(AB\) is called phylogenetically informative when \(Z_{\lambda}(t)>z_\alpha\). When the tree is inferred from the same alignment, the same Bonferroni correction used by SatuTe gives the threshold \(z_{\alpha/(m_A m_B)}\).
+
+\subsection*{Invariant categories require a different null likelihood}
+
+An explicit invariant category is a boundary case of the rate mixture. Let \(q_c\) and \(r_c\) be the proportion and rate of category \(c\), and let \(A_{sc}\) and \(B_{sc}\) be the two subtree-pattern probabilities for site pattern \(s\). For a positive-rate category, the infinite-branch null contribution is \(q_cA_{sc}B_{sc}\). For the invariant category \(c=0\), however, \(r_0=0\) and the transition matrix remains the identity even as the focal branch length tends to infinity. Its null contribution is therefore the joint probability
+\begin{equation}
+J_{s0}
+=
+\sum_a \pi_a L_{A,s0}(a)L_{B,s0}(a),
+\label{eq-invariant-joint}
+\end{equation}
+not the product \(A_{s0}B_{s0}\). The correct mixture null is
+\begin{equation}
+p_\infty(s)
+=
+q_0J_{s0}
++
+\sum_{c:r_c>0}q_cA_{sc}B_{sc}.
+\label{eq-invariant-null}
+\end{equation}
+
+For the positive-rate categories, define the model-weighted site score
+\begin{equation}
+u_s(t)
+=
+\frac{
+\displaystyle
+\sum_{c:r_c>0}q_cA_{sc}B_{sc}
+\sum_{i=1}^{d}e^{\lambda_i r_ct}C_{sc,i}
+}{p_\infty(s)}.
+\label{eq-soft-mixture-score}
+\end{equation}
+The invariant component enters only the denominator and contributes no finite-versus-infinite-branch signal. This gives the exact identity
+\begin{equation}
+\frac{p_t(s)}{p_\infty(s)}=1+u_s(t).
+\label{eq-soft-mixture-identity}
+\end{equation}
+In computation, all positive-rate persistence weights are divided by one common factor \(e^\delta\), where \(\delta=\max_{c:r_c>0,i}\lambda_i r_ct\). This prevents underflow without changing the studentized statistic. The refined test uses the sample mean and sample variance of these globally rescaled site scores. We refer to it as the refined invariant-null statistic.
+
+The previous counterfactual construction treated the invariant category as if it became independent across an infinite focal branch, replacing \(J_{s0}\) by \(A_{s0}B_{s0}\) and retaining a zero-rate numerator contribution. That construction does not satisfy \cref{eq-soft-mixture-identity} under a \(+I\) model and need not have null expectation zero.
+
+\subsection*{The Jukes--Cantor case is unchanged}
+
+The Jukes--Cantor (JC) model has one stationary eigenvalue and a three-dimensional non-stationary eigenspace with \(\lambda_1=\lambda_2=\lambda_3\). Therefore \(w_i(t)=1\) for all non-stationary modes in \cref{eq-weighted-coherence}. The weighted statistic becomes
+\begin{equation}
+C_{\partial}^{\lambda}(t)
+=
+\sum_{k=1}^{3} C_{\partial 1,k}
+=
+C_{\partial 1},
+\label{eq-jc-collapse}
+\end{equation}
+which is the multiplicity-three expression used by SatuTe. Thus the weighted statistic does not change the JC statistic. If the substitution model does not distinguish among non-stationary directions, the weighted statistic does not introduce that distinction.

@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "experiment": "002_relative_weighting",
+  "paired": true,
+  "output": "artifacts/local/relative-weighting"
+}
