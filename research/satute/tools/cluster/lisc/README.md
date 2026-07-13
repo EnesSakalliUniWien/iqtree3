@@ -59,6 +59,19 @@ SEQGEN_SRC=/lisc/home/user/sakalli/projects/satute-eigenvector-reanalysis/tools/
   bash research/satute/tools/cluster/lisc/build_seqgen.sh
 ```
 
+## Fixed GTR20 protein reference
+
+`fit_fixed_gtr20_reference.slurm` estimates the GTR20 exchangeabilities and
+the `+G4` shape once on a large independent protein alignment and a supplied
+reference topology. It writes checksums for every input and output. The fitted
+model must then be copied into the experiment driver as a frozen `GTR20_REF`
+alias; benchmark replicates must not invoke unconstrained `GTR20` fitting.
+
+The fixed empirical protein matrix benchmark uses IQ-TREE AliSim so the same
+backend supports LG, WAG, JTT, and Q.PFAM. Select it with `SIMULATOR=alisim`.
+Run `run_protein_extension_canary.slurm` before submitting a larger protein
+array; it checks all four matrices with and without fixed four-category gamma.
+
 ## Submit
 
 Paper Fig. 2 JC-only run:

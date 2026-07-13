@@ -26,6 +26,7 @@ GTR_PF06346_MODEL = "GTR{0.6676,3.7807,4.2833,0.5354,0.8718,1.0}+F{0.125,0.436,0
 GTR_SKEW_FREQ_MODEL = "GTR{1.0,1.0,1.0,1.0,1.0,1.0}+F{0.70,0.10,0.10,0.10}"
 GTR_SKEW_RATES_MODEL = "GTR{0.05,8.0,0.10,0.10,5.0,0.05}+F{0.25,0.25,0.25,0.25}"
 GTR_SKEW_BOTH_MODEL = "GTR{0.05,8.0,0.10,0.10,5.0,0.05}+F{0.70,0.10,0.10,0.10}"
+PROTEIN_GAMMA_SHAPE = 0.5
 LG_RATES = [
     0.425093, 0.276818, 0.395144, 2.489084, 0.969894, 1.038545, 2.066040, 0.358858, 0.149830,
     0.395337, 0.536518, 1.124035, 0.253701, 1.177651, 4.727182, 2.139501, 0.180717, 0.218959,
@@ -58,6 +59,15 @@ LG_FREQ = [
 MODEL_ALIASES = {
     "JC": "JC",
     "LG": "LG",
+    "WAG": "WAG",
+    "JTT": "JTT",
+    "Q.PFAM": "Q.pfam",
+    "Q.pfam": "Q.pfam",
+    "LG_G4": f"LG+G4{{{PROTEIN_GAMMA_SHAPE}}}",
+    "WAG_G4": f"WAG+G4{{{PROTEIN_GAMMA_SHAPE}}}",
+    "JTT_G4": f"JTT+G4{{{PROTEIN_GAMMA_SHAPE}}}",
+    "Q.PFAM_G4": f"Q.pfam+G4{{{PROTEIN_GAMMA_SHAPE}}}",
+    "Q.pfam_G4": f"Q.pfam+G4{{{PROTEIN_GAMMA_SHAPE}}}",
     "K2P": "K2P",
     "F81": "F81",
     "GTR_PF06346": GTR_PF06346_MODEL,
@@ -66,6 +76,7 @@ MODEL_ALIASES = {
     "GTR_SKEW_RATES": GTR_SKEW_RATES_MODEL,
     "GTR_SKEW_BOTH": GTR_SKEW_BOTH_MODEL,
 }
+FIXED_EMPIRICAL_PROTEIN_MODELS = {"LG", "WAG", "JTT", "Q.pfam"}
 FORMULAS = ["dominant", "eigenvalue_weighted"]
 FIG2_SCENARIOS = [
     "true_tree_fixed_lengths",
@@ -109,6 +120,31 @@ def resolve_model_alias(alias):
     if alias in MODEL_ALIASES:
         return MODEL_ALIASES[alias]
     return alias
+
+
+def split_fixed_gamma(model):
+    """Return the substitution model and an explicitly fixed G4 shape."""
+    marker = "+G4{"
+    if marker not in model:
+        return model, None
+    base, suffix = model.rsplit(marker, 1)
+    if not suffix.endswith("}"):
+        raise ValueError(f"Invalid fixed gamma model syntax: {model}")
+    alpha = float(suffix[:-1])
+    if not math.isfinite(alpha) or alpha <= 0.0:
+        raise ValueError(f"Gamma shape must be positive and finite: {model}")
+    return base, alpha
+
+
+def is_fixed_model_spec(model):
+    base, _gamma_shape = split_fixed_gamma(resolve_model_alias(model))
+    return (
+        base in {"JC", *FIXED_EMPIRICAL_PROTEIN_MODELS}
+        or base.startswith("GTR{")
+        or base.startswith("GTR20{")
+        or base.startswith("F81+F{")
+        or base.startswith("K2P{")
+    )
 
 
 def parse_model_pairs(text):
@@ -391,6 +427,7 @@ def parse_sat_stat(path, target_taxa):
 
 
 def parse_model(model):
+    model, _gamma_shape = split_fixed_gamma(model)
     if model == "LG":
         return list(LG_RATES), list(LG_FREQ)
 
@@ -413,12 +450,19 @@ def parse_model(model):
     if model in {"F81", "K2P"}:
         raise ValueError(f"Model {model} requires fitted parameters from IQ-TREE before independent calculation")
 
-    if not (model.startswith("GTR{") and "}+F{" in model and model.endswith("}")):
+    is_gtr4 = model.startswith("GTR{")
+    is_gtr20 = model.startswith("GTR20{")
+    if not ((is_gtr4 or is_gtr20) and "}+F{" in model and model.endswith("}")):
         raise ValueError(f"Unsupported model syntax: {model}")
-    rate_text, freq_text = model[4:-1].split("}+F{", 1)
+    prefix_length = len("GTR20{") if is_gtr20 else len("GTR{")
+    rate_text, freq_text = model[prefix_length:-1].split("}+F{", 1)
     rates = [float(value) for value in rate_text.split(",")]
     pi = [float(value) for value in freq_text.split(",")]
     expected_rate_count = len(pi) * (len(pi) - 1) // 2
+    # IQ-TREE fixes the final GTR20 exchangeability to one for scale and accepts
+    # 189 values. Seq-Gen GENERAL requires the complete 190-value triangle.
+    if len(pi) == 20 and len(rates) == expected_rate_count - 1:
+        rates.append(1.0)
     if len(pi) not in {4, 20} or len(rates) != expected_rate_count:
         raise ValueError(f"Unsupported model dimensions: {model}")
     total = sum(pi)
@@ -765,18 +809,15 @@ def write_tree(tree_case, branch_length, path, rng, pools):
         raise ValueError(tree_case)
 
 
-def run_seqgen(seqgen, tree_file, model, nsites, seed, alignment):
-    if not seqgen or not os.path.exists(seqgen):
-        raise SystemExit(
-            "Seq-Gen is required for a paper-faithful rerun but was not found. "
-            "Pass --seqgen /path/to/seq-gen, or use --simulator alisim for smoke tests."
-        )
-    if model == "JC":
-        cmd = [seqgen, "-mHKY", "-l", str(nsites), "-n", "1", "-z", str(seed)]
-    elif model == "LG":
-        cmd = [seqgen, "-mLG", "-l", str(nsites), "-n", "1", "-z", str(seed)]
-    elif model.startswith("GTR{"):
-        rates, pi = parse_model(model)
+def seqgen_command(seqgen, model, nsites, seed):
+    base_model, gamma_shape = split_fixed_gamma(model)
+    gamma_args = ["-a", f"{gamma_shape:.10g}", "-g", "4"] if gamma_shape is not None else []
+    if base_model == "JC":
+        cmd = [seqgen, "-mHKY"]
+    elif base_model in {"LG", "WAG", "JTT"}:
+        cmd = [seqgen, f"-m{base_model}"]
+    elif base_model.startswith("GTR{") or base_model.startswith("GTR20{"):
+        rates, pi = parse_model(base_model)
         seqgen_model = "GTR" if len(pi) == 4 else "GENERAL"
         cmd = [
             seqgen,
@@ -785,15 +826,22 @@ def run_seqgen(seqgen, tree_file, model, nsites, seed, alignment):
             ",".join(f"{value:.10g}" for value in rates),
             "-f",
             ",".join(f"{value:.10g}" for value in pi),
-            "-l",
-            str(nsites),
-            "-n",
-            "1",
-            "-z",
-            str(seed),
         ]
     else:
-        raise ValueError(f"Seq-Gen simulator is not configured for model {model}")
+        raise ValueError(
+            f"Seq-Gen simulator is not configured for model {model}; "
+            "use --simulator alisim for IQ-TREE protein models such as Q.pfam."
+        )
+    return [*cmd, *gamma_args, "-l", str(nsites), "-n", "1", "-z", str(seed)]
+
+
+def run_seqgen(seqgen, tree_file, model, nsites, seed, alignment):
+    if not seqgen or not os.path.exists(seqgen):
+        raise SystemExit(
+            "Seq-Gen is required for a paper-faithful rerun but was not found. "
+            "Pass --seqgen /path/to/seq-gen, or use --simulator alisim for smoke tests."
+        )
+    cmd = seqgen_command(seqgen, model, nsites, seed)
 
     with open(tree_file, "r", encoding="utf-8") as tree_handle, open(alignment, "w", encoding="utf-8") as out_handle:
         subprocess.run(cmd, stdin=tree_handle, stdout=out_handle, stderr=subprocess.DEVNULL, check=True)
@@ -881,7 +929,7 @@ def run_satute(iqtree, alignment, prefix, model, tree=None, fixed_lengths=False,
 
 def fitted_model_for_compute(prefix, requested_model):
     requested_model = resolve_model_alias(requested_model)
-    if requested_model == "JC" or requested_model == "LG" or requested_model.startswith("GTR{") or requested_model.startswith("F81+F{") or requested_model.startswith("K2P{"):
+    if is_fixed_model_spec(requested_model):
         return requested_model
 
     iqtree_path = Path(str(prefix) + ".iqtree")
@@ -1221,7 +1269,10 @@ def main():
     parser.add_argument(
         "--simulation-models",
         default="JC",
-        help="Comma-separated simulation model aliases, e.g. JC, GTR_PF06346, GTR_SKEW_FREQ, GTR_SKEW_RATES, GTR_SKEW_BOTH.",
+        help=(
+            "Comma-separated simulation model aliases, e.g. JC, GTR_PF06346, "
+            "LG, WAG, JTT, Q.PFAM and their *_G4 variants."
+        ),
     )
     parser.add_argument(
         "--evaluation-models",

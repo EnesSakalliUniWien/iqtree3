@@ -2,7 +2,41 @@
 
 import argparse
 import csv
+import importlib.util
 from collections import defaultdict
+from pathlib import Path
+
+
+RUN_PATH = Path(__file__).resolve().parents[2] / "experiments" / "002_relative_weighting" / "run.py"
+
+
+def load_run_module():
+    spec = importlib.util.spec_from_file_location("relative_weighting_run", RUN_PATH)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def check_protein_model_contract():
+    module = load_run_module()
+    expected = {
+        "LG_G4": "LG+G4{0.5}",
+        "WAG_G4": "WAG+G4{0.5}",
+        "JTT_G4": "JTT+G4{0.5}",
+        "Q.PFAM_G4": "Q.pfam+G4{0.5}",
+    }
+    observed = {alias: module.resolve_model_alias(alias) for alias in expected}
+    if observed != expected:
+        raise SystemExit(f"Protein alias contract mismatch: {observed}")
+    command = module.seqgen_command("seq-gen", "WAG+G4{0.5}", 100, 7)
+    if command != ["seq-gen", "-mWAG", "-a", "0.5", "-g", "4", "-l", "100", "-n", "1", "-z", "7"]:
+        raise SystemExit(f"Unexpected Seq-Gen WAG+G4 command: {command}")
+    if not module.is_fixed_model_spec("Q.PFAM_G4"):
+        raise SystemExit("Q.PFAM_G4 must be treated as a fixed model")
+    gtr20 = "GTR20{" + ",".join(["1"] * 189) + "}+F{" + ",".join(["0.05"] * 20) + "}+G4{0.5}"
+    rates, frequencies = module.parse_model(gtr20)
+    if len(rates) != 190 or rates[-1] != 1.0 or len(frequencies) != 20:
+        raise SystemExit("IQ-TREE's 189-parameter GTR20 syntax was not expanded for Seq-Gen")
 
 
 def load_rows(path):
@@ -12,9 +46,14 @@ def load_rows(path):
 
 def main():
     parser = argparse.ArgumentParser(description="Verify paired SatuTe calculation invariants.")
-    parser.add_argument("--detail", required=True)
+    parser.add_argument("--detail")
     parser.add_argument("--z-tolerance", type=float, default=1e-6)
     args = parser.parse_args()
+
+    check_protein_model_contract()
+    if not args.detail:
+        print("Protein model contract: passed")
+        return
 
     rows = load_rows(args.detail)
     required_formulas = {"dominant", "eigenvalue_weighted"}

@@ -20,6 +20,10 @@ TREE_CASES="${TREE_CASES:-five_external,sixteen_internal}"
 SHARD_INDEX="${SHARD_INDEX:-${SLURM_ARRAY_TASK_ID:-0}}"
 SHARD_COUNT="${SHARD_COUNT:-1000}"
 ARCHIVE_RUNS="${ARCHIVE_RUNS:-1}"
+SIMULATOR="${SIMULATOR:-seq-gen}"
+PAPER_GRID="${PAPER_GRID:-1}"
+SITE_LENGTHS="${SITE_LENGTHS:-100}"
+BRANCH_LENGTHS="${BRANCH_LENGTHS:-0.1,1.0}"
 
 if command -v module >/dev/null 2>&1 && [[ -n "${LISC_RUNTIME_MODULES}" ]]; then
   set +u
@@ -33,7 +37,7 @@ if [[ ! -x "${IQTREE_BIN}" ]]; then
   exit 2
 fi
 
-if [[ ! -x "${SEQGEN_BIN}" ]]; then
+if [[ "${SIMULATOR}" == "seq-gen" && ! -x "${SEQGEN_BIN}" ]]; then
   echo "Missing Seq-Gen binary: ${SEQGEN_BIN}" >&2
   exit 2
 fi
@@ -60,9 +64,17 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "evaluation_models\t%s\n" "${EVALUATION_MODELS}"
     printf "model_pairs\t%s\n" "${MODEL_PAIRS}"
     printf "scenario_set\t%s\n" "${SCENARIO_SET}"
+    printf "simulator\t%s\n" "${SIMULATOR}"
+    printf "paper_grid\t%s\n" "${PAPER_GRID}"
+    printf "site_lengths\t%s\n" "${SITE_LENGTHS}"
+    printf "branch_lengths\t%s\n" "${BRANCH_LENGTHS}"
     printf "runtime_modules\t%s\n" "${LISC_RUNTIME_MODULES}"
     printf "iqtree_sha256\t%s\n" "$(sha256sum "${IQTREE_BIN}" | awk '{print $1}')"
-    printf "seqgen_sha256\t%s\n" "$(sha256sum "${SEQGEN_BIN}" | awk '{print $1}')"
+    if [[ "${SIMULATOR}" == "seq-gen" ]]; then
+      printf "seqgen_sha256\t%s\n" "$(sha256sum "${SEQGEN_BIN}" | awk '{print $1}')"
+    else
+      printf "seqgen_sha256\tnot_used\n"
+    fi
     printf "evonaps_sha256\t%s\n" "$(sha256sum "${EVONAPS_BRANCH_LENGTHS}" | awk '{print $1}')"
     printf "driver_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/run.py" | awk '{print $1}')"
     printf "satute_facade_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute.cpp" | awk '{print $1}')"
@@ -78,15 +90,22 @@ if [[ -n "${MODEL_PAIRS}" ]]; then
   model_pair_args=(--model-pairs "${MODEL_PAIRS}")
 fi
 
+grid_args=()
+if [[ "${PAPER_GRID}" == "1" || "${PAPER_GRID}" == "true" ]]; then
+  grid_args=(--paper-grid)
+else
+  grid_args=(--site-lengths "${SITE_LENGTHS}" --branch-lengths "${BRANCH_LENGTHS}")
+fi
+
 PYTHONPATH="${PROJECT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}" "${PYTHON_BIN}" \
   "${PROJECT_DIR}/experiments/002_relative_weighting/run.py" \
   --iqtree "${IQTREE_BIN}" \
   --seqgen "${SEQGEN_BIN}" \
-  --simulator seq-gen \
+  --simulator "${SIMULATOR}" \
   --evonaps-branch-lengths "${EVONAPS_BRANCH_LENGTHS}" \
   --outdir "${SHARD_DIR}" \
   --reps "${REPS}" \
-  --paper-grid \
+  "${grid_args[@]}" \
   --tree-cases "${TREE_CASES}" \
   --simulation-models "${SIMULATION_MODELS}" \
   --evaluation-models "${EVALUATION_MODELS}" \
