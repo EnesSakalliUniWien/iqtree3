@@ -8,9 +8,11 @@ eigenvalue weighting under JC, GTR, and LG settings.
 - Renderers: `render.py`, `render_power_summary.py`
 - Config: `../../config/experiments/002_relative_weighting.yaml`
 
-The driver uses the replicate seed for both simulation and IQ-TREE analysis,
-so topology-search reruns are deterministic. Its independent Python reference
-compresses identical alignment patterns with exact frequency weighting and
-reuses the inferred-tree calculation for unadjusted and Bonferroni decisions.
-Shard detail rows are flushed after every replicate task so `--resume` can
-recover completed work after interruption.
+The production driver compares the native IQ-TREE `dominant` and
+`eigenvalue_weighted` rows directly. It does not recompute either statistic in
+Python for every replicate; the independent Python implementation is retained
+only in `../../tests/native/` for validation. The production path neither loads
+nor imports NumPy. The replicate seed is used for both simulation and IQ-TREE
+analysis, so topology-search reruns are deterministic. Shard detail rows are
+flushed after every replicate task so `--resume` can recover completed work
+after interruption.

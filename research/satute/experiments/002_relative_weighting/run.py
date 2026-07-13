@@ -13,13 +13,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 IQTREE_DEFAULT = PROJECT_ROOT.parents[1] / "build" / "iqtree3"
 
-try:
-    import numpy as np
-except ModuleNotFoundError as exc:
-    raise SystemExit(
-        "This script requires NumPy. Run it with a Python environment that has NumPy installed, "
-        "or set PYTHON_BIN to that interpreter before launching the documented commands."
-    ) from exc
+# The production benchmark consumes native IQ-TREE rows and never imports
+# NumPy. The dormant independent-reference helper loads it only when called.
+np = None
 
 
 DNA_STATE_INDEX = {"A": 0, "C": 1, "G": 2, "T": 3, "U": 3}
@@ -70,7 +66,7 @@ MODEL_ALIASES = {
     "GTR_SKEW_RATES": GTR_SKEW_RATES_MODEL,
     "GTR_SKEW_BOTH": GTR_SKEW_BOTH_MODEL,
 }
-FORMULAS = ["dominant", "eigenvalue_weighted", "eigenvalue_weighted_gls"]
+FORMULAS = ["dominant", "eigenvalue_weighted"]
 FIG2_SCENARIOS = [
     "true_tree_fixed_lengths",
     "true_topology_ml_lengths",
@@ -575,6 +571,12 @@ def alignment_patterns(sequences):
 
 
 def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha_used):
+    global np
+    if np is None:
+        import importlib
+
+        np = importlib.import_module("numpy")
+
     edge = find_edge_for_split(root, target_taxa)
     if edge is None:
         return {formula: None for formula in formulas}
@@ -905,6 +907,7 @@ def write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evalu
         {
             "scenario": scenario,
             "formula": formula,
+            "implementation": "iqtree_native",
             "fitted_evaluation_model": fitted_evaluation_model,
             "target_found": 0,
             "left_taxa": "",
@@ -922,74 +925,67 @@ def write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evalu
             "modes": "",
             "eigenvalues": "",
             "weights": "",
-            "projection_angle_sites": "",
-            "projection_cosine": "",
-            "projection_sine": "",
-            "projection_left_length": "",
-            "projection_right_length": "",
-            "projection_length_delta": "",
-            "projection_abs_length_delta": "",
-            "iqtree_satZ": "",
-            "iqtree_satP": "",
-            "iqtree_decision": "",
-            "iqtree_bonf_decision": "",
         }
     )
     writer.writerow(row)
 
 
-def write_formula_rows(
+def write_native_formula_rows(
     writer,
     base,
     scenario,
-    formulas,
-    tree_path,
     stat_path,
-    alignment,
     fitted_evaluation_model,
     target_taxa,
     alpha,
     alpha_used,
-    prepared=None,
+    use_bonferroni=False,
+    native_rows=None,
 ):
-    if prepared is None:
-        sequences = parse_alignment(alignment)
-        root = parse_newick(tree_path)
-        iqtree_rows = parse_sat_stat(stat_path, target_taxa)
-        results = compute_formulas(
-            root,
-            sequences,
-            target_taxa,
-            fitted_evaluation_model,
-            formulas,
-            alpha,
-            alpha,
-        )
-        prepared = (iqtree_rows, results)
-    else:
-        iqtree_rows, results = prepared
+    if native_rows is None:
+        native_rows = parse_sat_stat(stat_path, target_taxa)
 
-    for formula in formulas:
-        result = results.get(formula)
-        if result is None:
+    for formula in FORMULAS:
+        native = native_rows.get(formula)
+        if native is None:
             write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evaluation_model)
             continue
         row = dict(base)
-        row.update({"scenario": scenario, "formula": formula, "fitted_evaluation_model": fitted_evaluation_model})
-        row.update(result)
-        row["alpha_used"] = alpha_used
-        row["decision"] = (
-            "informative"
-            if math.isfinite(result["satP"]) and result["satP"] <= alpha_used
-            else "saturated"
+        row.update(
+            {
+                "scenario": scenario,
+                "formula": formula,
+                "implementation": "iqtree_native",
+                "fitted_evaluation_model": fitted_evaluation_model,
+                "target_found": 1,
+                "left_taxa": native.get("LeftTaxa", ""),
+                "right_taxa": native.get("RightTaxa", ""),
+                "valid_sites": native.get("ValidSites", ""),
+                "skipped_sites": native.get("SkippedSites", ""),
+                "branch_length_used": native.get("Length", ""),
+                "alpha": native.get("Alpha", alpha),
+                "alpha_used": (
+                    native.get("AlphaTaxonBonf", alpha_used)
+                    if use_bonferroni
+                    else native.get("Alpha", alpha_used)
+                ),
+                "satC": native.get("satC", ""),
+                "satVar": native.get("satVar", ""),
+                "satSE": native.get("satSE", ""),
+                "satZ": native.get("satZ", ""),
+                "satP": native.get("satP", ""),
+                "decision": (
+                    native.get("DecisionTaxonBonf", "")
+                    if use_bonferroni
+                    else native.get("Decision", "")
+                ),
+                "modes": native.get("Modes", ""),
+                "eigenvalues": native.get("Eigenvalues", ""),
+                "weights": native.get("Weights", ""),
+            }
         )
-        iqtree_row = iqtree_rows.get(formula)
-        row["iqtree_satZ"] = iqtree_row.get("satZ", "") if iqtree_row else ""
-        row["iqtree_satP"] = iqtree_row.get("satP", "") if iqtree_row else ""
-        row["iqtree_decision"] = iqtree_row.get("Decision", "") if iqtree_row else ""
-        row["iqtree_bonf_decision"] = iqtree_row.get("DecisionTaxonBonf", "") if iqtree_row else ""
         writer.writerow(row)
-    return prepared
+    return native_rows
 
 
 def run_case(
@@ -1045,36 +1041,51 @@ def run_case(
 
     if "true_tree_fixed_lengths" in scenarios:
         prefix = case_dir / "true_fixed"
-        tree_path, stat_path = run_satute(
+        _tree_path, stat_path = run_satute(
             iqtree, alignment, prefix, evaluation_model, tree_file, True, seed
         )
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
-        write_formula_rows(writer, base, "true_tree_fixed_lengths", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
+        write_native_formula_rows(
+            writer,
+            base,
+            "true_tree_fixed_lengths",
+            stat_path,
+            fitted_model,
+            target_taxa,
+            alpha,
+            alpha,
+        )
 
     if "true_topology_ml_lengths" in scenarios:
         prefix = case_dir / "true_ml_lengths"
-        tree_path, stat_path = run_satute(
+        _tree_path, stat_path = run_satute(
             iqtree, alignment, prefix, evaluation_model, tree_file, False, seed
         )
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
-        write_formula_rows(writer, base, "true_topology_ml_lengths", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
+        write_native_formula_rows(
+            writer,
+            base,
+            "true_topology_ml_lengths",
+            stat_path,
+            fitted_model,
+            target_taxa,
+            alpha,
+            alpha,
+        )
 
     if "ml_tree_unadjusted" in scenarios or "ml_tree_bonferroni" in scenarios:
         prefix = case_dir / "ml_tree"
-        tree_path, stat_path = run_satute(
+        _tree_path, stat_path = run_satute(
             iqtree, alignment, prefix, evaluation_model, None, False, seed
         )
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
-        prepared = None
+        native_rows = None
         if "ml_tree_unadjusted" in scenarios:
-            prepared = write_formula_rows(
+            native_rows = write_native_formula_rows(
                 writer,
                 base,
                 "ml_tree_unadjusted",
-                FORMULAS,
-                tree_path,
                 stat_path,
-                alignment,
                 fitted_model,
                 target_taxa,
                 alpha,
@@ -1084,19 +1095,17 @@ def run_case(
         taxa_count = 5 if tree_case == "five_external" else 16
         alpha_bonf = alpha / (1 * (taxa_count - 1) if tree_case == "five_external" else 8 * 8)
         if "ml_tree_bonferroni" in scenarios:
-            write_formula_rows(
+            write_native_formula_rows(
                 writer,
                 base,
                 "ml_tree_bonferroni",
-                FORMULAS,
-                tree_path,
                 stat_path,
-                alignment,
                 fitted_model,
                 target_taxa,
                 alpha,
                 alpha_bonf,
-                prepared=prepared,
+                use_bonferroni=True,
+                native_rows=native_rows,
             )
 
 
@@ -1196,7 +1205,9 @@ def completed_tasks(detail_path, scenario_set, fieldnames=None, clean_incomplete
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Paired head-to-head SatuTe formula simulations.")
+    parser = argparse.ArgumentParser(
+        description="Paired native IQ-TREE dominant versus eigenvalue-weighted SatuTe simulations."
+    )
     parser.add_argument("--iqtree", default=str(IQTREE_DEFAULT))
     parser.add_argument("--outdir", default="/tmp/iqtree-satute-head-to-head")
     parser.add_argument("--reps", type=int, default=1)
@@ -1280,6 +1291,7 @@ def main():
         "target_split",
         "scenario",
         "formula",
+        "implementation",
         "target_found",
         "left_taxa",
         "right_taxa",
@@ -1297,17 +1309,6 @@ def main():
         "modes",
         "eigenvalues",
         "weights",
-        "projection_angle_sites",
-        "projection_cosine",
-        "projection_sine",
-        "projection_left_length",
-        "projection_right_length",
-        "projection_length_delta",
-        "projection_abs_length_delta",
-        "iqtree_satZ",
-        "iqtree_satP",
-        "iqtree_decision",
-        "iqtree_bonf_decision",
     ]
     done = completed_tasks(detail_path, args.scenario_set, fieldnames, clean_incomplete=True) if args.resume else set()
     write_header = not (args.resume and detail_path.exists() and detail_path.stat().st_size > 0)

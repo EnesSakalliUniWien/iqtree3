@@ -17,22 +17,37 @@ def main():
     args = parser.parse_args()
 
     rows = load_rows(args.detail)
-    native_diffs = defaultdict(list)
-    for row in rows:
-        if row["target_found"] != "1" or not row["iqtree_satZ"]:
-            continue
-        native_diffs[row["formula"]].append(abs(float(row["satZ"]) - float(row["iqtree_satZ"])))
+    required_formulas = {"dominant", "eigenvalue_weighted"}
+    unexpected_formulas = sorted({row["formula"] for row in rows} - required_formulas)
+    if unexpected_formulas:
+        raise SystemExit(f"Unexpected benchmark formulas: {unexpected_formulas}")
+    non_native = [row for row in rows if row.get("implementation") != "iqtree_native"]
+    if non_native:
+        raise SystemExit(f"Found {len(non_native)} rows not sourced from native IQ-TREE output")
 
-    required_native = {"dominant", "eigenvalue_weighted"}
-    missing_native = sorted(required_native - set(native_diffs))
-    if missing_native:
-        raise SystemExit(f"No IQ-TREE SatuTe comparison rows were found for: {missing_native}")
-    max_native_diffs = {formula: max(native_diffs[formula]) for formula in sorted(required_native)}
-    for formula, difference in max_native_diffs.items():
-        if difference > args.z_tolerance:
-            raise SystemExit(
-                f"{formula} does not match IQ-TREE SatuTe: max |Zdiff|={difference}"
-            )
+    formulas_by_case = defaultdict(set)
+    for row in rows:
+        key = (
+            row["tree_case"],
+            row["simulation_model"],
+            row["evaluation_model"],
+            row["nsites"],
+            row["branch_length"],
+            row["replicate"],
+            row["scenario"],
+        )
+        formulas_by_case[key].add(row["formula"])
+    incomplete = [
+        (key, formulas)
+        for key, formulas in formulas_by_case.items()
+        if formulas != required_formulas
+    ]
+    if incomplete:
+        key, formulas = incomplete[0]
+        raise SystemExit(
+            f"Native formula pair is incomplete for {len(incomplete)} case/scenario groups; "
+            f"first={key}, formulas={sorted(formulas)}"
+        )
 
     jc_by_replicate = defaultdict(dict)
     for row in rows:
@@ -49,9 +64,8 @@ def main():
         jc_by_replicate[key][row["formula"]] = float(row["satZ"])
 
     mismatches = []
-    required = {"dominant", "eigenvalue_weighted"}
     for key, values in jc_by_replicate.items():
-        if not required <= values.keys():
+        if not required_formulas <= values.keys():
             continue
         spread = abs(values["dominant"] - values["eigenvalue_weighted"])
         if spread > args.z_tolerance:
@@ -65,8 +79,7 @@ def main():
         )
 
     print(f"Rows checked: {len(rows)}")
-    for formula, difference in max_native_diffs.items():
-        print(f"{formula} vs IQ-TREE max |Zdiff|: {difference:.6g}")
+    print(f"Native formula pairs checked: {len(formulas_by_case)}")
     print(f"JC collapse mismatches: {len(mismatches)}")
 
 

@@ -14,11 +14,11 @@ tree cases: five_external,sixteen_internal
 site lengths: 100,1000,10000
 branch lengths: 0.1,0.2,0.3,0.4,0.5,0.8,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,7.5,10.0
 replicates per point: 1000
-formulas: dominant,eigenvalue_weighted,eigenvalue_weighted_gls
-rows per replicate task: 12
+formulas: dominant,eigenvalue_weighted (native IQ-TREE rows)
+rows per replicate task: 8
 ```
 
-This expands to 96,000 replicate tasks and 1,152,000 detail rows. The paper's
+This expands to 96,000 replicate tasks and 768,000 detail rows. The paper's
 GTR analysis is a separate supplementary model-misspecification contract:
 simulate under `GTR_PF06346` and evaluate under `GTR_PF06346`, `JC`, `K2P`, and
 `F81` with `SCENARIO_SET=misspecification`.
@@ -103,7 +103,9 @@ ${OUT_ROOT}/run-archives/runs_shard_<index>_job_<jobid>.tar.gz
 
 Shard 0 also writes `run_manifest.tsv` with the grid parameters and SHA-256
 checksums for the exact IQ-TREE and Seq-Gen binaries, EvoNAPS table, experiment
-driver and modular native SatuTe sources used by the run.
+driver and modular native SatuTe sources used by the run. The wrapper loads only
+the pinned `GCCcore/14.3.0` runtime required by the IQ-TREE binary; it does not
+load the SciPy/NumPy bundle.
 
 The uncompressed `runs/` directory is removed only after the archive is written.
 

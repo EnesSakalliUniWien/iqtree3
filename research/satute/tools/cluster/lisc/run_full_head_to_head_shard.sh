@@ -9,7 +9,7 @@ OUT_ROOT="${OUT_ROOT:-${WORK_DIR}/${RUN_NAME}}"
 IQTREE_BIN="${IQTREE_BIN:-${WORK_DIR}/iqtree3-build/iqtree3}"
 SEQGEN_BIN="${SEQGEN_BIN:-${WORK_DIR}/seq-gen-1.3.4-source/seq-gen}"
 EVONAPS_BRANCH_LENGTHS="${EVONAPS_BRANCH_LENGTHS:-${PROJECT_DIR}/references/evonaps/evonaps_16taxon_branch_lengths.tsv}"
-LISC_PYTHON_MODULES="${LISC_PYTHON_MODULES:-SciPy-bundle/2025.07-gfbf-2025b}"
+LISC_RUNTIME_MODULES="${LISC_RUNTIME_MODULES:-GCCcore/14.3.0}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 REPS="${REPS:-1000}"
 SIMULATION_MODELS="${SIMULATION_MODELS:-JC}"
@@ -21,10 +21,10 @@ SHARD_INDEX="${SHARD_INDEX:-${SLURM_ARRAY_TASK_ID:-0}}"
 SHARD_COUNT="${SHARD_COUNT:-1000}"
 ARCHIVE_RUNS="${ARCHIVE_RUNS:-1}"
 
-if command -v module >/dev/null 2>&1 && [[ -n "${LISC_PYTHON_MODULES}" ]]; then
+if command -v module >/dev/null 2>&1 && [[ -n "${LISC_RUNTIME_MODULES}" ]]; then
   set +u
   # shellcheck disable=SC2086
-  module load ${LISC_PYTHON_MODULES}
+  module load ${LISC_RUNTIME_MODULES}
   set -u
 fi
 
@@ -60,6 +60,7 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "evaluation_models\t%s\n" "${EVALUATION_MODELS}"
     printf "model_pairs\t%s\n" "${MODEL_PAIRS}"
     printf "scenario_set\t%s\n" "${SCENARIO_SET}"
+    printf "runtime_modules\t%s\n" "${LISC_RUNTIME_MODULES}"
     printf "iqtree_sha256\t%s\n" "$(sha256sum "${IQTREE_BIN}" | awk '{print $1}')"
     printf "seqgen_sha256\t%s\n" "$(sha256sum "${SEQGEN_BIN}" | awk '{print $1}')"
     printf "evonaps_sha256\t%s\n" "$(sha256sum "${EVONAPS_BRANCH_LENGTHS}" | awk '{print $1}')"
