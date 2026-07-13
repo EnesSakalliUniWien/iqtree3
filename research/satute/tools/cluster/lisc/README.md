@@ -14,17 +14,22 @@ tree cases: five_external,sixteen_internal
 site lengths: 100,1000,10000
 branch lengths: 0.1,0.2,0.3,0.4,0.5,0.8,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,7.5,10.0
 replicates per point: 1000
-formulas: dominant,eigenvalue_weighted
-rows per replicate task: 8
+formulas: dominant,eigenvalue_weighted,eigenvalue_weighted_gls
+rows per replicate task: 12
 ```
 
-This expands to 96,000 replicate tasks and 768,000 detail rows. The paper's
+This expands to 96,000 replicate tasks and 1,152,000 detail rows. The paper's
 GTR analysis is a separate supplementary model-misspecification contract:
 simulate under `GTR_PF06346` and evaluate under `GTR_PF06346`, `JC`, `K2P`, and
 `F81` with `SCENARIO_SET=misspecification`.
 
 Skewed GTR analyses are extension runs. Use `MODEL_PAIRS` for those so matched
 simulation/evaluation designs stay explicit.
+
+The default array has 1,000 shards, one per replicate index. Each paper-grid
+shard therefore receives exactly one task from every combination of tree case,
+site length and focal branch length: 96 tasks per shard. This avoids the 2:1
+load imbalance produced by the earlier 768-shard layout.
 
 ## Setup On LiSC
 
@@ -95,6 +100,10 @@ IQ-TREE and Seq-Gen files under `runs/` are compressed into:
 ```text
 ${OUT_ROOT}/run-archives/runs_shard_<index>_job_<jobid>.tar.gz
 ```
+
+Shard 0 also writes `run_manifest.tsv` with the grid parameters and SHA-256
+checksums for the exact IQ-TREE and Seq-Gen binaries, EvoNAPS table, experiment
+driver and modular native SatuTe sources used by the run.
 
 The uncompressed `runs/` directory is removed only after the archive is written.
 

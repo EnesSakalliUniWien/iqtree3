@@ -18,7 +18,7 @@ MODEL_PAIRS="${MODEL_PAIRS:-}"
 SCENARIO_SET="${SCENARIO_SET:-fig2}"
 TREE_CASES="${TREE_CASES:-five_external,sixteen_internal}"
 SHARD_INDEX="${SHARD_INDEX:-${SLURM_ARRAY_TASK_ID:-0}}"
-SHARD_COUNT="${SHARD_COUNT:-768}"
+SHARD_COUNT="${SHARD_COUNT:-1000}"
 ARCHIVE_RUNS="${ARCHIVE_RUNS:-1}"
 
 if command -v module >/dev/null 2>&1 && [[ -n "${LISC_PYTHON_MODULES}" ]]; then
@@ -45,6 +45,32 @@ fi
 
 SHARD_DIR="${OUT_ROOT}/shards/shard-${SHARD_INDEX}"
 mkdir -p "${OUT_ROOT}/logs" "${OUT_ROOT}/run-archives" "${SHARD_DIR}"
+
+if [[ "${SHARD_INDEX}" == "0" ]]; then
+  MANIFEST_TMP="${OUT_ROOT}/.run_manifest_${SLURM_JOB_ID:-manual}.tmp"
+  {
+    printf "field\tvalue\n"
+    printf "created_utc\t%s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    printf "slurm_array_job_id\t%s\n" "${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-manual}}"
+    printf "run_name\t%s\n" "${RUN_NAME}"
+    printf "replicates\t%s\n" "${REPS}"
+    printf "shard_count\t%s\n" "${SHARD_COUNT}"
+    printf "tree_cases\t%s\n" "${TREE_CASES}"
+    printf "simulation_models\t%s\n" "${SIMULATION_MODELS}"
+    printf "evaluation_models\t%s\n" "${EVALUATION_MODELS}"
+    printf "model_pairs\t%s\n" "${MODEL_PAIRS}"
+    printf "scenario_set\t%s\n" "${SCENARIO_SET}"
+    printf "iqtree_sha256\t%s\n" "$(sha256sum "${IQTREE_BIN}" | awk '{print $1}')"
+    printf "seqgen_sha256\t%s\n" "$(sha256sum "${SEQGEN_BIN}" | awk '{print $1}')"
+    printf "evonaps_sha256\t%s\n" "$(sha256sum "${EVONAPS_BRANCH_LENGTHS}" | awk '{print $1}')"
+    printf "driver_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/run.py" | awk '{print $1}')"
+    printf "satute_facade_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute.cpp" | awk '{print $1}')"
+    printf "satute_statistics_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_statistics.cpp" | awk '{print $1}')"
+    printf "satute_support_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_support.cpp" | awk '{print $1}')"
+    printf "satute_report_writer_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_report_writer.cpp" | awk '{print $1}')"
+  } > "${MANIFEST_TMP}"
+  mv "${MANIFEST_TMP}" "${OUT_ROOT}/run_manifest.tsv"
+fi
 
 model_pair_args=()
 if [[ -n "${MODEL_PAIRS}" ]]; then

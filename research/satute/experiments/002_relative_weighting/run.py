@@ -372,6 +372,7 @@ def parse_alignment(path):
 
 def parse_sat_stat(path, target_taxa):
     target = ",".join(sorted(target_taxa))
+    rows = {}
     with open(path, "r", encoding="utf-8") as handle:
         header = None
         for raw in handle:
@@ -385,14 +386,12 @@ def parse_sat_stat(path, target_taxa):
             if not header or not fields[0].isdigit():
                 continue
             row = dict(zip(header, fields))
-            if row.get("Formula", "dominant") != "dominant":
-                continue
             if row.get("RateCategory", "pooled") != "pooled":
                 continue
             split = row.get("Split", "")
             if split == target or set(split.split(",")) == set(target_taxa):
-                return row
-    return None
+                rows[row.get("Formula", "dominant")] = row
+    return rows
 
 
 def parse_model(model):
@@ -561,6 +560,20 @@ def compute_formula(root, sequences, target_taxa, model, formula, alpha, alpha_u
     return results.get(formula)
 
 
+def alignment_patterns(sequences):
+    sequence_names = tuple(sequences)
+    nsites = len(next(iter(sequences.values())))
+    patterns = {}
+    for site in range(nsites):
+        pattern = tuple(sequences[name][site] for name in sequence_names)
+        if pattern in patterns:
+            representative, frequency = patterns[pattern]
+            patterns[pattern] = (representative, frequency + 1)
+        else:
+            patterns[pattern] = (site, 1)
+    return patterns.values()
+
+
 def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha_used):
     edge = find_edge_for_split(root, target_taxa)
     if edge is None:
@@ -598,9 +611,7 @@ def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha
             "abs_length_delta_sum": 0.0,
         }
 
-    nsites = len(next(iter(sequences.values())))
-
-    for site in range(nsites):
+    for site, frequency in alignment_patterns(sequences):
         memo = {}
         left_lh = compute_partial(left, right, site, sequences, transitions, memo, state_index, nstates)
         right_lh = compute_partial(right, left, site, sequences, transitions, memo, state_index, nstates)
@@ -610,7 +621,7 @@ def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha
         right_sum = float(np.sum(right_post))
         if left_sum <= 0.0 or right_sum <= 0.0 or not math.isfinite(left_sum + right_sum):
             for state in formula_state.values():
-                state["skipped_sites"] += 1
+                state["skipped_sites"] += frequency
             continue
         left_post /= left_sum
         right_post /= right_sum
@@ -619,7 +630,7 @@ def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha
         full_right_factor = np.array([float(np.dot(eigenvectors[:, mode], right_post)) for mode in range(len(evals))], dtype=float)
         if not np.all(np.isfinite(full_left_factor)) or not np.all(np.isfinite(full_right_factor)):
             for state in formula_state.values():
-                state["skipped_sites"] += 1
+                state["skipped_sites"] += frequency
             continue
 
         for formula, state in formula_state.items():
@@ -630,23 +641,23 @@ def compute_formulas(root, sequences, target_taxa, model, formulas, alpha, alpha
             weighted_left = np.sqrt(weights) * left_factor
             weighted_right = np.sqrt(weights) * right_factor
             site_coherence = float(np.dot(weighted_left, weighted_right))
-            state["coherence"] += site_coherence
-            state["mode_coherence"] += left_factor * right_factor
-            state["left_second"] += np.outer(left_factor, left_factor)
-            state["right_second"] += np.outer(right_factor, right_factor)
-            state["valid_sites"] += 1
+            state["coherence"] += frequency * site_coherence
+            state["mode_coherence"] += frequency * left_factor * right_factor
+            state["left_second"] += frequency * np.outer(left_factor, left_factor)
+            state["right_second"] += frequency * np.outer(right_factor, right_factor)
+            state["valid_sites"] += frequency
             left_length = float(np.linalg.norm(weighted_left))
             right_length = float(np.linalg.norm(weighted_right))
             length_delta = left_length - right_length
-            state["left_length_sum"] += left_length
-            state["right_length_sum"] += right_length
-            state["length_delta_sum"] += length_delta
-            state["abs_length_delta_sum"] += abs(length_delta)
+            state["left_length_sum"] += frequency * left_length
+            state["right_length_sum"] += frequency * right_length
+            state["length_delta_sum"] += frequency * length_delta
+            state["abs_length_delta_sum"] += frequency * abs(length_delta)
             if left_length > 0.0 and right_length > 0.0:
                 cosine = max(-1.0, min(1.0, site_coherence / (left_length * right_length)))
-                state["cosine_sum"] += cosine
-                state["sine_sum"] += math.sqrt(max(0.0, 1.0 - cosine * cosine))
-                state["angle_sites"] += 1
+                state["cosine_sum"] += frequency * cosine
+                state["sine_sum"] += frequency * math.sqrt(max(0.0, 1.0 - cosine * cosine))
+                state["angle_sites"] += frequency
 
     results = {}
     for formula, state in formula_state.items():
@@ -849,11 +860,13 @@ def simulate_alignment(iqtree, seqgen, indelible, simulator, tree_file, model, n
     return Path(str(sim_prefix) + ".fa")
 
 
-def run_satute(iqtree, alignment, prefix, model, tree=None, fixed_lengths=False):
+def run_satute(iqtree, alignment, prefix, model, tree=None, fixed_lengths=False, seed=None):
     cmd = [iqtree, "-s", str(alignment)]
     if tree is not None:
         cmd.extend(["-te", str(tree)])
     cmd.extend(["-m", model, "--satute", "--prefix", str(prefix), "-T", "1", "--redo", "--quiet"])
+    if seed is not None:
+        cmd.extend(["--seed", str(seed)])
     if fixed_lengths:
         cmd.append("-blfix")
     run(cmd)
@@ -937,11 +950,25 @@ def write_formula_rows(
     target_taxa,
     alpha,
     alpha_used,
+    prepared=None,
 ):
-    sequences = parse_alignment(alignment)
-    root = parse_newick(tree_path)
-    iqtree_row = parse_sat_stat(stat_path, target_taxa)
-    results = compute_formulas(root, sequences, target_taxa, fitted_evaluation_model, formulas, alpha, alpha_used)
+    if prepared is None:
+        sequences = parse_alignment(alignment)
+        root = parse_newick(tree_path)
+        iqtree_rows = parse_sat_stat(stat_path, target_taxa)
+        results = compute_formulas(
+            root,
+            sequences,
+            target_taxa,
+            fitted_evaluation_model,
+            formulas,
+            alpha,
+            alpha,
+        )
+        prepared = (iqtree_rows, results)
+    else:
+        iqtree_rows, results = prepared
+
     for formula in formulas:
         result = results.get(formula)
         if result is None:
@@ -950,11 +977,19 @@ def write_formula_rows(
         row = dict(base)
         row.update({"scenario": scenario, "formula": formula, "fitted_evaluation_model": fitted_evaluation_model})
         row.update(result)
+        row["alpha_used"] = alpha_used
+        row["decision"] = (
+            "informative"
+            if math.isfinite(result["satP"]) and result["satP"] <= alpha_used
+            else "saturated"
+        )
+        iqtree_row = iqtree_rows.get(formula)
         row["iqtree_satZ"] = iqtree_row.get("satZ", "") if iqtree_row else ""
         row["iqtree_satP"] = iqtree_row.get("satP", "") if iqtree_row else ""
         row["iqtree_decision"] = iqtree_row.get("Decision", "") if iqtree_row else ""
         row["iqtree_bonf_decision"] = iqtree_row.get("DecisionTaxonBonf", "") if iqtree_row else ""
         writer.writerow(row)
+    return prepared
 
 
 def run_case(
@@ -1010,27 +1045,59 @@ def run_case(
 
     if "true_tree_fixed_lengths" in scenarios:
         prefix = case_dir / "true_fixed"
-        tree_path, stat_path = run_satute(iqtree, alignment, prefix, evaluation_model, tree_file, True)
+        tree_path, stat_path = run_satute(
+            iqtree, alignment, prefix, evaluation_model, tree_file, True, seed
+        )
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
         write_formula_rows(writer, base, "true_tree_fixed_lengths", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
 
     if "true_topology_ml_lengths" in scenarios:
         prefix = case_dir / "true_ml_lengths"
-        tree_path, stat_path = run_satute(iqtree, alignment, prefix, evaluation_model, tree_file, False)
+        tree_path, stat_path = run_satute(
+            iqtree, alignment, prefix, evaluation_model, tree_file, False, seed
+        )
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
         write_formula_rows(writer, base, "true_topology_ml_lengths", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
 
     if "ml_tree_unadjusted" in scenarios or "ml_tree_bonferroni" in scenarios:
         prefix = case_dir / "ml_tree"
-        tree_path, stat_path = run_satute(iqtree, alignment, prefix, evaluation_model, None, False)
+        tree_path, stat_path = run_satute(
+            iqtree, alignment, prefix, evaluation_model, None, False, seed
+        )
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
+        prepared = None
         if "ml_tree_unadjusted" in scenarios:
-            write_formula_rows(writer, base, "ml_tree_unadjusted", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha)
+            prepared = write_formula_rows(
+                writer,
+                base,
+                "ml_tree_unadjusted",
+                FORMULAS,
+                tree_path,
+                stat_path,
+                alignment,
+                fitted_model,
+                target_taxa,
+                alpha,
+                alpha,
+            )
 
         taxa_count = 5 if tree_case == "five_external" else 16
         alpha_bonf = alpha / (1 * (taxa_count - 1) if tree_case == "five_external" else 8 * 8)
         if "ml_tree_bonferroni" in scenarios:
-            write_formula_rows(writer, base, "ml_tree_bonferroni", FORMULAS, tree_path, stat_path, alignment, fitted_model, target_taxa, alpha, alpha_bonf)
+            write_formula_rows(
+                writer,
+                base,
+                "ml_tree_bonferroni",
+                FORMULAS,
+                tree_path,
+                stat_path,
+                alignment,
+                fitted_model,
+                target_taxa,
+                alpha,
+                alpha_bonf,
+                prepared=prepared,
+            )
 
 
 def aggregate(detail_path, summary_path):
@@ -1292,6 +1359,7 @@ def main():
                                 args.alpha,
                                 args.scenario_set,
                             )
+                            handle.flush()
 
     aggregate(detail_path, summary_path)
     print(f"Shard:   {args.shard_index}/{args.shard_count}")

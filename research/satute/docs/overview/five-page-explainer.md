@@ -59,10 +59,10 @@ The method comparison should be made on paired replicates: the same simulated
 alignment, target branch, inferred or supplied tree and significance threshold
 should be used for the dominant and eigenvalue-weighted statistics.
 
-At the current stage, the published dominant statistic remains the reference
-method. The eigenvalue-weighted statistic is the extension to evaluate because
-it uses both eigenvectors and eigenvalues. Its status depends on the full
-simulation analysis, including type I error, power and behavior under
+The published dominant statistic remains the legacy reference method. The
+eigenvalue-weighted statistic is the promoted current method because it uses
+both eigenvectors and eigenvalues. It is evaluated alongside the legacy method
+on paired simulations, including type I error, power and behavior under
 maximum-likelihood tree selection.
 
 An explicit invariant-site component requires an additional correction. A

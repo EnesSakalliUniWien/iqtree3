@@ -62,15 +62,14 @@ nucleotide fixed-tree surface. These boundaries remain explicit:
 
 - Protein, codon, morphology, partitioned, mixture, Lie-Markov and
   ascertainment-corrected analyses are not accepted phase-1 targets.
-- The `eigenvalue_weighted` statistic is numerically implemented and cross-
-  checked, but broader null calibration and simulation benchmarking are still
-  needed before it should replace the published `dominant` statistic.
+- The promoted `eigenvalue_weighted` statistic is numerically implemented,
+  independently cross-checked and covered by exact-null and paired simulation
+  calibration; `dominant` remains the published legacy comparator.
 - External manuscript and reanalysis artifacts outside this checkout are outside
   this repository audit.
 
 ## Next Completion Step
 
-The next scientific step is broader calibration: run denser simulation grids with
-the generalized Python reference available as an independent checker, then decide
-whether `eigenvalue_weighted` should remain a diagnostic or become a replacement
-for the published `dominant` statistic under specific GTR boundary regimes.
+The next completion step is packaging: make the biological sliding-window
+analysis self-contained in this repository and preserve a publication rerun
+manifest for the promoted `eigenvalue_weighted` statistic.

@@ -17,19 +17,22 @@ def main():
     args = parser.parse_args()
 
     rows = load_rows(args.detail)
-    dominant_diffs = []
+    native_diffs = defaultdict(list)
     for row in rows:
-        if row["formula"] != "dominant" or row["target_found"] != "1" or not row["iqtree_satZ"]:
+        if row["target_found"] != "1" or not row["iqtree_satZ"]:
             continue
-        dominant_diffs.append(abs(float(row["satZ"]) - float(row["iqtree_satZ"])))
+        native_diffs[row["formula"]].append(abs(float(row["satZ"]) - float(row["iqtree_satZ"])))
 
-    max_dominant_diff = max(dominant_diffs) if dominant_diffs else None
-    if max_dominant_diff is None:
-        raise SystemExit("No dominant rows with IQ-TREE SatuTe output were found.")
-    if max_dominant_diff > args.z_tolerance:
-        raise SystemExit(
-            f"Dominant formula does not match IQ-TREE SatuTe: max |Zdiff|={max_dominant_diff}"
-        )
+    required_native = {"dominant", "eigenvalue_weighted"}
+    missing_native = sorted(required_native - set(native_diffs))
+    if missing_native:
+        raise SystemExit(f"No IQ-TREE SatuTe comparison rows were found for: {missing_native}")
+    max_native_diffs = {formula: max(native_diffs[formula]) for formula in sorted(required_native)}
+    for formula, difference in max_native_diffs.items():
+        if difference > args.z_tolerance:
+            raise SystemExit(
+                f"{formula} does not match IQ-TREE SatuTe: max |Zdiff|={difference}"
+            )
 
     jc_by_replicate = defaultdict(dict)
     for row in rows:
@@ -50,7 +53,7 @@ def main():
     for key, values in jc_by_replicate.items():
         if not required <= values.keys():
             continue
-        spread = max(values.values()) - min(values.values())
+        spread = abs(values["dominant"] - values["eigenvalue_weighted"])
         if spread > args.z_tolerance:
             mismatches.append((key, spread))
 
@@ -62,7 +65,8 @@ def main():
         )
 
     print(f"Rows checked: {len(rows)}")
-    print(f"Dominant vs IQ-TREE max |Zdiff|: {max_dominant_diff:.6g}")
+    for formula, difference in max_native_diffs.items():
+        print(f"{formula} vs IQ-TREE max |Zdiff|: {difference:.6g}")
     print(f"JC collapse mismatches: {len(mismatches)}")
 
 

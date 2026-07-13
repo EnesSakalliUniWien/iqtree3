@@ -120,6 +120,23 @@ if [ "$subset_rows" != "3" ] || [ "$subset_bad" != "0" ] || [ "$subset_alpha_bad
     exit 1
 fi
 
+if ! awk 'BEGIN{FS="\t"}
+    $1 == "ID" { for (i = 1; i <= NF; i++) h[$i] = i; next }
+    $1 ~ /^[0-9]+$/ && $h["RateCategory"] == "pooled" {
+        if ($h["Formula"] == "eigenvalue_weighted") weighted = $h["satC"]
+        if ($h["Formula"] == "mixture_likelihood_weighted") mixture = $h["satC"]
+    }
+    END {
+        if (weighted == "" || mixture == "") exit 1
+        difference = (weighted + 0) - (mixture + 0)
+        if (difference < 0) difference = -difference
+        exit difference > 1e-8
+    }
+' "$subset_prefix.sat.stat"; then
+    echo "Homogeneous JC eigenvalue-weighted and mixture coherence values differ" >&2
+    exit 1
+fi
+
 if ! awk 'BEGIN{FS="\t"; seen=0; bad=0}
     $1 == "ID" {
         for (i = 1; i <= NF; i++) h[$i] = i
@@ -159,6 +176,11 @@ fi
 
 if ! grep -q 'satIndex=' "$subset_prefix.sat.tree.nex" || ! grep -q 'satInfo=' "$subset_prefix.sat.tree.nex"; then
     echo "SatuTe saturation-scale tree annotations are missing" >&2
+    exit 1
+fi
+
+if ! grep -q 'satFormula="eigenvalue_weighted"' "$subset_prefix.sat.tree.nex"; then
+    echo "SatuTe tree annotations do not identify eigenvalue_weighted as their source formula" >&2
     exit 1
 fi
 

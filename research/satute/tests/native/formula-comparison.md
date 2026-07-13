@@ -116,16 +116,16 @@ This is why eigenvalues are important. Eigenvectors identify what pattern of
 state contrast is being measured, but eigenvalues say whether that contrast is
 slow enough to matter over the tested evolutionary distance.
 
-For the IQ-TREE integration, the `dominant` formula remains the
+For the IQ-TREE integration, the `dominant` formula remains a
 published SatuTe baseline because it:
 
 - matches the SatuTe-compatible posterior/eigenvector construction
 - focuses on the slowest non-stationary mode that controls saturation
-- has the cleanest existing calibration
+- provides continuity with the published implementation
 
-The decay-weighted version is a native research diagnostic. The offline
-unweighted all-mode version shows how additional eigenvector coordinates
-can recover signal; the decay-weighted version tests whether that signal is
-plausible across the focal branch once the eigenvalues are respected. Before
-either replaces the published statistic, its null variance and p-value
-calibration need broader simulation validation.
+The decay-weighted version is the promoted current statistic. It lets additional
+eigenvector coordinates contribute only to the extent that their fitted
+eigenvalues predict persistence across the focal branch. It is independently
+cross-checked against the native calculation and has passed the repository's
+exact-null and paired simulation calibration. The offline unweighted all-mode
+version remains a research baseline rather than a native output method.

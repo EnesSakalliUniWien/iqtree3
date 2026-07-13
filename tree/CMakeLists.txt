@@ -48,6 +48,9 @@ phylotreepars.cpp
 phylotreesse.cpp
 quartet.cpp
 satute.cpp
+satute/satute_support.cpp
+satute/satute_statistics.cpp
+satute/satute_report_writer.cpp
 supernode.cpp
 supernode.h
 tinatree.cpp

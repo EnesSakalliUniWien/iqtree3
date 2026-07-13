@@ -15,7 +15,8 @@ For a stricter requirement-by-requirement completion audit, see
 - Rate categories are owned by IQ-TREE. Native SatuTe does not infer them from
   scratch.
 - The published baseline statistic is the dominant non-stationary eigenspace.
-  The `eigenvalue_weighted` row is a research diagnostic emitted for comparison.
+  The promoted `eigenvalue_weighted` statistic is the primary current result;
+  `dominant` remains available as the legacy comparator.
 
 ## Implemented Native Surface
 
@@ -24,7 +25,8 @@ For a stricter requirement-by-requirement completion audit, see
 - `--satute-edges FILE` restricts output to branch IDs listed in the file.
 - Native output files are:
   - `.sat.stat`: tab-separated branch statistics.
-  - `.sat.tree`: Newick tree annotated with the pooled dominant statistic.
+  - `.sat.tree`: Newick tree annotated with the pooled `eigenvalue_weighted`
+    statistic and an explicit `satFormula=eigenvalue_weighted` attribute.
   - `.sat.tree.nex`: NEXUS tree for visual inspection.
   - `.sat.branch`: tree with internal branch IDs.
 
@@ -155,9 +157,8 @@ git diff --check
   of wiring directly into IQ-TREE's vectorized partial-likelihood buffers.
 - Protein, codon, morphology, partitioned and Lie-Markov cases have not been
   accepted as verified phase-1 targets.
-- The `eigenvalue_weighted` diagnostic is implemented, but its null calibration
-  needs broader simulation validation before replacing the published dominant
-  statistic. The Python comparison retains `all_unweighted` as a non-native
-  research baseline.
+- The promoted `eigenvalue_weighted` statistic is implemented, independently
+  cross-checked and null-calibrated on the current simulation surface. The
+  Python comparison retains `all_unweighted` as a non-native research baseline.
 - External manuscript/reanalysis files are not synchronized by this checkout
   unless they are made writable in the active workspace.

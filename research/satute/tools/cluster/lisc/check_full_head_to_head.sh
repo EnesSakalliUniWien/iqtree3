@@ -4,7 +4,7 @@ set -euo pipefail
 WORK_DIR="${WORK_DIR:-/lisc/data/scratch/menche/sakalli/iq-tree-satute/full-head-to-head}"
 RUN_NAME="${RUN_NAME:-paper-fig2-jc-reps1000}"
 OUT_ROOT="${OUT_ROOT:-${WORK_DIR}/${RUN_NAME}}"
-SHARD_COUNT="${SHARD_COUNT:-768}"
+SHARD_COUNT="${SHARD_COUNT:-1000}"
 
 echo "Queue:"
 squeue --me || true

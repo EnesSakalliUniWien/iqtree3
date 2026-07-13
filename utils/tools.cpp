@@ -6031,7 +6031,9 @@ void usage_iqtree(char* argv[], bool full_command) {
     cout
     << endl << "BRANCH SATURATION ANALYSIS:" << endl
     << "  --satute             Run SatuTe branch saturation analysis" << endl
-    << "                       Writes formula rows: dominant and eigenvalue_weighted" << endl
+    << "                       Writes formula rows: dominant, eigenvalue_weighted," << endl
+    << "                       and mixture_likelihood_weighted" << endl
+    << "                       Annotates trees with pooled eigenvalue_weighted results" << endl
     << "                       and rate-category rows for discrete rate models" << endl
     << "  --satute-alpha NUM   Significance level for SatuTe (default: 0.05)" << endl
     << "  --satute-edges FILE  Analyze only branch IDs listed in FILE" << endl;
