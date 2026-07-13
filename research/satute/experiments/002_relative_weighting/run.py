@@ -392,22 +392,23 @@ def parse_sat_stat(path, target_taxa):
 
 def parse_model(model):
     if model == "LG":
-        return np.array(LG_RATES, dtype=float), np.array(LG_FREQ, dtype=float)
+        return list(LG_RATES), list(LG_FREQ)
 
     if model == "JC":
-        return np.ones(6, dtype=float), np.repeat(0.25, 4)
+        return [1.0] * 6, [0.25] * 4
 
     if model.startswith("F81+F{") and model.endswith("}"):
         freq_text = model[len("F81+F{") : -1]
-        pi = np.array([float(value) for value in freq_text.split(",")], dtype=float)
+        pi = [float(value) for value in freq_text.split(",")]
         if len(pi) != 4:
             raise ValueError(f"Unsupported F81 model dimensions: {model}")
-        pi /= pi.sum()
-        return np.ones(6, dtype=float), pi
+        total = sum(pi)
+        pi = [value / total for value in pi]
+        return [1.0] * 6, pi
 
     if model.startswith("K2P{") and model.endswith("}+FQ"):
         kappa = float(model[len("K2P{") : -len("}+FQ")])
-        return np.array([1.0, kappa, 1.0, 1.0, kappa, 1.0], dtype=float), np.repeat(0.25, 4)
+        return [1.0, kappa, 1.0, 1.0, kappa, 1.0], [0.25] * 4
 
     if model in {"F81", "K2P"}:
         raise ValueError(f"Model {model} requires fitted parameters from IQ-TREE before independent calculation")
@@ -415,17 +416,20 @@ def parse_model(model):
     if not (model.startswith("GTR{") and "}+F{" in model and model.endswith("}")):
         raise ValueError(f"Unsupported model syntax: {model}")
     rate_text, freq_text = model[4:-1].split("}+F{", 1)
-    rates = np.array([float(value) for value in rate_text.split(",")], dtype=float)
-    pi = np.array([float(value) for value in freq_text.split(",")], dtype=float)
+    rates = [float(value) for value in rate_text.split(",")]
+    pi = [float(value) for value in freq_text.split(",")]
     expected_rate_count = len(pi) * (len(pi) - 1) // 2
     if len(pi) not in {4, 20} or len(rates) != expected_rate_count:
         raise ValueError(f"Unsupported model dimensions: {model}")
-    pi /= pi.sum()
+    total = sum(pi)
+    pi = [value / total for value in pi]
     return rates, pi
 
 
 def build_q(model):
     rates, pi = parse_model(model)
+    rates = np.asarray(rates, dtype=float)
+    pi = np.asarray(pi, dtype=float)
     nstates = len(pi)
     expected_rate_count = nstates * (nstates - 1) // 2
     if len(rates) != expected_rate_count:
