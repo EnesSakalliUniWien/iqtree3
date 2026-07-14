@@ -5,7 +5,8 @@ eigenvalue weighting under nucleotide and protein settings.
 
 - Driver: `run.py`
 - Shard combiner: `combine.py`
-- Renderers: `render.py`, `render_power_summary.py`
+- Renderers: `render.py`, `render_power_summary.py`,
+  `render_formula_comparison.R`
 - Config: `../../config/experiments/002_relative_weighting.yaml`
 
 The production driver compares the native IQ-TREE `dominant` and
@@ -25,3 +26,33 @@ AliSim for the complete extension because Seq-Gen does not implement Q.PFAM.
 A `GTR20_REF` alias is added only after its 189 exchangeabilities, 20
 frequencies, and gamma shape have been estimated once from the independent
 reference alignment and recorded with checksums.
+
+## Independent 2D and 3D formula plots
+
+`render_formula_comparison.R` produces three independent 2D figures and three
+independent interactive 3D line plots:
+
+- published dominant coefficient;
+- eigenvalue-weighted coefficient;
+- paired difference (`eigenvalue_weighted - dominant`).
+
+The 2D figures are written as vector PDF/SVG and 450-DPI PNG. The 3D figures
+are self-contained Plotly HTML widgets with target branch length, alignment
+length, and informative fraction as the three axes. They draw only measured
+alignment-length trajectories and do not interpolate a surface. The difference
+figures pair formula decisions on the same simulated alignment and report a
+95% paired bootstrap interval plus the exact McNemar p-value in a companion
+TSV.
+
+```bash
+Rscript research/satute/experiments/002_relative_weighting/render_formula_comparison.R \
+  --summary /path/to/merged/head_to_head_summary.tsv \
+  --detail /path/to/merged/head_to_head_detail.tsv \
+  --outdir /path/to/figures \
+  --simulation-model GTR_PF06346 \
+  --evaluation-model GTR_PF06346 \
+  --expected-reps 250
+```
+
+Required R packages are `ggplot2`, `plotly`, `ragg`, `svglite`, `scales`,
+`viridisLite`, and `htmlwidgets`.
