@@ -2,6 +2,7 @@
 
 suppressPackageStartupMessages({
   library(ggplot2)
+  library(plot3D)
   library(plotly)
 })
 
@@ -97,6 +98,11 @@ site_dashes <- function(site_values) {
 
 plotly_dashes <- function(site_values) {
   candidates <- c("solid", "dash", "dot", "dashdot", "longdash", "longdashdot")
+  setNames(rep(candidates, length.out = length(site_values)), site_values)
+}
+
+site_point_shapes <- function(site_values) {
+  candidates <- c(21, 24, 22, 25, 23, 8)
   setNames(rep(candidates, length.out = length(site_values)), site_values)
 }
 
@@ -432,18 +438,127 @@ build_3d <- function(data, title, z_column, z_title, z_range, line_color, html_p
   cat("3D HTML: ", html_path, "\n", sep = "")
 }
 
+# A vector, publication-oriented companion to the interactive Plotly figure.
+# Every tree/scenario selection is shown as a panel on the same PDF page, so no
+# information is hidden behind the HTML dropdown. The x and y coordinates use
+# the same log10 transformations as the interactive plot's logarithmic axes.
+build_static_3d <- function(data, title, z_column, z_title, z_range, line_color, pdf_path, difference = FALSE) {
+  tree_values <- unique(as.character(data$tree_label))
+  scenario_values <- unique(as.character(data$scenario_label))
+  site_values <- sort(unique(data$nsites))
+  line_styles <- site_dashes(as.character(site_values))
+  point_shapes <- site_point_shapes(as.character(site_values))
+  site_colors <- setNames(viridisLite::viridis(length(site_values), option = "D", end = 0.85), site_values)
+
+  panel_ids <- matrix(
+    seq_len(length(tree_values) * length(scenario_values)),
+    nrow = length(tree_values), ncol = length(scenario_values), byrow = TRUE
+  )
+  legend_id <- max(panel_ids) + 1L
+  layout_matrix <- rbind(panel_ids, rep(legend_id, ncol(panel_ids)))
+
+  grDevices::cairo_pdf(
+    pdf_path,
+    width = max(10.5, 4.25 * length(scenario_values)),
+    height = max(7.5, 3.45 * length(tree_values) + 1.45),
+    onefile = TRUE
+  )
+  on.exit(grDevices::dev.off(), add = TRUE)
+  layout(layout_matrix, heights = c(rep(1, length(tree_values)), 0.24))
+  par(
+    oma = c(2.15, 0.6, 4.6, 0.6), mar = c(1.0, 1.0, 3.0, 0.45),
+    family = "sans", fg = "#333333", col.axis = "#444444", col.lab = "#333333"
+  )
+
+  for (tree_label_value in tree_values) {
+    for (scenario_label_value in scenario_values) {
+      selected <- data[
+        as.character(data$tree_label) == tree_label_value &
+          as.character(data$scenario_label) == scenario_label_value,
+        , drop = FALSE
+      ]
+      if (!nrow(selected)) {
+        plot.new()
+        title(main = paste(tree_label_value, scenario_label_value, sep = "\n"), cex.main = 0.9)
+        text(0.5, 0.5, "No observations", col = "#666666")
+        next
+      }
+
+      first_trace <- TRUE
+      for (site_value in site_values) {
+        trace <- selected[selected$nsites == site_value, , drop = FALSE]
+        trace <- trace[order(trace$branch_length), , drop = FALSE]
+        if (!nrow(trace)) next
+        trace_color <- if (difference) site_colors[[as.character(site_value)]] else line_color
+        plot3D::scatter3D(
+          x = log10(trace$branch_length), y = log10(trace$nsites), z = trace[[z_column]],
+          type = "o", add = !first_trace, colvar = NULL, col = trace_color,
+          colkey = FALSE, lty = line_styles[[as.character(site_value)]], lwd = 2.0,
+          pch = point_shapes[[as.character(site_value)]], cex = 0.72, bg = "white",
+          xlim = range(log10(data$branch_length), finite = TRUE),
+          ylim = range(log10(data$nsites), finite = TRUE), zlim = z_range,
+          xlab = "log10 branch length", ylab = "log10 sites", zlab = z_title,
+          theta = 42, phi = 23, d = 2.35, expand = 0.78,
+          bty = "u", ticktype = "detailed", nticks = 4,
+          col.panel = "#FAFAFA", col.grid = "#DDDDDD", col.axis = "#555555",
+          lwd.panel = 0.65, lwd.grid = 0.55,
+          main = if (first_trace) paste(tree_label_value, scenario_label_value, sep = "\n") else NULL,
+          cex.main = 0.86
+        )
+        first_trace <- FALSE
+      }
+    }
+  }
+
+  par(mar = c(0, 0, 0, 0))
+  plot.new()
+  legend_colors <- if (difference) unname(site_colors[as.character(site_values)]) else rep(line_color, length(site_values))
+  legend(
+    "center",
+    legend = paste(format(site_values, big.mark = ",", scientific = FALSE), "sites"),
+    col = legend_colors, lty = unname(line_styles[as.character(site_values)]),
+    pch = unname(point_shapes[as.character(site_values)]), pt.bg = "white",
+    lwd = 2.0, pt.cex = 0.9, horiz = TRUE, bty = "n", cex = 0.88,
+    x.intersp = 0.75, y.intersp = 0.8
+  )
+  mtext(title, side = 3, outer = TRUE, line = 2.75, font = 2, cex = 1.22, col = "#222222")
+  mtext(
+    "Static 3D view of measured alignment-length trajectories",
+    side = 3, outer = TRUE, line = 1.25, cex = 0.92, col = "#555555"
+  )
+  mtext(
+    "Points are observed means; axes x and y are log10-scaled; no surface interpolation.",
+    side = 1, outer = TRUE, line = 0.45, cex = 0.82, col = "#555555"
+  )
+  grDevices::dev.off()
+  on.exit(NULL, add = FALSE)
+  cat("3D PDF: ", pdf_path, "\n", sep = "")
+}
+
 for (formula_name in FORMULA_LEVELS) {
   method_rows <- rows[rows$formula == formula_name, , drop = FALSE]
+  static_title <- paste0(FORMULA_LABELS[[formula_name]], ": sim ", sim_label, ", eval ", eval_label)
   build_3d(
     method_rows,
-    paste0(FORMULA_LABELS[[formula_name]], ": sim ", sim_label, ", eval ", eval_label),
+    static_title,
     "fraction_informative", "Fraction informative", c(0, 1), FORMULA_COLORS[[formula_name]],
     file.path(outdir, paste0("figure_", formula_name, "_3d_", suffix, ".html"))
   )
+  build_static_3d(
+    method_rows, static_title,
+    "fraction_informative", "Fraction informative", c(0, 1), FORMULA_COLORS[[formula_name]],
+    file.path(outdir, paste0("figure_", formula_name, "_3d_", suffix, ".pdf"))
+  )
 }
+static_difference_title <- paste0("Paired formula difference: sim ", sim_label, ", eval ", eval_label)
 build_3d(
   paired_summary,
-  paste0("Paired formula difference: sim ", sim_label, ", eval ", eval_label),
+  static_difference_title,
   "delta_fraction_informative", "Weighted − dominant", c(-delta_limit, delta_limit), "#6A3D9A",
   file.path(outdir, paste0("figure_paired_difference_3d_", suffix, ".html")), difference = TRUE
+)
+build_static_3d(
+  paired_summary, static_difference_title,
+  "delta_fraction_informative", "Weighted − dominant", c(-delta_limit, delta_limit), "#6A3D9A",
+  file.path(outdir, paste0("figure_paired_difference_3d_", suffix, ".pdf")), difference = TRUE
 )

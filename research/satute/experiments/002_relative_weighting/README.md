@@ -30,19 +30,20 @@ reference alignment and recorded with checksums.
 ## Independent 2D and 3D formula plots
 
 `render_formula_comparison.R` produces three independent 2D figures and three
-independent interactive 3D line plots:
+independent 3D line plots:
 
 - published dominant coefficient;
 - eigenvalue-weighted coefficient;
 - paired difference (`eigenvalue_weighted - dominant`).
 
-The 2D figures are written as vector PDF/SVG and 450-DPI PNG. The 3D figures
-are self-contained Plotly HTML widgets with target branch length, alignment
-length, and informative fraction as the three axes. They draw only measured
-alignment-length trajectories and do not interpolate a surface. The difference
-figures pair formula decisions on the same simulated alignment and report a
-95% paired bootstrap interval plus the exact McNemar p-value in a companion
-TSV.
+The 2D figures are written as vector PDF/SVG and 450-DPI PNG. Each 3D figure is
+written both as a multi-panel vector PDF containing every tree/scenario view
+and as a self-contained interactive Plotly HTML widget. Target branch length,
+alignment length, and informative fraction are the three axes. The figures draw
+only measured alignment-length trajectories and do not interpolate a surface.
+The difference figures pair formula decisions on the same simulated alignment
+and report a 95% paired bootstrap interval plus the exact McNemar p-value in a
+companion TSV.
 
 ```bash
 Rscript research/satute/experiments/002_relative_weighting/render_formula_comparison.R \
@@ -54,5 +55,5 @@ Rscript research/satute/experiments/002_relative_weighting/render_formula_compar
   --expected-reps 250
 ```
 
-Required R packages are `ggplot2`, `plotly`, `ragg`, `svglite`, `scales`,
-`viridisLite`, and `htmlwidgets`.
+Required R packages are `ggplot2`, `plot3D`, `plotly`, `ragg`, `svglite`,
+`scales`, `viridisLite`, and `htmlwidgets`.
