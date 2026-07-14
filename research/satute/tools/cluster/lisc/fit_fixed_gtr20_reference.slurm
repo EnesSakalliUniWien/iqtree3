@@ -34,8 +34,49 @@ if [[ ! -x "${IQTREE_BIN}" ]]; then
 fi
 
 mkdir -p "${OUT_DIR}"
-PREFIX="${OUT_DIR}/gtr20_reference_fit"
 
+if [[ -n "${SLURM_JOB_ID:-}" && -z "${TMPDIR:-}" ]]; then
+  echo "Slurm job has no TMPDIR; refusing to fit GTR20 on shared scratch" >&2
+  exit 2
+fi
+
+if [[ -n "${TMPDIR:-}" ]]; then
+  LOCAL_OUT_DIR="${TMPDIR}/satute-gtr20-${SLURM_JOB_ID:-manual}"
+  NODE_LOCAL_WORK=1
+else
+  LOCAL_OUT_DIR="${OUT_DIR}"
+  NODE_LOCAL_WORK=0
+fi
+mkdir -p "${LOCAL_OUT_DIR}"
+
+PREFIX_BASENAME="gtr20_reference_fit"
+PREFIX="${LOCAL_OUT_DIR}/${PREFIX_BASENAME}"
+
+copy_atomic() {
+  local source="$1"
+  local destination="$2"
+  local temporary="${destination}.tmp.${SLURM_JOB_ID:-$$}"
+  rm -f "${temporary}"
+  cp "${source}" "${temporary}"
+  mv "${temporary}" "${destination}"
+}
+
+cleanup_fit() {
+  local status=$?
+  trap - EXIT
+  if [[ "${status}" -ne 0 && -s "${PREFIX}.log" ]]; then
+    set +e
+    copy_atomic "${PREFIX}.log" "${OUT_DIR}/${PREFIX_BASENAME}.failed_job_${SLURM_JOB_ID:-manual}.log"
+    set -e
+  fi
+  if [[ "${NODE_LOCAL_WORK}" == "1" ]]; then
+    rm -rf "${LOCAL_OUT_DIR}"
+  fi
+  exit "${status}"
+}
+trap cleanup_fit EXIT
+
+MANIFEST_TMP="${OUT_DIR}/fit_manifest.tsv.tmp.${SLURM_JOB_ID:-$$}"
 {
   printf "field\tvalue\n"
   printf "created_utc\t%s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -47,7 +88,9 @@ PREFIX="${OUT_DIR}/gtr20_reference_fit"
   printf "tree_path\t%s\n" "${TREE}"
   printf "tree_sha256\t%s\n" "$(sha256sum "${TREE}" | awk '{print $1}')"
   printf "iqtree_sha256\t%s\n" "$(sha256sum "${IQTREE_BIN}" | awk '{print $1}')"
-} > "${OUT_DIR}/fit_manifest.tsv"
+  printf "node_local_work\t%s\n" "${NODE_LOCAL_WORK}"
+} > "${MANIFEST_TMP}"
+mv "${MANIFEST_TMP}" "${OUT_DIR}/fit_manifest.tsv"
 
 "${IQTREE_BIN}" \
   -s "${ALIGNMENT}" \
@@ -58,4 +101,20 @@ PREFIX="${OUT_DIR}/gtr20_reference_fit"
   -T "${SLURM_CPUS_PER_TASK}" \
   --redo
 
-sha256sum "${PREFIX}.iqtree" "${PREFIX}.treefile" > "${OUT_DIR}/fit_output_sha256.txt"
+for required in "${PREFIX}.iqtree" "${PREFIX}.treefile"; do
+  if [[ ! -s "${required}" ]]; then
+    echo "GTR20 fit did not produce required output: ${required}" >&2
+    exit 1
+  fi
+done
+
+while IFS= read -r -d '' result; do
+  copy_atomic "${result}" "${OUT_DIR}/$(basename "${result}")"
+done < <(find "${LOCAL_OUT_DIR}" -maxdepth 1 -type f -name "${PREFIX_BASENAME}.*" -print0)
+
+(
+  cd "${OUT_DIR}"
+  sha256sum "${PREFIX_BASENAME}.iqtree" "${PREFIX_BASENAME}.treefile" > "fit_output_sha256.txt.tmp.${SLURM_JOB_ID:-$$}"
+  mv "fit_output_sha256.txt.tmp.${SLURM_JOB_ID:-$$}" fit_output_sha256.txt
+  sha256sum -c fit_output_sha256.txt
+)

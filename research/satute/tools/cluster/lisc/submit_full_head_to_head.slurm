@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=satute-full-h2h
 #SBATCH --account=menche
-#SBATCH --array=0-999%64
+#SBATCH --array=0-999%32
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1G
 #SBATCH --time=04:00:00

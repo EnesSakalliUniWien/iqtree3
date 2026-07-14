@@ -15,7 +15,9 @@ find "${OUT_ROOT}/shards" -path '*/head_to_head_detail.tsv' -type f 2>/dev/null 
 
 echo
 echo "Shard archives:"
-find "${OUT_ROOT}/run-archives" -name 'runs_shard_*.tar.gz' -type f 2>/dev/null | wc -l || true
+find "${OUT_ROOT}/run-archives" -type f \
+  \( -name 'runs_shard_*.tar.gz' -o -name 'runs_shard_*.tar.zst' \) \
+  2>/dev/null | wc -l || true
 
 echo
 echo "Expected shards:"

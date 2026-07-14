@@ -111,8 +111,14 @@ Each shard writes a readable `head_to_head_detail.tsv` and
 IQ-TREE and Seq-Gen files under `runs/` are compressed into:
 
 ```text
-${OUT_ROOT}/run-archives/runs_shard_<index>_job_<jobid>.tar.gz
+${OUT_ROOT}/run-archives/runs_shard_<index>_job_<jobid>.tar.zst
 ```
+
+IQ-TREE, Seq-Gen, and archive creation run in Slurm's node-local `$TMPDIR`.
+Only the two TSVs, the verified archive, and its SHA-256 file are copied back
+to GPFS. The wrapper refuses to run under Slurm when `$TMPDIR` is unavailable,
+which prevents a failed shard from exhausting the shared-scratch file quota.
+The default array throttle is 32 concurrent shards.
 
 Shard 0 also writes `run_manifest.tsv` with the grid parameters and SHA-256
 checksums for the exact IQ-TREE and Seq-Gen binaries, EvoNAPS table, experiment
@@ -120,7 +126,12 @@ driver and modular native SatuTe sources used by the run. The wrapper loads only
 the pinned `GCCcore/14.3.0` runtime required by the IQ-TREE binary; it does not
 load the SciPy/NumPy bundle.
 
-The uncompressed `runs/` directory is removed only after the archive is written.
+The node-local `runs/` directory is removed only after the durable archive has
+passed Zstandard, tar-listing, and SHA-256 checks. A failed computation copies
+back its partial detail table for resumption, then removes its node-local work.
+Set `RESUME_SHARDS=0` for a recovery rerun that must recompute a complete shard
+and produce a complete raw-output archive while retaining the prior durable TSV
+until the replacement succeeds.
 
 ## Postprocess
 
