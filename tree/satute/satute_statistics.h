@@ -14,47 +14,9 @@
 #include "satute_types.h"
 #include "../phylotree.h"
 
-#include <memory>
 #include <vector>
 
 namespace satute {
-
-enum class StatisticKind {
-    Category,
-    Mixture
-};
-
-struct StatisticRequest {
-    Node *left_node;
-    Node *left_dad;
-    Node *right_node;
-    Node *right_dad;
-    Alignment *aln;
-    ModelSubst *model;
-    int nstates;
-    const double *eigenvalues;
-    const SatuTeFormulaSpec *formula;
-    const std::vector<double> *mode_weights;
-    const IntVector *pattern_categories;
-    int required_pattern_category;
-    double rate_multiplier;
-    const std::vector<int> *modes;
-    const std::vector<SatuTeRateCategory> *rate_categories;
-    double branch_length;
-    double log_weight_shift;
-    const SatuTeBranchResult *base;
-};
-
-class StatisticStrategy {
-public:
-    virtual ~StatisticStrategy() {}
-    virtual SatuTeBranchResult compute(const StatisticRequest &request) const = 0;
-};
-
-class StatisticStrategyFactory {
-public:
-    static std::unique_ptr<StatisticStrategy> create(StatisticKind kind);
-};
 
 SatuTeBranchResult computeCategoryStatistic(
     Node *left_node,
@@ -72,24 +34,18 @@ SatuTeBranchResult computeCategoryStatistic(
     double rate_multiplier,
     const SatuTeBranchResult &base);
 
-SatuTeBranchResult computeMixtureStatistic(
-    Node *left_node,
-    Node *left_dad,
-    Node *right_node,
-    Node *right_dad,
-    Alignment *aln,
-    ModelSubst *model,
-    int nstates,
-    const double *eval,
-    const std::vector<int> &modes,
-    const std::vector<SatuTeRateCategory> &categories,
-    double branch_length,
-    double log_weight_shift,
-    const SatuTeBranchResult &base);
-
 SatuTeBranchResult poolCategoryResults(
     const std::vector<SatuTeBranchResult> &category_results,
     const SatuTeBranchResult &base);
+
+/**
+ * Apply Benjamini-Yekutieli FDR adjustment independently to the pooled
+ * dominant and eigenvalue_weighted branch p-values. Rate-category rows are
+ * diagnostic and are not members of either FDR family.
+ */
+void applySeparateFormulaFdr(
+    std::vector<SatuTeBranchResult> &results,
+    double fdr_level);
 
 } // namespace satute
 

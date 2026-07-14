@@ -64,20 +64,3 @@ eigenvalue-weighted statistic is the promoted current method because it uses
 both eigenvectors and eigenvalues. It is evaluated alongside the legacy method
 on paired simulations, including type I error, power and behavior under
 maximum-likelihood tree selection.
-
-An explicit invariant-site component requires an additional correction. A
-zero-rate category retains the same ancestral state across the focal branch
-even in the infinite-branch limit. Its null contribution is therefore a joint
-subtree likelihood rather than the product of the two subtree likelihoods. The
-refined soft-mixture statistic places this invariant joint term in the null
-denominator and allows only positive-rate categories to contribute
-finite-versus-infinite-branch signal.
-
-The full paired +I analysis used +I+G4 and +I+R4 models, five alignment
-lengths, 27 branch lengths and 20,000 null plus 20,000 alternative replicates
-per cell. The refined nominal false-positive rate averaged 4.92%, whereas the
-counterfactual invariant construction averaged 90.0%. After independent null
-calibration, the largest refined power gains were 11.6 percentage points for
-+I+G4 and 16.3 percentage points for +I+R4. These gains form a narrow ridge at
-the detection boundary; the primary benefit is restoration of the correct
-null.

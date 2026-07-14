@@ -4,10 +4,15 @@ set -euo pipefail
 
 IQTREE=${1:-build/iqtree3}
 OUTDIR=${2:-/tmp/iqtree-satute-sim-smoke}
+PYTHON_BIN=${PYTHON_BIN:-$(command -v python3 || true)}
 
 if [ ! -x "$IQTREE" ]; then
     echo "Cannot execute IQ-TREE binary: $IQTREE" >&2
     echo "Usage: $0 [path/to/iqtree3] [output-dir]" >&2
+    exit 2
+fi
+if [ -z "${PYTHON_BIN:-}" ]; then
+    echo "Cannot find python3 for SatuTe FDR verification" >&2
     exit 2
 fi
 
@@ -56,6 +61,67 @@ run_case() {
     fi
 }
 
+verify_fdr() {
+    local stat_file=$1
+    local alpha=$2
+    "$PYTHON_BIN" - "$stat_file" "$alpha" <<'PY'
+import csv
+import math
+import sys
+from collections import defaultdict
+
+path = sys.argv[1]
+alpha = float(sys.argv[2])
+rows = []
+with open(path, encoding="utf-8") as handle:
+    reader = csv.DictReader((line for line in handle if not line.startswith("#")), delimiter="\t")
+    rows = list(reader)
+
+families = defaultdict(list)
+for row_index, row in enumerate(rows):
+    formula = row["Formula"]
+    if formula not in {"dominant", "eigenvalue_weighted"}:
+        raise AssertionError(f"unexpected formula in {path}: {formula}")
+    if row["RateCategory"] != "pooled":
+        if row["FDR_BY"] != "NA" or row["DecisionFDR"] != "not_tested":
+            raise AssertionError(f"category row entered FDR family in {path}: {row}")
+        continue
+    families[formula].append((float(row["satP"]), row_index, row))
+
+if set(families) != {"dominant", "eigenvalue_weighted"}:
+    raise AssertionError(f"missing separate FDR family in {path}: {sorted(families)}")
+if len(families["dominant"]) != len(families["eigenvalue_weighted"]):
+    raise AssertionError(f"formula FDR family sizes differ in {path}")
+
+for formula, entries in families.items():
+    entries.sort(key=lambda item: (item[0], item[1]))
+    family_size = len(entries)
+    harmonic = sum(1.0 / rank for rank in range(1, family_size + 1))
+    expected = [None] * family_size
+    running = 1.0
+    for offset in range(family_size - 1, -1, -1):
+        rank = offset + 1
+        running = min(running, min(1.0, entries[offset][0] * family_size * harmonic / rank))
+        expected[offset] = running
+    for entry, expected_fdr in zip(entries, expected):
+        observed = float(entry[2]["FDR_BY"])
+        if not math.isclose(observed, expected_fdr, rel_tol=0.0, abs_tol=2e-9):
+            raise AssertionError(
+                f"{path} {formula}: observed BY {observed} != expected {expected_fdr}"
+            )
+        expected_decision = "informative" if expected_fdr <= alpha else "saturated"
+        if entry[2]["DecisionFDR"] != expected_decision:
+            raise AssertionError(
+                f"{path} {formula}: decision {entry[2]['DecisionFDR']} != {expected_decision}"
+            )
+
+print(
+    f"fdr_verified\tfile={path}\tdominant={len(families['dominant'])}"
+    f"\teigenvalue_weighted={len(families['eigenvalue_weighted'])}"
+)
+PY
+}
+
 GTR_MODEL='GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}'
 
 echo -e "case\tmodel\tbranch\tz\tp\tdecision"
@@ -63,6 +129,11 @@ run_case jc_informative JC 0.50 informative 11
 run_case jc_saturated JC 8.00 saturated 800
 run_case gtr_informative "$GTR_MODEL" 0.50 informative 50
 run_case gtr_saturated "$GTR_MODEL" 8.00 saturated 800
+
+verify_fdr "$OUTDIR/jc_informative_sat.sat.stat" 0.05
+verify_fdr "$OUTDIR/jc_saturated_sat.sat.stat" 0.05
+verify_fdr "$OUTDIR/gtr_informative_sat.sat.stat" 0.05
+verify_fdr "$OUTDIR/gtr_saturated_sat.sat.stat" 0.05
 
 edge_file="$OUTDIR/jc_informative_edges.txt"
 subset_prefix="$OUTDIR/jc_informative_subset"
@@ -86,7 +157,7 @@ printf '%s\n' "$selected_edge" > "$edge_file"
     --satute --satute-edges "$edge_file" --satute-alpha 0.01 \
     --prefix "$subset_prefix" -T 1 --redo --quiet
 
-subset_summary=$(awk -v edge="$selected_edge" 'BEGIN{FS="\t"; rows=0; bad=0; alpha_bad=0; dominant=0; weighted=0; mixture=0; unexpected=0}
+subset_summary=$(awk -v edge="$selected_edge" 'BEGIN{FS="\t"; rows=0; bad=0; alpha_bad=0; dominant=0; weighted=0; unexpected=0}
     $1 == "ID" {
         for (i = 1; i <= NF; i++) h[$i] = i
         next
@@ -97,45 +168,28 @@ subset_summary=$(awk -v edge="$selected_edge" 'BEGIN{FS="\t"; rows=0; bad=0; alp
         if ($h["Alpha"] != "0.01") alpha_bad++
         if ($h["Formula"] == "dominant") dominant++
         else if ($h["Formula"] == "eigenvalue_weighted") weighted++
-        else if ($h["Formula"] == "mixture_likelihood_weighted") mixture++
         else unexpected++
     }
     END {
-        printf "%d\t%d\t%d\t%d\t%d\t%d\t%d", rows, bad, alpha_bad, dominant, weighted, mixture, unexpected
+        printf "%d\t%d\t%d\t%d\t%d\t%d", rows, bad, alpha_bad, dominant, weighted, unexpected
     }' "$subset_prefix.sat.stat")
 subset_rows=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $1}')
 subset_bad=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $2}')
 subset_alpha_bad=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $3}')
 subset_dominant=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $4}')
 subset_weighted=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $5}')
-subset_mixture=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $6}')
-subset_unexpected=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $7}')
+subset_unexpected=$(printf '%s\n' "$subset_summary" | awk 'BEGIN{FS="\t"} {print $6}')
 
 printf 'jc_subset\tmodel=JC\tedge=%s\trows=%s\talpha=0.01\n' "$selected_edge" "$subset_rows"
 
-if [ "$subset_rows" != "3" ] || [ "$subset_bad" != "0" ] || [ "$subset_alpha_bad" != "0" ] || \
-    [ "$subset_dominant" != "1" ] || [ "$subset_weighted" != "1" ] || [ "$subset_mixture" != "1" ] || \
+if [ "$subset_rows" != "2" ] || [ "$subset_bad" != "0" ] || [ "$subset_alpha_bad" != "0" ] || \
+    [ "$subset_dominant" != "1" ] || [ "$subset_weighted" != "1" ] || \
     [ "$subset_unexpected" != "0" ]; then
-    echo "SatuTe edge-subset check failed: rows=$subset_rows bad_id=$subset_bad bad_alpha=$subset_alpha_bad dominant=$subset_dominant weighted=$subset_weighted mixture=$subset_mixture unexpected=$subset_unexpected" >&2
+    echo "SatuTe edge-subset check failed: rows=$subset_rows bad_id=$subset_bad bad_alpha=$subset_alpha_bad dominant=$subset_dominant weighted=$subset_weighted unexpected=$subset_unexpected" >&2
     exit 1
 fi
 
-if ! awk 'BEGIN{FS="\t"}
-    $1 == "ID" { for (i = 1; i <= NF; i++) h[$i] = i; next }
-    $1 ~ /^[0-9]+$/ && $h["RateCategory"] == "pooled" {
-        if ($h["Formula"] == "eigenvalue_weighted") weighted = $h["satC"]
-        if ($h["Formula"] == "mixture_likelihood_weighted") mixture = $h["satC"]
-    }
-    END {
-        if (weighted == "" || mixture == "") exit 1
-        difference = (weighted + 0) - (mixture + 0)
-        if (difference < 0) difference = -difference
-        exit difference > 1e-8
-    }
-' "$subset_prefix.sat.stat"; then
-    echo "Homogeneous JC eigenvalue-weighted and mixture coherence values differ" >&2
-    exit 1
-fi
+verify_fdr "$subset_prefix.sat.stat" 0.01
 
 if ! awk 'BEGIN{FS="\t"; seen=0; bad=0}
     $1 == "ID" {
@@ -183,6 +237,12 @@ if ! grep -q 'satFormula="eigenvalue_weighted"' "$subset_prefix.sat.tree.nex"; t
     echo "SatuTe tree annotations do not identify eigenvalue_weighted as their source formula" >&2
     exit 1
 fi
+if ! grep -q 'satDominantFDR=' "$subset_prefix.sat.tree.nex" || \
+   ! grep -q 'satFDR=' "$subset_prefix.sat.tree.nex" || \
+   ! grep -q 'satFDRDecision=' "$subset_prefix.sat.tree.nex"; then
+    echo "SatuTe formula-specific FDR tree annotations are missing" >&2
+    exit 1
+fi
 
 bad_edge_file="$OUTDIR/jc_informative_bad_edges.txt"
 bad_edge_prefix="$OUTDIR/jc_informative_bad_subset"
@@ -201,5 +261,22 @@ if ! grep -q "Requested SatuTe branch IDs not found: 999999" "$bad_edge_log"; th
     exit 1
 fi
 printf 'jc_subset_missing\tmodel=JC\tedge=999999\texpected_failure\n'
+
+rooted_tree="$OUTDIR/jc_informative_rooted.tree"
+rooted_prefix="$OUTDIR/jc_informative_rooted"
+rooted_log="$OUTDIR/jc_informative_rooted.log"
+printf '((A:0.05,B:0.05):0.25,(C:0.05,D:0.05):0.25);\n' > "$rooted_tree"
+if "$IQTREE" -s "$OUTDIR/jc_informative.fa" -te "$rooted_tree" -m JC \
+    --satute --prefix "$rooted_prefix" -T 1 --redo --quiet >"$rooted_log" 2>&1
+then
+    echo "SatuTe accepted a rooted tree" >&2
+    exit 1
+fi
+if ! grep -q "SatuTe currently supports unrooted trees only" "$rooted_log"; then
+    echo "SatuTe rejected a rooted tree with an unexpected message" >&2
+    cat "$rooted_log" >&2
+    exit 1
+fi
+printf 'jc_rooted\tmodel=JC\texpected_failure\n'
 
 echo "SatuTe simulated smoke test passed; outputs are in $OUTDIR"

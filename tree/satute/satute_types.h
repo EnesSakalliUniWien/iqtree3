@@ -44,6 +44,7 @@ struct SatuTeBranchResult {
     double se;
     double z_score;
     double p_value;
+    double fdr_by;
     double alpha;
     double alpha_adjusted;
     std::string formula;
@@ -55,6 +56,7 @@ struct SatuTeBranchResult {
     std::string weights;
     std::string decision;
     std::string decision_bonferroni;
+    std::string decision_fdr;
     std::string label;
     std::string split;
 };

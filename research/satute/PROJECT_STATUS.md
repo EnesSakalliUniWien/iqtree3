@@ -3,8 +3,9 @@
 ## Production
 
 - Native implementation: `../../tree/satute.cpp`.
-- Native formulas: `dominant`, `eigenvalue_weighted`, and
-  `mixture_likelihood_weighted`.
+- Native formulas: `dominant` and `eigenvalue_weighted`.
+- Pooled branch p-values use separate Benjamini-Yekutieli FDR families for
+  each native formula.
 - Monotonic model ruler: `InformationFraction` and `SaturationIndex`.
 
 ## Current Mathematical Result

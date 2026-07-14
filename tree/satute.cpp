@@ -15,6 +15,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <map>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -29,6 +30,8 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         outError("SatuTe alpha must be between 0 and 1");
     if (isSuperTree())
         outError("SatuTe currently supports single-alignment analyses only");
+    if (rooted)
+        outError("SatuTe currently supports unrooted trees only");
     if (!model || !site_rate || !model_factory)
         outError("SatuTe requires an initialized likelihood model");
     if (!model->useRevKernel())
@@ -67,6 +70,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     double start_time = getRealTime();
 
     vector<SatuTeBranchResult> results;
+    map<int, Neighbor*> annotated_branches;
     set<int> matched_edges;
 
     for (BranchVector::iterator brit = branches.begin(); brit != branches.end(); brit++) {
@@ -78,6 +82,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             matched_edges.insert(branch_id);
 
         Neighbor *annotated_branch = brit->second->findNeighbor(brit->first);
+        annotated_branches[branch_id] = annotated_branch;
 
         string label = brit->second->name;
         if (!label.empty())
@@ -86,9 +91,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         int left_taxa = countTipsAwayFrom(brit->first, brit->second);
         int right_taxa = countTipsAwayFrom(brit->second, brit->first);
         string split = splitLabel(brit->first, brit->second);
-        SatuTeBranchResult annotated_pooled_for_tree;
-        bool have_annotated_pooled = false;
-        double pooled_information_fraction = computeMixtureInformationFraction(
+        double pooled_information_fraction = computePooledInformationFraction(
             eval,
             all_nonzero_modes,
             rate_categories,
@@ -165,66 +168,12 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             setSaturationScale(pooled, pooled_information_fraction);
             results.push_back(pooled);
 
-            if (formula.name == "eigenvalue_weighted") {
-                annotated_pooled_for_tree = pooled;
-                have_annotated_pooled = true;
-            }
-
             if (!(rate_categories.size() == 1 && rate_categories[0].pattern_cat < 0)) {
                 for (size_t category_index = 0; category_index < category_results.size(); category_index++) {
                     if (category_results[category_index].rate_category_sites > 0)
                         results.push_back(category_results[category_index]);
                 }
             }
-        }
-
-        double mixture_log_weight_shift = computeMixtureLogWeightShift(
-            eval,
-            all_nonzero_modes,
-            rate_categories,
-            annotated_branch->length);
-        SatuTeBranchResult mixture_base = makeBaseResult(
-            branch_id,
-            left_taxa,
-            right_taxa,
-            annotated_branch->length,
-            annotated_branch->length,
-            alpha,
-            "mixture_likelihood_weighted",
-            "pooled",
-            "NA",
-            formatIntVector(all_nonzero_modes),
-            eigenvalueString(eval, all_nonzero_modes),
-            "soft_mixture_global_log_shift=" + formatDouble(mixture_log_weight_shift),
-            label,
-            split);
-        setSaturationScale(mixture_base, pooled_information_fraction);
-        results.push_back(
-            computeMixtureStatistic(
-                brit->first,
-                brit->second,
-                brit->second,
-                brit->first,
-                aln,
-                model,
-                nstates,
-                eval,
-                all_nonzero_modes,
-                rate_categories,
-                annotated_branch->length,
-                mixture_log_weight_shift,
-                mixture_base));
-
-        if (have_annotated_pooled) {
-            annotated_branch->putAttr("satFormula", annotated_pooled_for_tree.formula);
-            annotated_branch->putAttr("satC", formatDouble(annotated_pooled_for_tree.coherence));
-            annotated_branch->putAttr("satSE", formatDouble(annotated_pooled_for_tree.se));
-            annotated_branch->putAttr("satZ", formatDouble(annotated_pooled_for_tree.z_score));
-            annotated_branch->putAttr("satP", formatDouble(annotated_pooled_for_tree.p_value));
-            annotated_branch->putAttr("satInfo", formatDouble(annotated_pooled_for_tree.information_fraction));
-            annotated_branch->putAttr("satIndex", formatDouble(annotated_pooled_for_tree.saturation_index));
-            annotated_branch->putAttr("sat", annotated_pooled_for_tree.decision);
-            annotated_branch->putAttr("satBonf", annotated_pooled_for_tree.decision_bonferroni);
         }
     }
 
@@ -242,6 +191,38 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                 ss << ' ' << missing_edges[i];
             outError(ss.str());
         }
+    }
+
+    applySeparateFormulaFdr(results, alpha);
+    for (size_t result_index = 0; result_index < results.size(); result_index++) {
+        const SatuTeBranchResult &result = results[result_index];
+        if (result.rate_category != "pooled")
+            continue;
+
+        map<int, Neighbor*>::iterator branch_it = annotated_branches.find(result.id);
+        if (branch_it == annotated_branches.end())
+            continue;
+        Neighbor *annotated_branch = branch_it->second;
+
+        if (result.formula == "dominant") {
+            annotated_branch->putAttr("satDominantFDR", formatDouble(result.fdr_by));
+            annotated_branch->putAttr("satDominantFDRDecision", result.decision_fdr);
+            continue;
+        }
+        if (result.formula != "eigenvalue_weighted")
+            continue;
+
+        annotated_branch->putAttr("satFormula", result.formula);
+        annotated_branch->putAttr("satC", formatDouble(result.coherence));
+        annotated_branch->putAttr("satSE", formatDouble(result.se));
+        annotated_branch->putAttr("satZ", formatDouble(result.z_score));
+        annotated_branch->putAttr("satP", formatDouble(result.p_value));
+        annotated_branch->putAttr("satFDR", formatDouble(result.fdr_by));
+        annotated_branch->putAttr("satFDRDecision", result.decision_fdr);
+        annotated_branch->putAttr("satInfo", formatDouble(result.information_fraction));
+        annotated_branch->putAttr("satIndex", formatDouble(result.saturation_index));
+        annotated_branch->putAttr("sat", result.decision);
+        annotated_branch->putAttr("satBonf", result.decision_bonferroni);
     }
 
     ReportWriter().write(*this, prefix, results);

@@ -62,6 +62,15 @@ REFERENCE_OUT="$OUTROOT/formula-comparison/gtr_5.00_reference.tsv"
     --out "$REFERENCE_OUT" \
     --compare-sat-stat "$OUTROOT/formula-comparison/gtr_5.00_sat.sat.stat"
 
+ALL_BRANCH_REFERENCE_OUT="$OUTROOT/formula-comparison/gtr_5.00_all_branches_reference.tsv"
+"$PYTHON_WITH_NUMPY" "$SCRIPT_DIR/satute_reference.py" \
+    --alignment "$OUTROOT/formula-comparison/gtr_5.00.fa" \
+    --tree "$OUTROOT/formula-comparison/gtr_5.00_sat.sat.tree" \
+    --model "$GTR_REFERENCE_MODEL" \
+    --all-branches \
+    --out "$ALL_BRANCH_REFERENCE_OUT" \
+    --compare-sat-stat "$OUTROOT/formula-comparison/gtr_5.00_sat.sat.stat"
+
 RATE_REFERENCE_OUT="$OUTROOT/rate-categories/gtr_gamma/reference_cli_rate.tsv"
 "$PYTHON_WITH_NUMPY" "$SCRIPT_DIR/satute_reference.py" \
     --alignment "$OUTROOT/rate-categories/sim.fa" \
@@ -81,8 +90,6 @@ INVAR_RATE_REFERENCE_OUT="$OUTROOT/rate-categories/invar_gamma/reference_cli_rat
     --iqtree-report "$OUTROOT/rate-categories/invar_gamma/example.iqtree" \
     --out "$INVAR_RATE_REFERENCE_OUT" \
     --compare-sat-stat "$OUTROOT/rate-categories/invar_gamma/example.sat.stat"
-
-"$PYTHON_WITH_NUMPY" "$SCRIPT_DIR/../exact/test_weighted_likelihood.py"
 
 BAD_SPLIT_LOG="$OUTROOT/formula-comparison/bad_split_reference.log"
 if "$PYTHON_WITH_NUMPY" "$SCRIPT_DIR/satute_reference.py" \

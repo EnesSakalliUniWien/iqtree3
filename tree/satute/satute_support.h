@@ -38,12 +38,7 @@ double computeInformationFraction(
     const double *eval,
     const std::vector<int> &modes,
     double effective_length);
-double computeMixtureInformationFraction(
-    const double *eval,
-    const std::vector<int> &modes,
-    const std::vector<SatuTeRateCategory> &categories,
-    double branch_length);
-double computeMixtureLogWeightShift(
+double computePooledInformationFraction(
     const double *eval,
     const std::vector<int> &modes,
     const std::vector<SatuTeRateCategory> &categories,

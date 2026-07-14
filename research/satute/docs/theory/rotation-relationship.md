@@ -175,7 +175,6 @@ quantum-advantage metric.
 |---|---|---|---|
 | Published `dominant` | Coherence in the slowest-decaying eigenspace | Is the most persistent observed contrast detectable across the branch? | The observed signed coherence and its estimated standard error both vary with the alignment. |
 | `eigenvalue_weighted` | $w_{kc}=\rho_{kc}/\rho_{*c}=e^{(\lambda_k-\lambda_*)r_ct}$ | Do all modes, weighted by persistence relative to the slowest mode, provide detectable coherence? | Dividing by $\rho_{*c}$ removes the common radial decay. Hard rate-category reassignment and cancellation of signed category contributions can dominate the pooled curve. |
-| `mixture_likelihood_weighted` | Globally rescaled $\rho_{kc}=\cos\theta_{kc}$ with per-site null responsibilities; a zero-rate invariant component enters only the null denominator | Does the model-integrated finite-versus-infinite likelihood score remain detectable? | Studentization cancels the common numerical rescaling, while responsibilities and signed mode projections remain data-dependent. |
 | `SaturationIndex` | $1-\operatorname E_c[K^{-1}\sum_k\rho_{kc}^2]$ | How far has the fitted branch model progressed from zero-length persistence toward its stationary limit? | It is monotonic under the fixed-model assumptions; it is not calculated from observed coherence. |
 
 The relative-weighted vector

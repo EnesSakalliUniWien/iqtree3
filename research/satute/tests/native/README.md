@@ -8,9 +8,9 @@ Phase 1 includes:
 - branch-level output
 - testing all branches or a user-defined subset
 - Bonferroni correction
+- separate Benjamini-Yekutieli FDR families for the two pooled formulas
 - discrete rate-category models such as `+G4`
-- three formula rows: `dominant`, `eigenvalue_weighted`, and
-  `mixture_likelihood_weighted`
+- two formula rows: `dominant` and `eigenvalue_weighted`
 
 For the current code-facing implementation status, assumptions, verification
 coverage and limitations, see
@@ -31,6 +31,7 @@ The native implementation produces:
 - `alpha`
 - `alpha_adjust`
 - classification: `informative` or `saturated`
+- formula-specific BY-adjusted p-value and FDR classification
 - the formula name
 - the IQ-TREE rate category, IQ-TREE rate multiplier, and effective branch length
 - spectral modes, eigenvalues, and formula weights
@@ -86,38 +87,6 @@ The independent comparison script also computes an offline `all_unweighted`
 formula with every non-stationary mode assigned weight one. It is not part of
 the native `.sat.stat` interface.
 
-The refined `mixture_likelihood_weighted` formula avoids hard rate-category
-assignment. For positive-rate category prior `q_c`, category-specific
-independent-side likelihoods `A_sc` and `B_sc`, and site/category signal
-`C_sc`, it uses
-
-$$
-\tau_{sc}=\frac{q_c A_{sc}B_{sc}}{\sum_d q_d A_{sd}B_{sd}},
-\qquad
-C_s=\sum_c\tau_{sc}C_{sc},
-$$
-
-with spectral persistence weights
-
-$$
-w_{kc}=\exp(\lambda_k r_c t).
-$$
-
-The native calculation subtracts one common log-weight shift from every
-$\lambda_kr_ct$ before exponentiation. This prevents underflow while preserving
-the relative weights across categories and leaves the standardized statistic
-unchanged. For an explicit zero-rate invariant category, the null denominator
-uses the invariant joint likelihood
-
-$$
-J_{s0}=\sum_a\pi_aL_{A,0}(a)L_{B,0}(a),
-$$
-
-and the invariant component contributes no numerator signal because its focal
-transition is identical at finite and infinite branch lengths. The variance is
-the ordinary frequency-weighted sample variance of the final site values
-$C_s$, so category uncertainty and between-category variation are retained.
-
 ### 3. Rate categories
 
 For models with discrete rate heterogeneity, native `--satute` does not estimate
@@ -144,10 +113,6 @@ satC_pooled   = sum_c n_c / n * satC_c
 satVar_pooled = sum_c n_c / n * satVar_c
 satSE_pooled  = sqrt(satVar_pooled / n)
 ```
-
-`mixture_likelihood_weighted` instead emits one inherently pooled row, using
-all IQ-TREE category rates and proportions at every site through the soft
-responsibilities above.
 
 Every row also reports the model-based scale
 
@@ -178,8 +143,8 @@ Use:
 
 - [modelsubst.h](../../model/modelsubst.h)
 
-Phase 1 rejects unsupported cases early: supertrees, mixture models and
-ascertainment-bias correction.
+Phase 1 rejects unsupported cases early: rooted trees, supertrees, mixture
+models and ascertainment-bias correction.
 
 ### 6. Simulated examples
 
@@ -227,8 +192,8 @@ python3 research/satute/tests/native/satute_reference.py \
 The reference CLI now parses a general fixed Newick tree, finds the requested
 branch by split, and recursively recomputes ordinary side partials away from
 that edge. It supports nucleotide homogeneous JC/GTR rows and optional IQ-TREE
-`.rate` category rows via `--rate-file`; the soft-mixture reference also reads
-category rates and proportions from `--iqtree-report`. With
+`.rate` category rows via `--rate-file`; pooled information-scale integration
+reads category rates and proportions from `--iqtree-report`. With
 `--compare-sat-stat`, the same CLI
 fails if the recomputed Python reference rows disagree with native `.sat.stat`.
 The `--split` argument may name either side of the same branch, for example
@@ -238,6 +203,29 @@ then compares back to rows for that same ID. The phase-1 bundle checks this by
 requiring `--split A,C` to fail on an `A,B|C,D` tree and by matching a six-taxon
 GTR+G4 split and branch ID against native output.
 
+The Python reference reports both multiple-testing layers for each of its two
+formula versions. `AlphaTaxonBonf`, `PTaxonBonf`, and
+`DecisionTaxonBonf` implement the paper correction
+`alpha / (LeftTaxa * RightTaxa)` on every valid pooled or category row.
+`FDR_BY` and `DecisionFDR` use only pooled rows and form independent
+Benjamini-Yekutieli families for `dominant` and `eigenvalue_weighted`.
+Run with `--all-branches` to make those families tree-wide:
+
+```bash
+python3 research/satute/tests/native/satute_reference.py \
+  --alignment /path/to/alignment.fa \
+  --tree /path/to/unrooted-tree.nwk \
+  --model 'GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}' \
+  --all-branches \
+  --compare-sat-stat /path/to/native.sat.stat
+```
+
+The all-branch mode requires an explicitly unrooted Newick representation with
+a top-level trifurcation. This prevents a two-child root from silently splitting
+one unrooted branch length into two pieces. A single `--split` or `--branch-id`
+run still reports BY values, but each formula family then contains only that one
+requested branch, so its BY-adjusted p-value equals its raw p-value.
+
 Run the JC and GTR smoke examples with:
 
 ```bash
@@ -246,7 +234,8 @@ research/satute/tests/native/test_satute_simulated.sh ./build/iqtree3
 
 This smoke test also reruns one branch through `--satute-edges` and
 `--satute-alpha` to verify branch-subset output and the requested significance
-level in `.sat.stat`. It also requires an absent branch ID to fail with
+level in `.sat.stat`. It independently recalculates BY-adjusted p-values for
+the two separate formula families. It also requires an absent branch ID to fail with
 `Requested SatuTe branch IDs not found: 999999`.
 
 Run the IQ-TREE-owned rate-category regression with:

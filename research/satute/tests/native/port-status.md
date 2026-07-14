@@ -10,7 +10,7 @@ For a stricter requirement-by-requirement completion audit, see
 
 - The native analysis runs after IQ-TREE has fitted or accepted the requested
   tree, substitution model and rate-heterogeneity model.
-- Phase 1 targets single-alignment reversible models that expose IQ-TREE's
+- Phase 1 targets unrooted, single-alignment reversible models that expose IQ-TREE's
   reversible likelihood kernel and model eigensystem.
 - Rate categories are owned by IQ-TREE. Native SatuTe does not infer them from
   scratch.
@@ -21,7 +21,7 @@ For a stricter requirement-by-requirement completion audit, see
 ## Implemented Native Surface
 
 - `--satute` enables branch-level SatuTe after the main phylogenetic analysis.
-- `--satute-alpha NUM` sets the unadjusted significance threshold.
+- `--satute-alpha NUM` sets the unadjusted significance and FDR threshold.
 - `--satute-edges FILE` restricts output to branch IDs listed in the file.
 - Native output files are:
   - `.sat.stat`: tab-separated branch statistics.
@@ -32,7 +32,8 @@ For a stricter requirement-by-requirement completion audit, see
 
 The `.sat.stat` table emits one pooled row per branch and formula. For discrete
 rate models it also emits category rows for `dominant` and
-`eigenvalue_weighted`; `mixture_likelihood_weighted` is inherently pooled.
+`eigenvalue_weighted`. Benjamini-Yekutieli FDR adjustment is applied separately
+to the pooled branch p-values for each formula; category rows are not included.
 
 ## Formula
 
@@ -61,12 +62,6 @@ Formula choices:
 dominant:             k in the dominant non-stationary eigenspace, w_k = 1
 eigenvalue_weighted:  k in all non-stationary modes,
                       w_k = exp((lambda_k - lambda_*) t_c)
-mixture_likelihood_weighted:
-                      k in all non-stationary modes,
-                      w_kc proportional to exp(lambda_k r_c t), with one
-                      global log shift and soft null responsibility; a
-                      zero-rate invariant component enters only the null
-                      denominator
 ```
 
 Here `lambda_*` is the dominant non-stationary eigenvalue and `t_c` is the tested
@@ -80,11 +75,6 @@ t_c = branch_length * IQTREE_rate_c
 This means the eigenvectors define the contrast coordinates, while the
 eigenvalues determine how much each contrast should still contribute across the
 focal branch.
-
-The mixture formula computes the final statistic at site level and estimates
-its variance directly across sites. It therefore retains category uncertainty
-and between-category variance rather than pooling maximum-posterior category
-summaries.
 
 ## Rate-Category Contract
 
@@ -117,13 +107,14 @@ The bundle verifies:
 - `--satute-edges` rejects absent branch IDs instead of silently analyzing a
   different branch.
 - `--satute-alpha` is reflected in `.sat.stat`.
+- Native BY-adjusted p-values match an independent recalculation, with separate
+  families for pooled `dominant` and pooled `eigenvalue_weighted` rows.
 - Rate-category rows match IQ-TREE `.rate` output for `+G`, `+R`, `+I+G` and
   `+I+R`.
 - Pure `+I` fails with the expected explicit category-assignment message.
 - JC `+G4` category rows match an independent Python numeric reference.
 - GTR `+G4` category rows match an independent Python numeric reference for
-  `dominant` and `eigenvalue_weighted`; the pooled soft-mixture row also matches
-  an independent implementation using the `.iqtree` category table.
+  `dominant` and `eigenvalue_weighted`.
 - Native pooled `dominant` and `eigenvalue_weighted` rows match the
   independent Python reference for `satC`, `satVar`, `satSE`, `satZ`, `satP`,
   `Decision` and the number of modes.
@@ -152,7 +143,8 @@ git diff --check
 
 ## Current Limitations
 
-- Phase 1 rejects supertrees, mixture models and ascertainment-bias correction.
+- Phase 1 rejects rooted trees, supertrees, mixture models and
+  ascertainment-bias correction.
 - The native implementation uses scalar branch-side pruning for clarity instead
   of wiring directly into IQ-TREE's vectorized partial-likelihood buffers.
 - Protein, codon, morphology, partitioned and Lie-Markov cases have not been

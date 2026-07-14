@@ -106,6 +106,10 @@ def parse_sat_stat(path, split=None, formula="dominant"):
             if row["RateCategory"] == "pooled":
                 pooled_row = row
                 continue
+            if row.get("FDR_BY") != "NA" or row.get("DecisionFDR") != "not_tested":
+                raise AssertionError(
+                    f"Rate-category row entered the pooled {formula} FDR family in {path}"
+                )
             cat = row["RateCategory"]
             categories.setdefault(
                 cat,

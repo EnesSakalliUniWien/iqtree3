@@ -16,6 +16,7 @@
 #include <cmath>
 #include <limits>
 #include <map>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -103,72 +104,6 @@ static void computeOrdinaryPartial(
         }
     }
 }
-
-static void computeScaledPartial(
-    Node *node,
-    Node *dad,
-    size_t ptn,
-    Alignment *aln,
-    ModelSubst *model,
-    int nstates,
-    double rate_multiplier,
-    map<Neighbor*, vector<double> > &transition_cache,
-    vector<double> &partial,
-    double &log_scale)
-{
-    fill(partial.begin(), partial.end(), 0.0);
-    log_scale = 0.0;
-
-    if (node->isLeaf()) {
-        int state = (node->id >= 0 && node->id < aln->getNSeq()) ? aln->at(ptn)[node->id] : nstates;
-        if (state >= 0 && state < nstates) {
-            partial[state] = 1.0;
-        } else {
-            fill(partial.begin(), partial.end(), 1.0);
-        }
-        return;
-    }
-
-    fill(partial.begin(), partial.end(), 1.0);
-    FOR_NEIGHBOR_IT(node, dad, it) {
-        Neighbor *child_branch = *it;
-        vector<double> child_partial(nstates, 0.0);
-        double child_log_scale = 0.0;
-        computeScaledPartial(
-            child_branch->node,
-            node,
-            ptn,
-            aln,
-            model,
-            nstates,
-            rate_multiplier,
-            transition_cache,
-            child_partial,
-            child_log_scale);
-
-        ensureTransitionMatrix(child_branch, model, nstates, rate_multiplier, transition_cache);
-        const vector<double> &transition = transition_cache[child_branch];
-        for (int parent_state = 0; parent_state < nstates; parent_state++) {
-            double contribution = 0.0;
-            for (int child_state = 0; child_state < nstates; child_state++) {
-                contribution += transition[parent_state * nstates + child_state] *
-                    child_partial[child_state];
-            }
-            partial[parent_state] *= contribution;
-        }
-        log_scale += child_log_scale;
-
-        double scale = 0.0;
-        for (int state = 0; state < nstates; state++)
-            scale = max(scale, fabs(partial[state]));
-        if (scale > 0.0 && isfinite(scale)) {
-            for (int state = 0; state < nstates; state++)
-                partial[state] /= scale;
-            log_scale += log(scale);
-        }
-    }
-}
-
 
 static void finalizeSatuTeResult(SatuTeBranchResult &result) {
     if (result.valid_sites <= 0) {
@@ -333,199 +268,6 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     return result;
 }
 
-static SatuTeBranchResult computeMixtureStatisticImpl(
-    Node *left_node,
-    Node *left_dad,
-    Node *right_node,
-    Node *right_dad,
-    Alignment *aln,
-    ModelSubst *model,
-    int nstates,
-    const double *eval,
-    const vector<int> &modes,
-    const vector<SatuTeRateCategory> &categories,
-    double branch_length,
-    double log_weight_shift,
-    const SatuTeBranchResult &base)
-{
-    SatuTeBranchResult result = base;
-    vector<double> state_freq(nstates, 0.0);
-    vector<double> left_partial(nstates, 0.0);
-    vector<double> right_partial(nstates, 0.0);
-    vector<double> left_posterior(nstates, 0.0);
-    vector<double> right_posterior(nstates, 0.0);
-    vector<map<Neighbor*, vector<double> > > transition_caches(categories.size());
-    double *eigenvectors = model->getEigenvectors();
-    model->getStateFrequency(&state_freq[0]);
-
-    double statistic_sum = 0.0;
-    double statistic_square_sum = 0.0;
-    double valid_sites = 0.0;
-    int assigned_sites = 0;
-    int skipped_sites = 0;
-
-    for (size_t ptn = 0; ptn < aln->size(); ptn++) {
-        int freq = aln->at(ptn).frequency;
-        if (freq <= 0)
-            continue;
-        assigned_sites += freq;
-
-        vector<double> log_bases;
-        vector<double> signals;
-        log_bases.reserve(categories.size());
-        signals.reserve(categories.size());
-        bool site_valid = true;
-
-        for (size_t category_index = 0; category_index < categories.size(); category_index++) {
-            const SatuTeRateCategory &category = categories[category_index];
-            if (!(category.proportion > 0.0) || !isfinite(category.proportion))
-                continue;
-            if (category.rate < 0.0 || !isfinite(category.rate)) {
-                site_valid = false;
-                break;
-            }
-
-            double left_log_scale = 0.0;
-            double right_log_scale = 0.0;
-            computeScaledPartial(
-                left_node,
-                left_dad,
-                ptn,
-                aln,
-                model,
-                nstates,
-                category.rate,
-                transition_caches[category_index],
-                left_partial,
-                left_log_scale);
-            computeScaledPartial(
-                right_node,
-                right_dad,
-                ptn,
-                aln,
-                model,
-                nstates,
-                category.rate,
-                transition_caches[category_index],
-                right_partial,
-                right_log_scale);
-
-            double left_sum = 0.0;
-            double right_sum = 0.0;
-            for (int state = 0; state < nstates; state++) {
-                left_posterior[state] = left_partial[state] * state_freq[state];
-                right_posterior[state] = right_partial[state] * state_freq[state];
-                left_sum += left_posterior[state];
-                right_sum += right_posterior[state];
-            }
-
-            if (!isfinite(left_sum) || !isfinite(right_sum) ||
-                !isfinite(left_log_scale) || !isfinite(right_log_scale)) {
-                site_valid = false;
-                break;
-            }
-
-            if (!(category.rate > 0.0)) {
-                double invariant_joint = 0.0;
-                for (int state = 0; state < nstates; state++)
-                    invariant_joint += state_freq[state] * left_partial[state] * right_partial[state];
-                if (!isfinite(invariant_joint) || invariant_joint < 0.0) {
-                    site_valid = false;
-                    break;
-                }
-                if (!(invariant_joint > 0.0))
-                    continue;
-                log_bases.push_back(
-                    log(category.proportion) + log(invariant_joint) +
-                    left_log_scale + right_log_scale);
-                signals.push_back(0.0);
-                continue;
-            }
-
-            if (!(left_sum > 0.0) || !(right_sum > 0.0))
-                continue;
-            for (int state = 0; state < nstates; state++) {
-                left_posterior[state] /= left_sum;
-                right_posterior[state] /= right_sum;
-            }
-
-            double category_signal = 0.0;
-            bool category_valid = true;
-            double effective_length = branch_length * category.rate;
-            for (size_t mode_index = 0; mode_index < modes.size(); mode_index++) {
-                double left_factor = 0.0;
-                double right_factor = 0.0;
-                for (int state = 0; state < nstates; state++) {
-                    double eigenvector_value = eigenvectors[state * nstates + modes[mode_index]];
-                    left_factor += eigenvector_value * left_posterior[state];
-                    right_factor += eigenvector_value * right_posterior[state];
-                }
-                double globally_scaled_weight = exp(
-                    eval[modes[mode_index]] * effective_length - log_weight_shift);
-                double contribution = globally_scaled_weight * left_factor * right_factor;
-                if (!isfinite(contribution)) {
-                    category_valid = false;
-                    break;
-                }
-                category_signal += contribution;
-            }
-            if (!category_valid) {
-                site_valid = false;
-                break;
-            }
-
-            log_bases.push_back(
-                log(category.proportion) +
-                log(left_sum) + left_log_scale +
-                log(right_sum) + right_log_scale);
-            signals.push_back(category_signal);
-        }
-
-        if (!site_valid || log_bases.empty()) {
-            skipped_sites += freq;
-            continue;
-        }
-
-        double max_log_base = *max_element(log_bases.begin(), log_bases.end());
-        double denominator = 0.0;
-        double numerator = 0.0;
-        for (size_t category_index = 0; category_index < log_bases.size(); category_index++) {
-            double responsibility_numerator = exp(log_bases[category_index] - max_log_base);
-            denominator += responsibility_numerator;
-            numerator += responsibility_numerator * signals[category_index];
-        }
-        if (!(denominator > 0.0) || !isfinite(denominator) || !isfinite(numerator)) {
-            skipped_sites += freq;
-            continue;
-        }
-
-        double site_statistic = numerator / denominator;
-        if (!isfinite(site_statistic)) {
-            skipped_sites += freq;
-            continue;
-        }
-        statistic_sum += freq * site_statistic;
-        statistic_square_sum += freq * site_statistic * site_statistic;
-        valid_sites += freq;
-    }
-
-    result.valid_sites = (int)valid_sites;
-    result.rate_category_sites = assigned_sites;
-    result.skipped_sites = skipped_sites;
-    if (valid_sites <= 1.0) {
-        finalizeSatuTeResult(result);
-        return result;
-    }
-
-    result.coherence = statistic_sum / valid_sites;
-    double centered_sum = statistic_square_sum - valid_sites * result.coherence * result.coherence;
-    if (centered_sum < 0.0 && centered_sum > -1e-12 * max(1.0, statistic_square_sum))
-        centered_sum = 0.0;
-    result.variance = centered_sum / (valid_sites - 1.0);
-    finalizeSatuTeResult(result);
-    return result;
-}
-
 SatuTeBranchResult poolCategoryResults(
     const vector<SatuTeBranchResult> &category_results,
     const SatuTeBranchResult &base)
@@ -569,36 +311,70 @@ SatuTeBranchResult poolCategoryResults(
     return pooled;
 }
 
-namespace {
+void applySeparateFormulaFdr(
+    vector<SatuTeBranchResult> &results,
+    double fdr_level)
+{
+    const char *formula_families[] = {"dominant", "eigenvalue_weighted"};
 
-class CategoryStatisticStrategy : public StatisticStrategy {
-public:
-    SatuTeBranchResult compute(const StatisticRequest &request) const override {
-        return computeCategoryStatisticImpl(
-            request.left_node, request.left_dad, request.right_node, request.right_dad,
-            request.aln, request.model, request.nstates, request.eigenvalues,
-            *request.formula, *request.mode_weights, request.pattern_categories,
-            request.required_pattern_category, request.rate_multiplier, *request.base);
+    for (size_t result_index = 0; result_index < results.size(); result_index++) {
+        results[result_index].fdr_by = numeric_limits<double>::quiet_NaN();
+        results[result_index].decision_fdr =
+            (results[result_index].rate_category == "pooled")
+                ? results[result_index].decision
+                : "not_tested";
     }
-};
 
-class MixtureStatisticStrategy : public StatisticStrategy {
-public:
-    SatuTeBranchResult compute(const StatisticRequest &request) const override {
-        return computeMixtureStatisticImpl(
-            request.left_node, request.left_dad, request.right_node, request.right_dad,
-            request.aln, request.model, request.nstates, request.eigenvalues,
-            *request.modes, *request.rate_categories, request.branch_length,
-            request.log_weight_shift, *request.base);
+    for (size_t family_index = 0; family_index < 2; family_index++) {
+        vector<pair<double, size_t> > ordered;
+        for (size_t result_index = 0; result_index < results.size(); result_index++) {
+            const SatuTeBranchResult &result = results[result_index];
+            if (result.formula != formula_families[family_index] ||
+                result.rate_category != "pooled")
+                continue;
+            // Undefined tests remain in the planned branch family as p=1 so
+            // they cannot be rejected or reduce the multiplicity penalty.
+            double family_p_value =
+                (isfinite(result.p_value) && result.p_value >= 0.0 && result.p_value <= 1.0)
+                    ? result.p_value
+                    : 1.0;
+            ordered.push_back(make_pair(family_p_value, result_index));
+        }
+
+        stable_sort(
+            ordered.begin(),
+            ordered.end(),
+            [](const pair<double, size_t> &left, const pair<double, size_t> &right) {
+                return left.first < right.first;
+            });
+
+        const size_t family_size = ordered.size();
+        if (family_size == 0)
+            continue;
+
+        double harmonic = 0.0;
+        for (size_t rank = 1; rank <= family_size; rank++)
+            harmonic += 1.0 / (double)rank;
+
+        double running_minimum = 1.0;
+        for (size_t rank = family_size; rank > 0; rank--) {
+            const pair<double, size_t> &entry = ordered[rank - 1];
+            double adjusted = entry.first * (double)family_size * harmonic / (double)rank;
+            running_minimum = min(running_minimum, min(1.0, adjusted));
+            double original_p_value = results[entry.second].p_value;
+            if (isfinite(original_p_value) && original_p_value >= 0.0 && original_p_value <= 1.0)
+                results[entry.second].fdr_by = running_minimum;
+        }
+
+        for (size_t rank = 0; rank < family_size; rank++) {
+            SatuTeBranchResult &result = results[ordered[rank].second];
+            if (!isfinite(result.p_value) || result.p_value < 0.0 || result.p_value > 1.0)
+                continue;
+            result.decision_fdr = (result.fdr_by <= fdr_level)
+                ? "informative"
+                : "saturated";
+        }
     }
-};
-
-} // namespace
-
-unique_ptr<StatisticStrategy> StatisticStrategyFactory::create(StatisticKind kind) {
-    if (kind == StatisticKind::Category)
-        return unique_ptr<StatisticStrategy>(new CategoryStatisticStrategy());
-    return unique_ptr<StatisticStrategy>(new MixtureStatisticStrategy());
 }
 
 SatuTeBranchResult computeCategoryStatistic(
@@ -617,35 +393,21 @@ SatuTeBranchResult computeCategoryStatistic(
     double rate_multiplier,
     const SatuTeBranchResult &base)
 {
-    StatisticRequest request = {
-        left_node, left_dad, right_node, right_dad, aln, model, nstates, eval,
-        &formula, &mode_weights, pattern_cat, required_pattern_cat, rate_multiplier,
-        nullptr, nullptr, 0.0, 0.0, &base
-    };
-    return StatisticStrategyFactory::create(StatisticKind::Category)->compute(request);
-}
-
-SatuTeBranchResult computeMixtureStatistic(
-    Node *left_node,
-    Node *left_dad,
-    Node *right_node,
-    Node *right_dad,
-    Alignment *aln,
-    ModelSubst *model,
-    int nstates,
-    const double *eval,
-    const vector<int> &modes,
-    const vector<SatuTeRateCategory> &categories,
-    double branch_length,
-    double log_weight_shift,
-    const SatuTeBranchResult &base)
-{
-    StatisticRequest request = {
-        left_node, left_dad, right_node, right_dad, aln, model, nstates, eval,
-        nullptr, nullptr, nullptr, -1, 0.0, &modes, &categories,
-        branch_length, log_weight_shift, &base
-    };
-    return StatisticStrategyFactory::create(StatisticKind::Mixture)->compute(request);
+    return computeCategoryStatisticImpl(
+        left_node,
+        left_dad,
+        right_node,
+        right_dad,
+        aln,
+        model,
+        nstates,
+        eval,
+        formula,
+        mode_weights,
+        pattern_cat,
+        required_pattern_cat,
+        rate_multiplier,
+        base);
 }
 
 } // namespace satute

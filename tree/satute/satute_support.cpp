@@ -240,7 +240,7 @@ double computeInformationFraction(
     return information;
 }
 
-double computeMixtureInformationFraction(
+double computePooledInformationFraction(
     const double *eval,
     const vector<int> &modes,
     const vector<SatuTeRateCategory> &categories,
@@ -264,25 +264,6 @@ double computeMixtureInformationFraction(
     if (!(total_proportion > 0.0))
         return numeric_limits<double>::quiet_NaN();
     return weighted_information / total_proportion;
-}
-
-double computeMixtureLogWeightShift(
-    const double *eval,
-    const vector<int> &modes,
-    const vector<SatuTeRateCategory> &categories,
-    double branch_length)
-{
-    double shift = -numeric_limits<double>::infinity();
-    for (size_t category_index = 0; category_index < categories.size(); category_index++) {
-        const SatuTeRateCategory &category = categories[category_index];
-        if (!(category.proportion > 0.0) || !(category.rate > 0.0) ||
-            !isfinite(category.proportion) || !isfinite(category.rate))
-            continue;
-        double effective_length = branch_length * category.rate;
-        for (size_t mode_index = 0; mode_index < modes.size(); mode_index++)
-            shift = max(shift, eval[modes[mode_index]] * effective_length);
-    }
-    return isfinite(shift) ? shift : 0.0;
 }
 
 void setSaturationScale(SatuTeBranchResult &result, double information_fraction) {
@@ -327,6 +308,7 @@ SatuTeBranchResult makeBaseResult(
     result.se = numeric_limits<double>::quiet_NaN();
     result.z_score = numeric_limits<double>::quiet_NaN();
     result.p_value = numeric_limits<double>::quiet_NaN();
+    result.fdr_by = numeric_limits<double>::quiet_NaN();
     result.alpha = alpha;
     result.alpha_adjusted = alpha / max(1.0, (double)left_taxa * (double)right_taxa);
     result.formula = formula;
@@ -338,6 +320,7 @@ SatuTeBranchResult makeBaseResult(
     result.weights = weights;
     result.decision = "undefined";
     result.decision_bonferroni = "undefined";
+    result.decision_fdr = "not_tested";
     result.label = label;
     result.split = split;
     return result;

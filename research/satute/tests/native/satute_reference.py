@@ -11,8 +11,15 @@ from pathlib import Path
 import numpy as np
 
 
+SATUTE_SRC = Path(__file__).resolve().parents[2] / "src"
+if str(SATUTE_SRC) not in sys.path:
+    sys.path.insert(0, str(SATUTE_SRC))
+
+from satute_analysis.multiple_testing import annotate_satute_rows
+
+
 STATE_INDEX = {"A": 0, "C": 1, "G": 2, "T": 3}
-FORMULA_VARIANTS = ("dominant", "eigenvalue_weighted", "mixture_likelihood_weighted")
+FORMULA_VARIANTS = ("dominant", "eigenvalue_weighted")
 
 
 @dataclass
@@ -254,6 +261,56 @@ def find_split_edge(root, requested_taxa):
     raise ValueError(f"Requested split {split_label(requested)} is not a branch in the tree")
 
 
+def all_split_edges(root):
+    """Return every unique edge of an explicitly unrooted Newick tree.
+
+    A two-child top-level node represents a rooted or degree-two-rooted tree and
+    splits one unrooted edge into two lengths.  Rejecting that representation
+    avoids silently using only half of the focal branch length.
+    """
+
+    if len(root.children) == 2:
+        raise ValueError(
+            "--all-branches requires an unrooted Newick representation with a "
+            "top-level trifurcation, not a two-child root"
+        )
+
+    all_taxa = frozenset(collect_tree_taxa(root))
+    split_edges = []
+    seen = set()
+    for parent, child, length in tree_edges(root):
+        child_side = component_taxa(child, parent)
+        parent_side = all_taxa - child_side
+        if len(child_side) <= len(parent_side):
+            left_node, left_dad = child, parent
+            right_node, right_dad = parent, child
+            left_side, right_side = child_side, parent_side
+        else:
+            left_node, left_dad = parent, child
+            right_node, right_dad = child, parent
+            left_side, right_side = parent_side, child_side
+
+        key = (tuple(sorted(left_side)), tuple(sorted(right_side)))
+        reverse_key = (key[1], key[0])
+        canonical_key = min(key, reverse_key)
+        if canonical_key in seen:
+            continue
+        seen.add(canonical_key)
+        split_edges.append(
+            SplitEdge(
+                left_node=left_node,
+                left_dad=left_dad,
+                right_node=right_node,
+                right_dad=right_dad,
+                branch_length=length,
+                left_taxa=tuple(sorted(left_side)),
+                right_taxa=tuple(sorted(right_side)),
+            )
+        )
+
+    return sorted(split_edges, key=lambda edge: (len(edge.left_taxa), edge.left_taxa))
+
+
 def parse_model(model):
     if model.startswith("JC"):
         return np.ones(6, dtype=float), np.full(4, 0.25, dtype=float)
@@ -430,119 +487,6 @@ def compute_reference(sequences, split_edge, sites, model, formula, rate_multipl
     }
 
 
-def compute_mixture_reference(sequences, split_edge, model, rate_categories, alpha):
-    q, pi = build_q(model)
-    evals, eigenvectors, inv_eigenvectors = reversible_eigendecomposition(q, pi)
-    zero_index = int(np.argmin(np.abs(evals)))
-    modes = [i for i, value in enumerate(evals) if i != zero_index and abs(value) > 1e-10]
-    transition_caches = [{} for _ in rate_categories]
-    statistics = []
-    nsites = len(next(iter(sequences.values())))
-    positive_exponents = [
-        float(evals[mode]) * split_edge.branch_length * category["rate"]
-        for category in rate_categories
-        if category["proportion"] > 0.0 and category["rate"] > 0.0
-        for mode in modes
-    ]
-    log_weight_shift = max(positive_exponents, default=0.0)
-
-    for site in range(nsites):
-        log_bases = []
-        signals = []
-        for category_index, category in enumerate(rate_categories):
-            rate = category["rate"]
-            proportion = category["proportion"]
-            if proportion <= 0.0:
-                continue
-
-            def build_transition(length):
-                scaled_length = length * rate
-                cache = transition_caches[category_index]
-                if scaled_length not in cache:
-                    cache[scaled_length] = transition_matrix(
-                        evals,
-                        eigenvectors,
-                        inv_eigenvectors,
-                        scaled_length,
-                    )
-                return cache[scaled_length]
-
-            left_partial = side_partial(
-                sequences, site, split_edge.left_node, split_edge.left_dad, build_transition
-            )
-            right_partial = side_partial(
-                sequences, site, split_edge.right_node, split_edge.right_dad, build_transition
-            )
-            left_probability = float(np.dot(left_partial, pi))
-            right_probability = float(np.dot(right_partial, pi))
-
-            if rate < 0.0 or not math.isfinite(rate):
-                raise ValueError(f"Invalid rate-category multiplier: {rate}")
-            if rate == 0.0:
-                invariant_joint = float(np.dot(pi, left_partial * right_partial))
-                if invariant_joint < 0.0 or not math.isfinite(invariant_joint):
-                    raise ValueError("Invalid invariant-category joint likelihood")
-                if invariant_joint <= 0.0:
-                    continue
-                signals.append(0.0)
-                log_bases.append(math.log(proportion) + math.log(invariant_joint))
-                continue
-
-            if left_probability <= 0.0 or right_probability <= 0.0:
-                continue
-
-            left_posterior = left_partial * pi / left_probability
-            right_posterior = right_partial * pi / right_probability
-            left_factors = np.array(
-                [float(np.dot(eigenvectors[:, mode], left_posterior)) for mode in modes]
-            )
-            right_factors = np.array(
-                [float(np.dot(eigenvectors[:, mode], right_posterior)) for mode in modes]
-            )
-            weights = np.exp(
-                evals[modes] * split_edge.branch_length * rate - log_weight_shift
-            )
-            signals.append(float(np.dot(weights, left_factors * right_factors)))
-            log_bases.append(
-                math.log(proportion) + math.log(left_probability) + math.log(right_probability)
-            )
-
-        if not log_bases:
-            continue
-        max_log_base = max(log_bases)
-        bases = np.exp(np.asarray(log_bases) - max_log_base)
-        statistics.append(float(np.dot(bases, signals) / np.sum(bases)))
-
-    if len(statistics) <= 1:
-        raise ValueError("No valid sites for the mixture-likelihood reference calculation")
-    statistics = np.asarray(statistics, dtype=float)
-    sat_c = float(np.mean(statistics))
-    sat_var = float(np.var(statistics, ddof=1))
-    sat_se = math.sqrt(sat_var / len(statistics))
-    sat_z = sat_c / sat_se
-    sat_p = 0.5 * math.erfc(sat_z / math.sqrt(2.0))
-    information_fraction = spectral_information_fraction(
-        evals,
-        split_edge.branch_length,
-        rate_categories,
-    )
-    return {
-        "assigned_sites": nsites,
-        "valid_sites": len(statistics),
-        "satC": sat_c,
-        "satVar": sat_var,
-        "satSE": sat_se,
-        "satZ": sat_z,
-        "satP": sat_p,
-        "InformationFraction": information_fraction,
-        "SaturationIndex": 1.0 - information_fraction,
-        "Decision": "informative" if sat_p <= alpha else "saturated",
-        "Modes": ",".join(str(mode) for mode in modes),
-        "Eigenvalues": ",".join(format_float(float(evals[mode])) for mode in modes),
-        "Weights": f"soft_mixture_global_log_shift={format_float(log_weight_shift)}",
-    }
-
-
 def parse_rate_file(path, nsites):
     if path is None:
         return {"pooled": {"rate": 1.0, "sites": list(range(nsites))}}
@@ -646,21 +590,109 @@ def pool_results(category_results, alpha):
     }
 
 
+def compute_split_rows(
+    sequences,
+    split_edge,
+    categories,
+    rate_categories_for_scale,
+    model,
+    evals_for_scale,
+    alpha,
+):
+    pooled_information_fraction = spectral_information_fraction(
+        evals_for_scale,
+        split_edge.branch_length,
+        rate_categories_for_scale,
+    )
+    split_metadata = {
+        "Split": split_label(split_edge.left_taxa),
+        "OppositeSplit": split_label(split_edge.right_taxa),
+        "LeftTaxa": len(split_edge.left_taxa),
+        "RightTaxa": len(split_edge.right_taxa),
+    }
+    rows = []
+
+    for formula in FORMULA_VARIANTS:
+        category_results = []
+        category_rows = []
+        for category, category_info in sorted(categories.items(), key=lambda item: item[0]):
+            reference = compute_reference(
+                sequences,
+                split_edge,
+                category_info["sites"],
+                model,
+                formula,
+                category_info["rate"],
+                alpha,
+            )
+            reference = {
+                **reference,
+                "assigned_sites": len(category_info["sites"]),
+            }
+            category_results.append(reference)
+            if category != "pooled":
+                category_rows.append(
+                    {
+                        **split_metadata,
+                        "Formula": formula,
+                        "RateCategory": category,
+                        "RateMultiplier": format_float(category_info["rate"]),
+                        "Sites": reference["assigned_sites"],
+                        **reference,
+                    }
+                )
+
+        pooled = (
+            category_results[0]
+            if list(categories) == ["pooled"]
+            else pool_results(category_results, alpha)
+        )
+        pooled["InformationFraction"] = pooled_information_fraction
+        pooled["SaturationIndex"] = 1.0 - pooled_information_fraction
+        rows.append(
+            {
+                **split_metadata,
+                "Formula": formula,
+                "RateCategory": "pooled",
+                "RateMultiplier": "NA",
+                "Sites": pooled.get("assigned_sites", pooled["valid_sites"]),
+                **pooled,
+            }
+        )
+        rows.extend(category_rows)
+
+    return rows
+
+
 def format_float(value):
     return f"{value:.10g}"
 
 
+def format_optional_float(value):
+    return "NA" if value is None else format_float(value)
+
+
 def write_rows(path, rows):
     header = [
+        "Split",
+        "OppositeSplit",
         "Formula",
         "RateCategory",
         "RateMultiplier",
         "Sites",
+        "LeftTaxa",
+        "RightTaxa",
         "satC",
         "satVar",
         "satSE",
         "satZ",
         "satP",
+        "Alpha",
+        "AlphaTaxonBonf",
+        "PTaxonBonf",
+        "DecisionTaxonBonf",
+        "FDR_BY",
+        "DecisionFDR",
         "InformationFraction",
         "SaturationIndex",
         "Decision",
@@ -673,15 +705,25 @@ def write_rows(path, rows):
         lines.append(
             "\t".join(
                 [
+                    row["Split"],
+                    row["OppositeSplit"],
                     row["Formula"],
                     row["RateCategory"],
                     row["RateMultiplier"],
                     str(row["Sites"]),
+                    str(row["LeftTaxa"]),
+                    str(row["RightTaxa"]),
                     format_float(row["satC"]),
                     format_float(row["satVar"]),
                     format_float(row["satSE"]),
                     format_float(row["satZ"]),
                     format_float(row["satP"]),
+                    format_float(row["Alpha"]),
+                    format_float(row["AlphaTaxonBonf"]),
+                    format_optional_float(row["PTaxonBonf"]),
+                    row["DecisionTaxonBonf"],
+                    format_optional_float(row["FDR_BY"]),
+                    row["DecisionFDR"],
                     format_float(row["InformationFraction"]),
                     format_float(row["SaturationIndex"]),
                     row["Decision"],
@@ -718,7 +760,7 @@ def native_split_for_branch_id(path, branch_id):
     raise ValueError(f"Branch ID {branch_id} was not found in {path}")
 
 
-def parse_native_sat_stat(path, split_labels, branch_id=None):
+def parse_native_sat_stat(path, split_labels=None, branch_id=None):
     header = None
     rows = {}
     branch_id = None if branch_id is None else str(branch_id)
@@ -737,9 +779,11 @@ def parse_native_sat_stat(path, split_labels, branch_id=None):
             if branch_id is not None:
                 if row.get("ID") != branch_id:
                     continue
-            elif row.get("Split") not in split_labels:
+            elif split_labels is not None and row.get("Split") not in split_labels:
                 continue
-            if row.get("Split") in split_labels:
+            if split_labels is None:
+                rows[(row["Split"], row["Formula"], row["RateCategory"])] = row
+            elif row.get("Split") in split_labels:
                 rows[(row["Formula"], row["RateCategory"])] = row
     return rows
 
@@ -799,6 +843,76 @@ def compare_native_rows(native_path, reference_rows, tolerance, split_labels, br
     return checked
 
 
+def compare_native_all_rows(native_path, reference_rows, tolerance):
+    native_rows = parse_native_sat_stat(native_path)
+    checked = 0
+
+    for reference in reference_rows:
+        key = (reference["Split"], reference["Formula"], reference["RateCategory"])
+        native = native_rows.get(key)
+        if native is None:
+            opposite_key = (
+                reference["OppositeSplit"],
+                reference["Formula"],
+                reference["RateCategory"],
+            )
+            native = native_rows.get(opposite_key)
+        if native is None:
+            raise AssertionError(f"Missing native SatuTe row for {key}")
+
+        if int(native["RateSites"]) != reference["Sites"]:
+            raise AssertionError(
+                f"{key}: native sites {native['RateSites']} differ from reference {reference['Sites']}"
+            )
+
+        for field in (
+            "satC",
+            "satVar",
+            "satSE",
+            "satZ",
+            "satP",
+            "AlphaTaxonBonf",
+            "InformationFraction",
+            "SaturationIndex",
+        ):
+            observed = float(native[field])
+            expected = float(reference[field])
+            if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=tolerance):
+                raise AssertionError(
+                    f"{key} {field}: native {observed} differs from reference {expected}"
+                )
+
+        for field in ("Decision", "DecisionTaxonBonf"):
+            if native[field] != reference[field]:
+                raise AssertionError(
+                    f"{key} {field}: native {native[field]} differs from reference {reference[field]}"
+                )
+
+        reference_fdr = reference["FDR_BY"]
+        if reference_fdr is None:
+            if native["FDR_BY"] != "NA" or native["DecisionFDR"] != "not_tested":
+                raise AssertionError(f"{key}: native category row entered an FDR family")
+        else:
+            observed_fdr = float(native["FDR_BY"])
+            if not math.isclose(observed_fdr, reference_fdr, rel_tol=0.0, abs_tol=tolerance):
+                raise AssertionError(
+                    f"{key} FDR_BY: native {observed_fdr} differs from reference {reference_fdr}"
+                )
+            if native["DecisionFDR"] != reference["DecisionFDR"]:
+                raise AssertionError(
+                    f"{key} DecisionFDR: native {native['DecisionFDR']} differs from "
+                    f"reference {reference['DecisionFDR']}"
+                )
+
+        checked += 1
+
+    if checked != len(native_rows):
+        raise AssertionError(
+            f"Python reference covered {checked} rows but native output contains {len(native_rows)} rows"
+        )
+    return checked
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Independent nucleotide Python reference for phase-1 SatuTe formulas."
@@ -806,7 +920,15 @@ def main():
     parser.add_argument("--alignment", required=True, help="FASTA alignment with nucleotide taxa")
     parser.add_argument("--tree", required=True, help="Newick tree containing the requested split")
     parser.add_argument("--model", required=True, help="JC or GTR{...}+F{...} model string")
-    parser.add_argument("--split", default="A,B", help="Comma-separated taxa on one side of the target branch")
+    parser.add_argument(
+        "--split",
+        help="Comma-separated taxa on one side of one target branch (default: A,B)",
+    )
+    parser.add_argument(
+        "--all-branches",
+        action="store_true",
+        help="Evaluate every unrooted branch and form tree-wide BY families",
+    )
     parser.add_argument("--rate-file", help="Optional IQ-TREE .rate file for category rows")
     parser.add_argument("--iqtree-report", help="IQ-TREE .iqtree report containing category rates and proportions")
     parser.add_argument("--alpha", type=float, default=0.05)
@@ -818,6 +940,10 @@ def main():
 
     if not (0.0 < args.alpha < 1.0):
         raise SystemExit("--alpha must be between 0 and 1")
+    if args.all_branches and args.split is not None:
+        raise SystemExit("--all-branches and --split are mutually exclusive")
+    if args.all_branches and args.branch_id is not None:
+        raise SystemExit("--all-branches and --branch-id are mutually exclusive")
 
     sequences = parse_fasta(args.alignment)
     root = parse_newick(args.tree)
@@ -828,113 +954,70 @@ def main():
             f"Tree/alignment taxa differ: tree-only={sorted(tree_taxa - sequence_taxa)} "
             f"alignment-only={sorted(sequence_taxa - tree_taxa)}"
         )
-    split_value = args.split
-    if args.branch_id is not None:
-        if not args.compare_sat_stat:
-            raise SystemExit("--branch-id requires --compare-sat-stat")
+    if args.branch_id is not None and not args.compare_sat_stat:
+        raise SystemExit("--branch-id requires --compare-sat-stat")
+
+    split_labels = None
+    if args.all_branches:
         try:
-            split_value = native_split_for_branch_id(args.compare_sat_stat, args.branch_id)
+            split_edges = all_split_edges(root)
         except ValueError as exc:
             raise SystemExit(str(exc)) from exc
+    else:
+        split_value = args.split or "A,B"
+        if args.branch_id is not None:
+            try:
+                split_value = native_split_for_branch_id(args.compare_sat_stat, args.branch_id)
+            except ValueError as exc:
+                raise SystemExit(str(exc)) from exc
+        try:
+            left, right = parse_split(split_value, sequences)
+            split_edges = [find_split_edge(root, left)]
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+        split_labels = {split_label(left), split_label(right)}
 
-    try:
-        left, right = parse_split(split_value, sequences)
-    except ValueError as exc:
-        raise SystemExit(str(exc)) from exc
-    try:
-        split_edge = find_split_edge(root, left)
-    except ValueError as exc:
-        raise SystemExit(str(exc)) from exc
-    split_labels = {split_label(left), split_label(right)}
     nsites = len(next(iter(sequences.values())))
     categories = parse_rate_file(args.rate_file, nsites)
     if args.rate_file is None:
-        mixture_categories = [{"label": "pooled", "rate": 1.0, "proportion": 1.0}]
+        rate_categories_for_scale = [{"label": "pooled", "rate": 1.0, "proportion": 1.0}]
     else:
         if not args.iqtree_report:
-            raise SystemExit("--iqtree-report is required with --rate-file for the soft mixture formula")
-        mixture_categories = parse_iqtree_rate_categories(args.iqtree_report)
+            raise SystemExit("--iqtree-report is required with --rate-file for the pooled information scale")
+        rate_categories_for_scale = parse_iqtree_rate_categories(args.iqtree_report)
     q_for_scale, _pi_for_scale = build_q(args.model)
     evals_for_scale, _eigenvectors_for_scale, _inverse_for_scale = reversible_eigendecomposition(
         q_for_scale,
         _pi_for_scale,
     )
-    pooled_information_fraction = spectral_information_fraction(
-        evals_for_scale,
-        split_edge.branch_length,
-        mixture_categories,
-    )
     rows = []
-
-    for formula in ("dominant", "eigenvalue_weighted"):
-        category_results = []
-        for category, category_info in sorted(categories.items(), key=lambda item: item[0]):
-            reference = compute_reference(
+    for split_edge in split_edges:
+        rows.extend(
+            compute_split_rows(
                 sequences,
                 split_edge,
-                category_info["sites"],
+                categories,
+                rate_categories_for_scale,
                 args.model,
-                formula,
-                category_info["rate"],
+                evals_for_scale,
                 args.alpha,
             )
-            reference = {
-                **reference,
-                "assigned_sites": len(category_info["sites"]),
-            }
-            category_results.append(reference)
-            if category != "pooled":
-                rows.append(
-                    {
-                        "Formula": formula,
-                        "RateCategory": category,
-                        "RateMultiplier": format_float(category_info["rate"]),
-                        "Sites": reference["assigned_sites"],
-                        **reference,
-                    }
-                )
-
-        pooled = category_results[0] if list(categories) == ["pooled"] else pool_results(category_results, args.alpha)
-        pooled["InformationFraction"] = pooled_information_fraction
-        pooled["SaturationIndex"] = 1.0 - pooled_information_fraction
-        rows.insert(
-            len([row for row in rows if row["Formula"] != formula]),
-            {
-                "Formula": formula,
-                "RateCategory": "pooled",
-                "RateMultiplier": "NA",
-                "Sites": pooled.get("assigned_sites", pooled["valid_sites"]),
-                **pooled,
-            },
         )
 
-    mixture = compute_mixture_reference(
-        sequences,
-        split_edge,
-        args.model,
-        mixture_categories,
-        args.alpha,
-    )
-    rows.append(
-        {
-            "Formula": "mixture_likelihood_weighted",
-            "RateCategory": "pooled",
-            "RateMultiplier": "NA",
-            "Sites": mixture["assigned_sites"],
-            **mixture,
-        }
-    )
-
+    rows = annotate_satute_rows(rows, args.alpha, FORMULA_VARIANTS)
     write_rows(args.out, rows)
 
     if args.compare_sat_stat:
-        checked = compare_native_rows(
-            args.compare_sat_stat,
-            rows,
-            args.tolerance,
-            split_labels,
-            args.branch_id,
-        )
+        if args.all_branches:
+            checked = compare_native_all_rows(args.compare_sat_stat, rows, args.tolerance)
+        else:
+            checked = compare_native_rows(
+                args.compare_sat_stat,
+                rows,
+                args.tolerance,
+                split_labels,
+                args.branch_id,
+            )
         print(
             f"Reference matched {checked} native .sat.stat rows within {args.tolerance:g}",
             file=sys.stderr,
