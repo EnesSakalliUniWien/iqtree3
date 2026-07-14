@@ -3,6 +3,8 @@
 import argparse
 import csv
 import importlib.util
+import random
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -39,6 +41,31 @@ def check_protein_model_contract():
         raise SystemExit("IQ-TREE's 189-parameter GTR20 syntax was not expanded for Seq-Gen")
 
 
+def check_unrooted_tree_contract():
+    module = load_run_module()
+    with tempfile.TemporaryDirectory() as temporary:
+        temporary = Path(temporary)
+        cases = (
+            (
+                "five_external",
+                module.five_taxon_tree(0.7),
+            ),
+            (
+                "sixteen_internal",
+                module.sixteen_taxon_tree(0.7, random.Random(17), {"internal": [], "external": []}),
+            ),
+        )
+        for tree_case, newick in cases:
+            path = temporary / f"{tree_case}.tree"
+            path.write_text(newick, encoding="utf-8")
+            root = module.parse_newick(path)
+            if len(root.neighbors) != 3:
+                raise SystemExit(f"{tree_case} benchmark tree is not explicitly unrooted: {newick.strip()}")
+            edge = module.find_edge_for_split(root, module.target_taxa_for_case(tree_case))
+            if edge is None or abs(edge[2] - 0.7) > 1e-12:
+                raise SystemExit(f"{tree_case} focal branch was not preserved: {edge}")
+
+
 def load_rows(path):
     with open(path, "r", encoding="utf-8") as handle:
         return list(csv.DictReader(handle, delimiter="\t"))
@@ -51,8 +78,9 @@ def main():
     args = parser.parse_args()
 
     check_protein_model_contract()
+    check_unrooted_tree_contract()
     if not args.detail:
-        print("Protein model contract: passed")
+        print("Protein and unrooted-tree contracts: passed")
         return
 
     rows = load_rows(args.detail)

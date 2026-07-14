@@ -785,11 +785,13 @@ def eight_taxon_subtree(prefix, rng, pools):
 
 def five_taxon_tree(branch_length):
     subtree_a = balanced_four_taxon_subtree("A", 0.2)
-    return f"({subtree_a}:0.0,B:{branch_length:.6g});\n"
+    return f"({subtree_a[1:-1]},B:{branch_length:.6g});\n"
 
 
 def sixteen_taxon_tree(branch_length, rng, pools):
-    return f"({eight_taxon_subtree('A', rng, pools)}:{branch_length:.6g},{eight_taxon_subtree('B', rng, pools)}:0.0);\n"
+    subtree_a = eight_taxon_subtree("A", rng, pools)
+    subtree_b = eight_taxon_subtree("B", rng, pools)
+    return f"({subtree_a[1:-1]},{subtree_b}:{branch_length:.6g});\n"
 
 
 def target_taxa_for_case(tree_case):
