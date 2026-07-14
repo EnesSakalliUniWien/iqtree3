@@ -12,6 +12,17 @@ TREE_CASES="${TREE_CASES:-five_external,sixteen_internal}"
 PLOT_MODEL_PAIRS="${PLOT_MODEL_PAIRS:-JC:JC}"
 PLOT_SCENARIO_SET="${PLOT_SCENARIO_SET:-fig2}"
 VERIFY_Z_TOLERANCE="${VERIFY_Z_TOLERANCE:-1e-4}"
+ALLOW_INCOMPLETE="${ALLOW_INCOMPLETE:-0}"
+
+render_extra_args=()
+case "${ALLOW_INCOMPLETE}" in
+  0|false) ;;
+  1|true) render_extra_args=(--allow-incomplete) ;;
+  *)
+    echo "ALLOW_INCOMPLETE must be 0, 1, false, or true; got: ${ALLOW_INCOMPLETE}" >&2
+    exit 2
+    ;;
+esac
 
 mapfile -t DETAILS < <(find "${SHARD_ROOT}" -path '*/head_to_head_detail.tsv' -type f | sort)
 if [[ "${#DETAILS[@]}" -eq 0 ]]; then
@@ -44,7 +55,8 @@ for pair in "${plot_model_pairs[@]}"; do
     --tree-cases "${TREE_CASES}" \
     --simulation-model "${simulation_model}" \
     --evaluation-model "${evaluation_model}" \
-    --scenario-set "${PLOT_SCENARIO_SET}"
+    --scenario-set "${PLOT_SCENARIO_SET}" \
+    "${render_extra_args[@]}"
 done
 
 echo "Combined results: ${OUTDIR}"
