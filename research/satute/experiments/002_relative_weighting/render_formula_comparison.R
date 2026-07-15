@@ -22,8 +22,7 @@ FORMULA_SYMBOLS <- c(
 SCENARIO_LABELS <- c(
   true_tree_fixed_lengths = "True tree, fixed lengths",
   true_topology_ml_lengths = "True topology, ML lengths",
-  ml_tree_unadjusted = "ML tree, unadjusted",
-  ml_tree_bonferroni = "ML tree, Bonferroni"
+  ml_tree = "ML tree"
 )
 TREE_LABELS <- c(
   five_external = "Five-taxon external branch",
@@ -114,6 +113,16 @@ simulation_arg <- args[["simulation-model"]]
 evaluation_arg <- args[["evaluation-model"]]
 expected_reps <- if (is.null(args[["expected-reps"]])) NA_integer_ else as.integer(args[["expected-reps"]])
 bootstrap_reps <- if (is.null(args[["bootstrap-reps"]])) 5000L else as.integer(args[["bootstrap-reps"]])
+decision_rule <- if (is.null(args[["decision-rule"]])) "unadjusted" else args[["decision-rule"]]
+decision_columns <- list(
+  unadjusted = "decision_unadjusted",
+  taxon_bonferroni = "decision_taxon_bonf",
+  by_fdr = "decision_fdr"
+)
+if (!decision_rule %in% names(decision_columns)) {
+  stop("--decision-rule must be one of: ", paste(names(decision_columns), collapse = ", "))
+}
+decision_column <- decision_columns[[decision_rule]]
 
 if (!file.exists(summary_path)) stop("Summary file does not exist: ", summary_path)
 if (!file.exists(detail_path)) stop("Detail file does not exist: ", detail_path)
@@ -123,10 +132,12 @@ dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 rows <- read.delim(summary_path, check.names = FALSE, stringsAsFactors = FALSE)
 required_columns <- c(
   "tree_case", "simulation_model", "evaluation_model", "nsites", "branch_length",
-  "scenario", "formula", "evaluated", "informative", "missing_split", "fraction_informative"
+  "scenario", "decision_rule", "formula", "evaluated", "informative", "missing_split", "fraction_informative"
 )
 missing_columns <- setdiff(required_columns, names(rows))
 if (length(missing_columns)) stop("Summary is missing columns: ", paste(missing_columns, collapse = ", "))
+rows <- rows[rows$decision_rule == decision_rule, , drop = FALSE]
+if (!nrow(rows)) stop("No rows remain for decision rule: ", decision_rule)
 
 available_sim <- unique(rows$simulation_model)
 available_eval <- unique(rows$evaluation_model)
@@ -177,7 +188,7 @@ rows$scenario_label <- factor(rows$scenario_label, levels = unique(rows$scenario
 
 sim_label <- short_model_label(simulation_model)
 eval_label <- short_model_label(evaluation_model)
-suffix <- paste0("sim_", safe_name(sim_label), "__eval_", safe_name(eval_label))
+suffix <- paste0("rule_", safe_name(decision_rule), "__sim_", safe_name(sim_label), "__eval_", safe_name(eval_label))
 site_styles <- site_dashes(levels(rows$site_label))
 n_scenarios <- length(unique(rows$scenario))
 n_trees <- length(unique(rows$tree_case))
@@ -222,7 +233,7 @@ for (formula_name in FORMULA_LEVELS) {
     scale_linetype_manual(values = site_styles) +
     labs(
       title = paste0(method_label, ": sim ", sim_label, ", eval ", eval_label),
-      subtitle = "Measured informative fraction with 95% Wilson intervals",
+      subtitle = paste0("Decision rule: ", decision_rule, "; measured informative fraction with 95% Wilson intervals"),
       x = "Target branch length (log scale)", y = "Fraction classified informative",
       linetype = "Alignment length"
     ) + common_theme
@@ -233,7 +244,7 @@ for (formula_name in FORMULA_LEVELS) {
 detail <- read.delim(detail_path, check.names = FALSE, stringsAsFactors = FALSE)
 detail_required <- c(
   "tree_case", "simulation_model", "evaluation_model", "nsites", "branch_length", "replicate",
-  "seed", "target_split", "scenario", "formula", "target_found", "decision"
+  "seed", "target_split", "scenario", "formula", "target_found", decision_column
 )
 detail_missing <- setdiff(detail_required, names(detail))
 if (length(detail_missing)) stop("Detail is missing columns: ", paste(detail_missing, collapse = ", "))
@@ -246,8 +257,8 @@ pair_keys <- c(
   "tree_case", "simulation_model", "evaluation_model", "nsites", "branch_length", "replicate",
   "seed", "target_split", "scenario"
 )
-dominant <- detail[detail$formula == "dominant", c(pair_keys, "target_found", "decision")]
-weighted <- detail[detail$formula == "eigenvalue_weighted", c(pair_keys, "target_found", "decision")]
+dominant <- detail[detail$formula == "dominant", c(pair_keys, "target_found", decision_column)]
+weighted <- detail[detail$formula == "eigenvalue_weighted", c(pair_keys, "target_found", decision_column)]
 names(dominant)[(length(pair_keys) + 1L):(length(pair_keys) + 2L)] <- c("target_found_dominant", "decision_dominant")
 names(weighted)[(length(pair_keys) + 1L):(length(pair_keys) + 2L)] <- c("target_found_weighted", "decision_weighted")
 if (anyDuplicated(dominant[pair_keys]) || anyDuplicated(weighted[pair_keys])) stop("Duplicate formula rows prevent one-to-one pairing")
@@ -332,7 +343,7 @@ difference_plot <- ggplot(
   scale_linetype_manual(values = site_styles) +
   labs(
     title = paste0("Paired formula difference: sim ", sim_label, ", eval ", eval_label),
-    subtitle = "Eigenvalue-weighted minus dominant; 95% paired bootstrap intervals",
+    subtitle = paste0("Decision rule: ", decision_rule, "; eigenvalue-weighted minus dominant; 95% paired bootstrap intervals"),
     x = "Target branch length (log scale)", y = "Difference in informative fraction",
     color = "Alignment length", linetype = "Alignment length"
   ) + common_theme
@@ -449,6 +460,14 @@ build_static_3d <- function(data, title, z_column, z_title, z_range, line_color,
   line_styles <- site_dashes(as.character(site_values))
   point_shapes <- site_point_shapes(as.character(site_values))
   site_colors <- setNames(viridisLite::viridis(length(site_values), option = "D", end = 0.85), site_values)
+  safe_log_range <- function(values) {
+    result <- range(log10(values), finite = TRUE)
+    if (!all(is.finite(result))) return(c(-1, 1))
+    if (result[[1L]] == result[[2L]]) result <- result + c(-0.5, 0.5)
+    result
+  }
+  x_range <- safe_log_range(data$branch_length)
+  y_range <- safe_log_range(data$nsites)
 
   panel_ids <- matrix(
     seq_len(length(tree_values) * length(scenario_values)),
@@ -483,6 +502,12 @@ build_static_3d <- function(data, title, z_column, z_title, z_range, line_color,
         text(0.5, 0.5, "No observations", col = "#666666")
         next
       }
+      if (length(unique(selected$branch_length)) < 2L || length(unique(selected$nsites)) < 2L) {
+        plot.new()
+        title(main = paste(tree_label_value, scenario_label_value, sep = "\n"), cex.main = 0.9)
+        text(0.5, 0.5, "At least two branch and site values are required for a 3D projection", col = "#666666", cex = 0.8)
+        next
+      }
 
       first_trace <- TRUE
       for (site_value in site_values) {
@@ -495,8 +520,8 @@ build_static_3d <- function(data, title, z_column, z_title, z_range, line_color,
           type = "o", add = !first_trace, colvar = NULL, col = trace_color,
           colkey = FALSE, lty = line_styles[[as.character(site_value)]], lwd = 2.0,
           pch = point_shapes[[as.character(site_value)]], cex = 0.72, bg = "white",
-          xlim = range(log10(data$branch_length), finite = TRUE),
-          ylim = range(log10(data$nsites), finite = TRUE), zlim = z_range,
+          xlim = x_range,
+          ylim = y_range, zlim = z_range,
           xlab = "log10 branch length", ylab = "log10 sites", zlab = z_title,
           theta = 42, phi = 23, d = 2.35, expand = 0.78,
           bty = "u", ticktype = "detailed", nticks = 4,
@@ -550,7 +575,7 @@ for (formula_name in FORMULA_LEVELS) {
     file.path(outdir, paste0("figure_", formula_name, "_3d_", suffix, ".pdf"))
   )
 }
-static_difference_title <- paste0("Paired formula difference: sim ", sim_label, ", eval ", eval_label)
+static_difference_title <- paste0("Paired formula difference (", decision_rule, "): sim ", sim_label, ", eval ", eval_label)
 build_3d(
   paired_summary,
   static_difference_title,

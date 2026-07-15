@@ -1,96 +1,106 @@
 #!/usr/bin/env python3
+"""Combine and validate schema-versioned SatuTe shard artifacts."""
+
+from __future__ import annotations
 
 import argparse
 import csv
-from collections import defaultdict
+import os
 from pathlib import Path
 
-
-def aggregate(detail_path, summary_path):
-    groups = defaultdict(lambda: {"evaluated": 0, "informative": 0, "missing": 0})
-    with open(detail_path, "r", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle, delimiter="\t")
-        for row in reader:
-            key = (
-                row["tree_case"],
-                row["simulation_model"],
-                row["evaluation_model"],
-                row["nsites"],
-                row["branch_length"],
-                row["scenario"],
-                row["formula"],
-            )
-            if row["target_found"] == "1":
-                groups[key]["evaluated"] += 1
-                groups[key]["informative"] += 1 if row["decision"] == "informative" else 0
-            else:
-                groups[key]["missing"] += 1
-
-    with open(summary_path, "w", encoding="utf-8", newline="") as handle:
-        fieldnames = [
-            "tree_case",
-            "simulation_model",
-            "evaluation_model",
-            "nsites",
-            "branch_length",
-            "scenario",
-            "formula",
-            "evaluated",
-            "informative",
-            "missing_split",
-            "fraction_informative",
-        ]
-        writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
-        writer.writeheader()
-        for key in sorted(groups, key=lambda x: (x[0], x[1], x[2], int(x[3]), float(x[4]), x[5], x[6])):
-            group = groups[key]
-            evaluated = group["evaluated"]
-            fraction = group["informative"] / evaluated if evaluated else ""
-            writer.writerow(
-                {
-                    "tree_case": key[0],
-                    "simulation_model": key[1],
-                    "evaluation_model": key[2],
-                    "nsites": key[3],
-                    "branch_length": key[4],
-                    "scenario": key[5],
-                    "formula": key[6],
-                    "evaluated": evaluated,
-                    "informative": group["informative"],
-                    "missing_split": group["missing"],
-                    "fraction_informative": fraction,
-                }
-            )
+from satute_analysis.benchmark_contracts import (
+    BASE_DETAIL_FIELDS,
+    BRANCH_AUDIT_FIELDS,
+    FDR_AUDIT_FIELDS,
+    TIMING_FIELDS,
+)
+from satute_analysis.benchmark_summary import aggregate_detail
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Combine head-to-head SatuTe shard detail TSVs.")
+TABLES = {
+    "head_to_head_detail.tsv": BASE_DETAIL_FIELDS,
+    "head_to_head_branch_audit.tsv": BRANCH_AUDIT_FIELDS,
+    "head_to_head_fdr_audit.tsv": FDR_AUDIT_FIELDS,
+    "head_to_head_timing.tsv": TIMING_FIELDS,
+}
+
+KEY_FIELDS = {
+    "head_to_head_detail.tsv": (
+        "schema_version", "tree_case", "simulation_model", "evaluation_model", "nsites",
+        "branch_length", "replicate", "scenario", "formula",
+    ),
+    "head_to_head_branch_audit.tsv": (
+        "schema_version", "tree_case", "simulation_model", "evaluation_model", "nsites",
+        "branch_length", "replicate", "scenario", "formula", "branch_id",
+    ),
+    "head_to_head_fdr_audit.tsv": (
+        "schema_version", "tree_case", "simulation_model", "evaluation_model", "nsites",
+        "branch_length", "replicate", "scenario", "formula",
+    ),
+    "head_to_head_timing.tsv": (
+        "schema_version", "tree_case", "simulation_model", "evaluation_model", "nsites",
+        "branch_length", "replicate",
+    ),
+}
+
+
+def combine_table(inputs: list[Path], output: Path, expected_fields: tuple[str, ...], key_fields: tuple[str, ...]) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output.with_name(f".{output.name}.tmp.{os.getpid()}")
+    seen: set[tuple[str, ...]] = set()
+    try:
+        with temporary.open("w", encoding="utf-8", newline="") as out_handle:
+            writer = None
+            for input_path in inputs:
+                with input_path.open("r", encoding="utf-8", newline="") as in_handle:
+                    reader = csv.DictReader(in_handle, delimiter="\t")
+                    observed = tuple(reader.fieldnames or ())
+                    if observed != tuple(expected_fields):
+                        raise ValueError(
+                            f"Incompatible schema in {input_path}: expected {expected_fields}, got {observed}"
+                        )
+                    if writer is None:
+                        writer = csv.DictWriter(out_handle, fieldnames=expected_fields, delimiter="\t")
+                        writer.writeheader()
+                    for row in reader:
+                        if "replicate" in row:
+                            logical_key = tuple(row.get(name, "") for name in key_fields)
+                            if logical_key in seen:
+                                raise ValueError(f"Duplicate logical row while combining: {input_path}: {logical_key}")
+                            seen.add(logical_key)
+                        writer.writerow(row)
+        os.replace(temporary, output)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Combine schema-versioned SatuTe shard artifacts.")
     parser.add_argument("--inputs", nargs="+", required=True)
     parser.add_argument("--outdir", required=True)
     args = parser.parse_args()
 
+    detail_inputs = [Path(value) for value in args.inputs]
+    for path in detail_inputs:
+        if not path.is_file():
+            raise SystemExit(f"Missing detail shard: {path}")
+
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    detail_path = outdir / "head_to_head_detail.tsv"
-    summary_path = outdir / "head_to_head_summary.tsv"
+    for name, fields in TABLES.items():
+        auxiliary = [path.parent / name for path in detail_inputs]
+        missing = [path for path in auxiliary if not path.is_file()]
+        if missing:
+            raise SystemExit(f"Missing companion {name} files: {missing[:3]}")
+        combine_table(auxiliary, outdir / name, fields, KEY_FIELDS[name])
 
-    wrote_header = False
-    with open(detail_path, "w", encoding="utf-8", newline="") as out_handle:
-        writer = None
-        for input_path in args.inputs:
-            with open(input_path, "r", encoding="utf-8") as in_handle:
-                reader = csv.DictReader(in_handle, delimiter="\t")
-                if writer is None:
-                    writer = csv.DictWriter(out_handle, fieldnames=reader.fieldnames, delimiter="\t")
-                if not wrote_header:
-                    writer.writeheader()
-                    wrote_header = True
-                for row in reader:
-                    writer.writerow(row)
-
-    aggregate(detail_path, summary_path)
-    print(f"Detail:  {detail_path}")
-    print(f"Summary: {summary_path}")
+    aggregate_detail(outdir / "head_to_head_detail.tsv", outdir / "head_to_head_summary.tsv")
+    print(f"Detail:       {outdir / 'head_to_head_detail.tsv'}")
+    print(f"Summary:      {outdir / 'head_to_head_summary.tsv'}")
+    print(f"Branch audit: {outdir / 'head_to_head_branch_audit.tsv'}")
+    print(f"FDR audit:    {outdir / 'head_to_head_fdr_audit.tsv'}")
+    print(f"Timing:       {outdir / 'head_to_head_timing.tsv'}")
 
 
 if __name__ == "__main__":

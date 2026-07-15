@@ -9,6 +9,14 @@ eigenvalue weighting under nucleotide and protein settings.
   `render_formula_comparison.R`
 - Config: `../../config/experiments/002_relative_weighting.yaml`
 
+The production detail schema is versioned and keeps the three native decision
+contracts side by side: `decision_unadjusted`, `decision_taxon_bonf`, and
+`decision_fdr`. The normalized summary adds a `decision_rule` dimension, so a
+Bonferroni or BY-FDR plot never requires a second simulation. Every shard also
+writes `head_to_head_branch_audit.tsv`, `head_to_head_fdr_audit.tsv`, and
+`head_to_head_timing.tsv`; the first is required for empirical tree-wide FDR
+and the last identifies simulation, topology-search, and I/O bottlenecks.
+
 The production driver compares the native IQ-TREE `dominant` and
 `eigenvalue_weighted` rows directly. It does not recompute either statistic in
 Python for every replicate; the independent Python implementation is retained
@@ -54,6 +62,11 @@ Rscript research/satute/experiments/002_relative_weighting/render_formula_compar
   --evaluation-model GTR_PF06346 \
   --expected-reps 250
 ```
+
+Pass `--decision-rule unadjusted`, `--decision-rule taxon_bonferroni`, or
+`--decision-rule by_fdr` to render the corresponding correction contract.
+`by_fdr` is the tree-wide Benjamini--Yekutieli result; it is not a relabeling
+of the paper's taxon-pair Bonferroni correction.
 
 Required R packages are `ggplot2`, `plot3D`, `plotly`, `ragg`, `svglite`,
 `scales`, `viridisLite`, and `htmlwidgets`.

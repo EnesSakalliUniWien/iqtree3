@@ -35,6 +35,7 @@ smoke:
 
 check:
 	$(PYTHON) tests/unit/test_head_to_head_calculations.py
+	$(PYTHON) tests/unit/test_benchmark_contracts.py
 	$(PYTHON) tests/unit/test_multiple_testing.py
 	$(PYTHON) tests/exact/test_weighted_likelihood.py
 	$(PYTHON) tests/exact/test_saturation_null.py --replicates 2000 --output artifacts/local/check/exact-null.tsv

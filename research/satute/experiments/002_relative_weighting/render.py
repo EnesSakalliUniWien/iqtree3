@@ -27,19 +27,17 @@ MODEL_ALIASES = {
 FIG2_SCENARIO_NAMES = [
     "true_tree_fixed_lengths",
     "true_topology_ml_lengths",
-    "ml_tree_unadjusted",
-    "ml_tree_bonferroni",
+    "ml_tree",
 ]
 MISSPECIFICATION_SCENARIO_NAMES = [
     "true_tree_fixed_lengths",
     "true_topology_ml_lengths",
-    "ml_tree_bonferroni",
+    "ml_tree",
 ]
 SCENARIO_DEFINITIONS = {
     "true_tree_fixed_lengths": ("#d95f8d", "true tree, fixed lengths"),
     "true_topology_ml_lengths": ("#7b3294", "true topology, ML lengths"),
-    "ml_tree_unadjusted": ("#2c7fb8", "ML tree, unadjusted"),
-    "ml_tree_bonferroni": ("#1a9850", "ML tree, Bonferroni"),
+    "ml_tree": ("#2c7fb8", "ML tree"),
 }
 NO_MISSPEC_SCENARIO_DEFINITION = ("#d99a00", "true tree, fixed lengths, no misspecification")
 MODEL_LABELS = {
@@ -349,19 +347,29 @@ def main():
     parser.add_argument("--simulation-model", default="", help="Simulation model to plot, e.g. JC or GTR_PF06346.")
     parser.add_argument("--evaluation-model", default="", help="Evaluation model to plot, e.g. JC, GTR_PF06346, K2P, or F81.")
     parser.add_argument("--scenario-set", choices=["fig2", "misspecification", "all"], default="fig2")
+    parser.add_argument("--decision-rule", choices=["unadjusted", "taxon_bonferroni", "by_fdr"], default="unadjusted")
     parser.add_argument("--allow-incomplete", action="store_true", help="Only for development plots; manuscript plots require complete data.")
     args = parser.parse_args()
 
     rows = load_rows(args.summary)
+    if not rows or "decision_rule" not in rows[0]:
+        raise SystemExit("Summary must use schema version 2 with a decision_rule column")
+    rows = [row for row in rows if row["decision_rule"] == args.decision_rule]
+    if not rows:
+        raise SystemExit(f"Summary contains no rows for decision rule {args.decision_rule}")
     simulation_model, evaluation_model = resolve_model_pair(args.simulation_model, args.evaluation_model, rows)
     rows = [row for row in rows if row["simulation_model"] == simulation_model and row["evaluation_model"] == evaluation_model]
     tree_cases = selected_tree_cases(args.tree_cases)
     scenarios = selected_scenarios(simulation_model, evaluation_model, args.scenario_set)
+    available_scenarios = {row["scenario"] for row in rows}
+    scenarios = [scenario for scenario in scenarios if scenario[0] in available_scenarios]
+    if not scenarios:
+        raise SystemExit(f"No applicable scenarios for decision rule {args.decision_rule}")
     problems = validate_full(rows, args.expected_reps, args.allow_incomplete, tree_cases, scenarios)
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
-    suffix = f"sim_{model_label(simulation_model)}__eval_{model_label(evaluation_model)}"
+    suffix = f"rule_{args.decision_rule}__sim_{model_label(simulation_model)}__eval_{model_label(evaluation_model)}"
     baseline = outdir / f"figure_simulated_data_main_reproduction_{suffix}.svg"
     comparison = outdir / f"figure_head_to_head_formula_comparison_{suffix}.svg"
     write_baseline_figure(rows, baseline, problems, tree_cases, simulation_model, evaluation_model, scenarios)

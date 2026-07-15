@@ -1,0 +1,5 @@
+# Local validation and exact-reference runtime
+numpy==2.3.5
+scipy==1.18.0
+matplotlib==3.11.0
+pandas==2.2.3

@@ -2,16 +2,47 @@
 
 import argparse
 import csv
+from contextlib import ExitStack
+import hashlib
 import math
 import os
 import random
 import shutil
 import subprocess
+import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 IQTREE_DEFAULT = PROJECT_ROOT.parents[1] / "build" / "iqtree3"
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+from satute_analysis.benchmark_contracts import (  # noqa: E402
+    BASE_DETAIL_FIELDS,
+    BRANCH_AUDIT_FIELDS,
+    FDR_AUDIT_FIELDS,
+    FORMULAS,
+    ML_TREE,
+    SCHEMA_VERSION,
+    SUMMARY_FIELDS,
+    TIMING_FIELDS,
+    TRUE_FIXED,
+    TRUE_ML_LENGTHS,
+    expected_rows_for_task,
+    selected_scenarios,
+)
+from satute_analysis.benchmark_summary import (  # noqa: E402
+    aggregate_detail,
+    validate_tsv_header,
+)
+from satute_analysis.native_results import (  # noqa: E402
+    branch_audit_detail,
+    fdr_family_audit,
+    index_target_rows,
+    read_native_rows,
+    target_detail,
+)
 
 # The production benchmark consumes native IQ-TREE rows and never imports
 # NumPy. The dormant independent-reference helper loads it only when called.
@@ -77,20 +108,6 @@ MODEL_ALIASES = {
     "GTR_SKEW_BOTH": GTR_SKEW_BOTH_MODEL,
 }
 FIXED_EMPIRICAL_PROTEIN_MODELS = {"LG", "WAG", "JTT", "Q.pfam"}
-FORMULAS = ["dominant", "eigenvalue_weighted"]
-FIG2_SCENARIOS = [
-    "true_tree_fixed_lengths",
-    "true_topology_ml_lengths",
-    "ml_tree_unadjusted",
-    "ml_tree_bonferroni",
-]
-MISSPECIFICATION_SCENARIOS = [
-    "true_tree_fixed_lengths",
-    "true_topology_ml_lengths",
-    "ml_tree_bonferroni",
-]
-
-
 class Node:
     next_id = 0
 
@@ -114,6 +131,17 @@ def parse_csv_numbers(text, cast=float):
 
 def parse_csv_text(text):
     return [value.strip() for value in text.split(",") if value.strip()]
+
+
+def simulation_seed(base_seed, tree_case, simulation_model, nsites, branch_length, replicate):
+    """Return a deterministic positive seed shared across evaluation models."""
+
+    payload = (
+        f"{base_seed}:{tree_case}:{simulation_model}:{nsites}:"
+        f"{float(branch_length):.12g}:{replicate}"
+    ).encode("utf-8")
+    value = int.from_bytes(hashlib.blake2s(payload, digest_size=8).digest(), "big")
+    return 1 + value % 2147483646
 
 
 def resolve_model_alias(alias):
@@ -157,22 +185,6 @@ def parse_model_pairs(text):
             raise ValueError(f"Model pair must have non-empty SIM:EVAL aliases, got: {item}")
         pairs.append((resolve_model_alias(simulation_alias), resolve_model_alias(evaluation_alias)))
     return pairs
-
-
-def selected_scenarios(simulation_model, evaluation_model, scenario_set):
-    if scenario_set == "fig2":
-        return list(FIG2_SCENARIOS)
-    if scenario_set == "misspecification":
-        if simulation_model == evaluation_model:
-            return ["true_tree_fixed_lengths"]
-        return list(MISSPECIFICATION_SCENARIOS)
-    if scenario_set == "all":
-        return list(FIG2_SCENARIOS)
-    raise ValueError(f"Unknown scenario set: {scenario_set}")
-
-
-def expected_rows_for_task(simulation_model, evaluation_model, scenario_set):
-    return len(selected_scenarios(simulation_model, evaluation_model, scenario_set)) * len(FORMULAS)
 
 
 def sniff_delimiter(path):
@@ -403,27 +415,7 @@ def parse_alignment(path):
 
 
 def parse_sat_stat(path, target_taxa):
-    target = ",".join(sorted(target_taxa))
-    rows = {}
-    with open(path, "r", encoding="utf-8") as handle:
-        header = None
-        for raw in handle:
-            line = raw.rstrip("\n")
-            if line.startswith("#") or not line:
-                continue
-            fields = line.split("\t")
-            if fields[0] == "ID":
-                header = fields
-                continue
-            if not header or not fields[0].isdigit():
-                continue
-            row = dict(zip(header, fields))
-            if row.get("RateCategory", "pooled") != "pooled":
-                continue
-            split = row.get("Split", "")
-            if split == target or set(split.split(",")) == set(target_taxa):
-                rows[row.get("Formula", "dominant")] = row
-    return rows
+    return index_target_rows(read_native_rows(path), target_taxa)
 
 
 def parse_model(model):
@@ -955,27 +947,33 @@ def fitted_model_for_compute(prefix, requested_model):
     raise ValueError(f"Could not extract fitted model for {requested_model} from {iqtree_path}")
 
 
-def write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evaluation_model):
+def write_missing_rows(writer, base, scenario, formula, fitted_evaluation_model):
     row = dict(base)
     row.update(
         {
+            "schema_version": SCHEMA_VERSION,
             "scenario": scenario,
             "formula": formula,
             "implementation": "iqtree_native",
             "fitted_evaluation_model": fitted_evaluation_model,
             "target_found": 0,
+            "branch_id": "",
             "left_taxa": "",
             "right_taxa": "",
             "valid_sites": "",
             "skipped_sites": "",
             "branch_length_used": "",
-            "alpha_used": alpha_used,
             "satC": "",
             "satVar": "",
             "satSE": "",
             "satZ": "",
             "satP": "",
-            "decision": "",
+            "decision_unadjusted": "",
+            "alpha_taxon_bonf": "",
+            "p_taxon_bonf": "",
+            "decision_taxon_bonf": "",
+            "fdr_by": "",
+            "decision_fdr": "",
             "modes": "",
             "eigenvalues": "",
             "weights": "",
@@ -986,60 +984,94 @@ def write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evalu
 
 def write_native_formula_rows(
     writer,
+    branch_writer,
+    fdr_writer,
     base,
     scenario,
     stat_path,
     fitted_evaluation_model,
     target_taxa,
     alpha,
-    alpha_used,
-    use_bonferroni=False,
-    native_rows=None,
 ):
-    if native_rows is None:
-        native_rows = parse_sat_stat(stat_path, target_taxa)
+    native_rows = read_native_rows(stat_path)
+    target_rows = index_target_rows(native_rows, target_taxa)
 
     for formula in FORMULAS:
-        native = native_rows.get(formula)
+        native = target_rows.get(formula)
         if native is None:
-            write_missing_rows(writer, base, scenario, formula, alpha_used, fitted_evaluation_model)
+            write_missing_rows(writer, base, scenario, formula, fitted_evaluation_model)
             continue
         row = dict(base)
         row.update(
             {
+                "schema_version": SCHEMA_VERSION,
                 "scenario": scenario,
                 "formula": formula,
                 "implementation": "iqtree_native",
                 "fitted_evaluation_model": fitted_evaluation_model,
                 "target_found": 1,
+                "branch_id": native.get("ID", ""),
                 "left_taxa": native.get("LeftTaxa", ""),
                 "right_taxa": native.get("RightTaxa", ""),
                 "valid_sites": native.get("ValidSites", ""),
                 "skipped_sites": native.get("SkippedSites", ""),
                 "branch_length_used": native.get("Length", ""),
                 "alpha": native.get("Alpha", alpha),
-                "alpha_used": (
-                    native.get("AlphaTaxonBonf", alpha_used)
-                    if use_bonferroni
-                    else native.get("Alpha", alpha_used)
-                ),
                 "satC": native.get("satC", ""),
                 "satVar": native.get("satVar", ""),
                 "satSE": native.get("satSE", ""),
                 "satZ": native.get("satZ", ""),
                 "satP": native.get("satP", ""),
-                "decision": (
-                    native.get("DecisionTaxonBonf", "")
-                    if use_bonferroni
-                    else native.get("Decision", "")
-                ),
+                "decision_unadjusted": native.get("Decision", ""),
+                "alpha_taxon_bonf": native.get("AlphaTaxonBonf", ""),
+                "p_taxon_bonf": target_detail(native, alpha)["p_taxon_bonf"],
+                "decision_taxon_bonf": native.get("DecisionTaxonBonf", ""),
+                "fdr_by": native.get("FDR_BY", ""),
+                "decision_fdr": native.get("DecisionFDR", ""),
                 "modes": native.get("Modes", ""),
                 "eigenvalues": native.get("Eigenvalues", ""),
                 "weights": native.get("Weights", ""),
             }
         )
         writer.writerow(row)
-    return native_rows
+
+    # Persist the complete pooled branch family once per native analysis. This
+    # is the auditable denominator for empirical FDR/FDP summaries.
+    for formula in FORMULAS:
+        formula_rows = [row for row in native_rows if row["Formula"] == formula]
+        for branch in branch_audit_detail(formula_rows, target_taxa):
+            branch_writer.writerow(
+                {
+                    "schema_version": SCHEMA_VERSION,
+                    "tree_case": base["tree_case"],
+                    "simulation_model": base["simulation_model"],
+                    "evaluation_model": base["evaluation_model"],
+                    "nsites": base["nsites"],
+                    "branch_length": base["branch_length"],
+                    "replicate": base["replicate"],
+                    "seed": base["seed"],
+                    "scenario": scenario,
+                    "formula": formula,
+                    **branch,
+                }
+            )
+
+    for formula in FORMULAS:
+        audit = fdr_family_audit(native_rows, formula)
+        fdr_writer.writerow(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "tree_case": base["tree_case"],
+                "simulation_model": base["simulation_model"],
+                "evaluation_model": base["evaluation_model"],
+                "nsites": base["nsites"],
+                "branch_length": base["branch_length"],
+                "replicate": base["replicate"],
+                "seed": base["seed"],
+                "scenario": scenario,
+                **audit,
+            }
+        )
 
 
 def run_case(
@@ -1050,6 +1082,9 @@ def run_case(
     pools,
     outdir,
     writer,
+    branch_writer,
+    fdr_writer,
+    timing_writer,
     tree_case,
     simulation_model,
     evaluation_model,
@@ -1060,6 +1095,7 @@ def run_case(
     alpha,
     scenario_set,
 ):
+    started = time.perf_counter()
     case_dir = (
         outdir
         / "runs"
@@ -1076,7 +1112,9 @@ def run_case(
     write_tree(tree_case, branch_length, tree_file, rng, pools)
 
     sim_prefix = case_dir / "sim"
+    simulation_started = time.perf_counter()
     alignment = simulate_alignment(iqtree, seqgen, indelible, simulator, tree_file, simulation_model, nsites, seed, sim_prefix)
+    simulation_seconds = time.perf_counter() - simulation_started
     target_taxa = target_taxa_for_case(tree_case)
     scenarios = set(selected_scenarios(simulation_model, evaluation_model, scenario_set))
     base = {
@@ -1091,9 +1129,12 @@ def run_case(
         "branch_length_source": "evonaps_table" if pools.get("internal") and pools.get("external") else "fixed_0.1_smoke",
         "target_split": ",".join(target_taxa),
         "alpha": alpha,
+        "schema_version": SCHEMA_VERSION,
     }
+    scenario_seconds = {TRUE_FIXED: 0.0, TRUE_ML_LENGTHS: 0.0, ML_TREE: 0.0}
 
-    if "true_tree_fixed_lengths" in scenarios:
+    if TRUE_FIXED in scenarios:
+        analysis_started = time.perf_counter()
         prefix = case_dir / "true_fixed"
         _tree_path, stat_path = run_satute(
             iqtree, alignment, prefix, evaluation_model, tree_file, True, seed
@@ -1101,16 +1142,19 @@ def run_case(
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
         write_native_formula_rows(
             writer,
+            branch_writer,
+            fdr_writer,
             base,
-            "true_tree_fixed_lengths",
+            TRUE_FIXED,
             stat_path,
             fitted_model,
             target_taxa,
             alpha,
-            alpha,
         )
+        scenario_seconds[TRUE_FIXED] = time.perf_counter() - analysis_started
 
-    if "true_topology_ml_lengths" in scenarios:
+    if TRUE_ML_LENGTHS in scenarios:
+        analysis_started = time.perf_counter()
         prefix = case_dir / "true_ml_lengths"
         _tree_path, stat_path = run_satute(
             iqtree, alignment, prefix, evaluation_model, tree_file, False, seed
@@ -1118,105 +1162,61 @@ def run_case(
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
         write_native_formula_rows(
             writer,
+            branch_writer,
+            fdr_writer,
             base,
-            "true_topology_ml_lengths",
+            TRUE_ML_LENGTHS,
             stat_path,
             fitted_model,
             target_taxa,
             alpha,
-            alpha,
         )
+        scenario_seconds[TRUE_ML_LENGTHS] = time.perf_counter() - analysis_started
 
-    if "ml_tree_unadjusted" in scenarios or "ml_tree_bonferroni" in scenarios:
+    if ML_TREE in scenarios:
+        analysis_started = time.perf_counter()
         prefix = case_dir / "ml_tree"
         _tree_path, stat_path = run_satute(
             iqtree, alignment, prefix, evaluation_model, None, False, seed
         )
         fitted_model = fitted_model_for_compute(prefix, evaluation_model)
-        native_rows = None
-        if "ml_tree_unadjusted" in scenarios:
-            native_rows = write_native_formula_rows(
-                writer,
-                base,
-                "ml_tree_unadjusted",
-                stat_path,
-                fitted_model,
-                target_taxa,
-                alpha,
-                alpha,
-            )
+        write_native_formula_rows(
+            writer,
+            branch_writer,
+            fdr_writer,
+            base,
+            ML_TREE,
+            stat_path,
+            fitted_model,
+            target_taxa,
+            alpha,
+        )
+        scenario_seconds[ML_TREE] = time.perf_counter() - analysis_started
 
-        taxa_count = 5 if tree_case == "five_external" else 16
-        alpha_bonf = alpha / (1 * (taxa_count - 1) if tree_case == "five_external" else 8 * 8)
-        if "ml_tree_bonferroni" in scenarios:
-            write_native_formula_rows(
-                writer,
-                base,
-                "ml_tree_bonferroni",
-                stat_path,
-                fitted_model,
-                target_taxa,
-                alpha,
-                alpha_bonf,
-                use_bonferroni=True,
-                native_rows=native_rows,
-            )
+    timing_writer.writerow(
+        {
+            "schema_version": SCHEMA_VERSION,
+            "tree_case": tree_case,
+            "simulation_model": simulation_model,
+            "evaluation_model": evaluation_model,
+            "nsites": nsites,
+            "branch_length": branch_length,
+            "replicate": rep,
+            "seed": seed,
+            "simulation_cache_hit": 0,
+            "simulation_seconds": f"{simulation_seconds:.6f}",
+            "true_fixed_seconds": f"{scenario_seconds[TRUE_FIXED]:.6f}",
+            "true_ml_lengths_seconds": f"{scenario_seconds[TRUE_ML_LENGTHS]:.6f}",
+            "ml_tree_seconds": f"{scenario_seconds[ML_TREE]:.6f}",
+            "total_seconds": f"{time.perf_counter() - started:.6f}",
+        }
+    )
 
 
 def aggregate(detail_path, summary_path):
-    groups = defaultdict(lambda: {"evaluated": 0, "informative": 0, "missing": 0})
-    with open(detail_path, "r", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle, delimiter="\t")
-        for row in reader:
-            key = (
-                row["tree_case"],
-                row["simulation_model"],
-                row["evaluation_model"],
-                row["nsites"],
-                row["branch_length"],
-                row["scenario"],
-                row["formula"],
-            )
-            if row["target_found"] == "1":
-                groups[key]["evaluated"] += 1
-                groups[key]["informative"] += 1 if row["decision"] == "informative" else 0
-            else:
-                groups[key]["missing"] += 1
-
-    with open(summary_path, "w", encoding="utf-8", newline="") as handle:
-        fieldnames = [
-            "tree_case",
-            "simulation_model",
-            "evaluation_model",
-            "nsites",
-            "branch_length",
-            "scenario",
-            "formula",
-            "evaluated",
-            "informative",
-            "missing_split",
-            "fraction_informative",
-        ]
-        writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
-        writer.writeheader()
-        for key in sorted(groups, key=lambda x: (x[0], x[1], x[2], int(x[3]), float(x[4]), x[5], x[6])):
-            group = groups[key]
-            fraction = group["informative"] / group["evaluated"] if group["evaluated"] else ""
-            writer.writerow(
-                {
-                    "tree_case": key[0],
-                    "simulation_model": key[1],
-                    "evaluation_model": key[2],
-                    "nsites": key[3],
-                    "branch_length": key[4],
-                    "scenario": key[5],
-                    "formula": key[6],
-                    "evaluated": group["evaluated"],
-                    "informative": group["informative"],
-                    "missing_split": group["missing"],
-                    "fraction_informative": fraction,
-                }
-            )
+    # Compatibility wrapper for callers outside the driver.  The implementation
+    # lives in the schema-aware module so all consumers use the same rules.
+    aggregate_detail(detail_path, summary_path)
 
 
 def sanitize_model(model):
@@ -1234,27 +1234,90 @@ def task_key_from_row(row):
     )
 
 
-def completed_tasks(detail_path, scenario_set, fieldnames=None, clean_incomplete=False):
+def completed_tasks(
+    detail_path,
+    scenario_set,
+    fieldnames=None,
+    clean_incomplete=False,
+    auxiliary_paths=None,
+):
     if not detail_path.exists():
         return set()
     rows = []
-    counts = defaultdict(int)
+    seen = defaultdict(set)
     expected = {}
+    expected_pairs = {}
     with open(detail_path, "r", encoding="utf-8") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
+        if tuple(reader.fieldnames or ()) != tuple(fieldnames or BASE_DETAIL_FIELDS):
+            raise ValueError(f"Unexpected benchmark detail schema in {detail_path}")
         for row in reader:
             rows.append(row)
             key = task_key_from_row(row)
-            counts[key] += 1
+            pair = (row["scenario"], row["formula"])
+            seen[key].add(pair)
             expected[key] = expected_rows_for_task(row["simulation_model"], row["evaluation_model"], scenario_set)
-    complete = {key for key, count in counts.items() if count >= expected.get(key, 0)}
+            expected_pairs[key] = {
+                (scenario, formula)
+                for scenario in selected_scenarios(
+                    row["simulation_model"], row["evaluation_model"], scenario_set
+                )
+                for formula in FORMULAS
+            }
+    auxiliary_paths = auxiliary_paths or {}
+    fdr_seen = defaultdict(set)
+    fdr_branch_expected = defaultdict(int)
+    branch_counts = defaultdict(int)
+    timing_seen = set()
+    for path in auxiliary_paths.get("fdr", []):
+        if not path.exists():
+            continue
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle, delimiter="\t"):
+                key = task_key_from_row(row)
+                fdr_seen[key].add((row["scenario"], row["formula"]))
+                fdr_branch_expected[key] += int(row["family_size"])
+    for path in auxiliary_paths.get("branch", []):
+        if not path.exists():
+            continue
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle, delimiter="\t"):
+                branch_counts[task_key_from_row(row)] += 1
+    for path in auxiliary_paths.get("timing", []):
+        if not path.exists():
+            continue
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle, delimiter="\t"):
+                timing_seen.add(task_key_from_row(row))
+
+    complete = {
+        key for key, pairs in seen.items()
+        if len(pairs) == expected.get(key, 0)
+        and pairs == expected_pairs.get(key, set())
+        and (not auxiliary_paths or fdr_seen[key] == pairs)
+        and (not auxiliary_paths or branch_counts[key] == fdr_branch_expected[key])
+        and (not auxiliary_paths or key in timing_seen)
+    }
     if clean_incomplete and fieldnames is not None:
-        with open(detail_path, "w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
-            writer.writeheader()
-            for row in rows:
-                if task_key_from_row(row) in complete:
-                    writer.writerow(row)
+        def clean_table(path, expected_fields):
+            if not path.exists():
+                return
+            temporary = path.with_name(f".{path.name}.tmp.clean")
+            with path.open("r", encoding="utf-8", newline="") as source, temporary.open(
+                "w", encoding="utf-8", newline=""
+            ) as destination:
+                reader = csv.DictReader(source, delimiter="\t")
+                writer = csv.DictWriter(destination, fieldnames=expected_fields, delimiter="\t")
+                writer.writeheader()
+                for row in reader:
+                    if task_key_from_row(row) in complete:
+                        writer.writerow(row)
+            os.replace(temporary, path)
+
+        clean_table(detail_path, fieldnames)
+        clean_table(auxiliary_paths.get("branch_path"), BRANCH_AUDIT_FIELDS)
+        clean_table(auxiliary_paths.get("fdr_path"), FDR_AUDIT_FIELDS)
+        clean_table(auxiliary_paths.get("timing_path"), TIMING_FIELDS)
     return complete
 
 
@@ -1308,8 +1371,11 @@ def main():
         raise SystemExit(f"Cannot execute IQ-TREE binary: {iqtree}")
 
     outdir = Path(args.outdir)
-    if outdir.exists() and not args.resume:
-        shutil.rmtree(outdir)
+    if outdir.exists() and not args.resume and any(outdir.iterdir()):
+        raise SystemExit(
+            f"Refusing to overwrite non-empty output directory {outdir}; "
+            "use --resume for a compatible run or choose a new --outdir"
+        )
     outdir.mkdir(parents=True, exist_ok=True)
     if args.shard_count < 1:
         raise SystemExit("--shard-count must be >= 1")
@@ -1334,46 +1400,60 @@ def main():
 
     detail_path = outdir / "head_to_head_detail.tsv"
     summary_path = outdir / "head_to_head_summary.tsv"
-    fieldnames = [
-        "tree_case",
-        "simulation_model",
-        "evaluation_model",
-        "fitted_evaluation_model",
-        "nsites",
-        "branch_length",
-        "replicate",
-        "seed",
-        "simulator",
-        "branch_length_source",
-        "target_split",
-        "scenario",
-        "formula",
-        "implementation",
-        "target_found",
-        "left_taxa",
-        "right_taxa",
-        "valid_sites",
-        "skipped_sites",
-        "branch_length_used",
-        "alpha",
-        "alpha_used",
-        "satC",
-        "satVar",
-        "satSE",
-        "satZ",
-        "satP",
-        "decision",
-        "modes",
-        "eigenvalues",
-        "weights",
-    ]
-    done = completed_tasks(detail_path, args.scenario_set, fieldnames, clean_incomplete=True) if args.resume else set()
-    write_header = not (args.resume and detail_path.exists() and detail_path.stat().st_size > 0)
-    mode = "a" if args.resume else "w"
-    with open(detail_path, mode, encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
-        if write_header:
+    branch_path = outdir / "head_to_head_branch_audit.tsv"
+    fdr_path = outdir / "head_to_head_fdr_audit.tsv"
+    timing_path = outdir / "head_to_head_timing.tsv"
+    fieldnames = list(BASE_DETAIL_FIELDS)
+    for path, schema in (
+        (detail_path, BASE_DETAIL_FIELDS),
+        (summary_path, SUMMARY_FIELDS),
+        (branch_path, BRANCH_AUDIT_FIELDS),
+        (fdr_path, FDR_AUDIT_FIELDS),
+        (timing_path, TIMING_FIELDS),
+    ):
+        if path is not None and args.resume:
+            validate_tsv_header(path, schema)
+    done = (
+        completed_tasks(
+            detail_path,
+            args.scenario_set,
+            fieldnames,
+            clean_incomplete=True,
+            auxiliary_paths={
+                "branch": [branch_path],
+                "fdr": [fdr_path],
+                "timing": [timing_path],
+                "branch_path": branch_path,
+                "fdr_path": fdr_path,
+                "timing_path": timing_path,
+            },
+        )
+        if args.resume
+        else set()
+    )
+    modes = {
+        "detail": "a" if args.resume and detail_path.exists() and detail_path.stat().st_size > 0 else "w",
+        "branch": "a" if args.resume and branch_path.exists() and branch_path.stat().st_size > 0 else "w",
+        "fdr": "a" if args.resume and fdr_path.exists() and fdr_path.stat().st_size > 0 else "w",
+        "timing": "a" if args.resume and timing_path.exists() and timing_path.stat().st_size > 0 else "w",
+    }
+    with ExitStack() as stack:
+        detail_handle = stack.enter_context(open(detail_path, modes["detail"], encoding="utf-8", newline=""))
+        branch_handle = stack.enter_context(open(branch_path, modes["branch"], encoding="utf-8", newline=""))
+        fdr_handle = stack.enter_context(open(fdr_path, modes["fdr"], encoding="utf-8", newline=""))
+        timing_handle = stack.enter_context(open(timing_path, modes["timing"], encoding="utf-8", newline=""))
+        writer = csv.DictWriter(detail_handle, fieldnames=fieldnames, delimiter="\t")
+        branch_writer = csv.DictWriter(branch_handle, fieldnames=BRANCH_AUDIT_FIELDS, delimiter="\t")
+        fdr_writer = csv.DictWriter(fdr_handle, fieldnames=FDR_AUDIT_FIELDS, delimiter="\t")
+        timing_writer = csv.DictWriter(timing_handle, fieldnames=TIMING_FIELDS, delimiter="\t")
+        if modes["detail"] == "w":
             writer.writeheader()
+        if modes["branch"] == "w":
+            branch_writer.writeheader()
+        if modes["fdr"] == "w":
+            fdr_writer.writeheader()
+        if modes["timing"] == "w":
+            timing_writer.writeheader()
         task_index = 0
         selected_tasks = 0
         skipped_tasks = 0
@@ -1398,7 +1478,7 @@ def main():
                             if task_key in done:
                                 skipped_tasks += 1
                                 continue
-                            seed = 900000 + rep + nsites * 10 + int(branch_length * 1000)
+                            seed = simulation_seed(900000, tree_case, simulation_model, nsites, branch_length, rep)
                             run_case(
                                 iqtree,
                                 args.seqgen,
@@ -1407,6 +1487,9 @@ def main():
                                 pools,
                                 outdir,
                                 writer,
+                                branch_writer,
+                                fdr_writer,
+                                timing_writer,
                                 tree_case,
                                 simulation_model,
                                 evaluation_model,
@@ -1417,9 +1500,12 @@ def main():
                                 args.alpha,
                                 args.scenario_set,
                             )
-                            handle.flush()
+                            detail_handle.flush()
+                            branch_handle.flush()
+                            fdr_handle.flush()
+                            timing_handle.flush()
 
-    aggregate(detail_path, summary_path)
+    aggregate_detail(detail_path, summary_path)
     print(f"Shard:   {args.shard_index}/{args.shard_count}")
     print(f"Tasks:   {selected_tasks}/{task_index}")
     if args.resume:

@@ -96,7 +96,12 @@ copy_atomic() {
 
 persist_tabular_results() {
   local name
-  for name in head_to_head_detail.tsv head_to_head_summary.tsv; do
+  for name in \
+    head_to_head_detail.tsv \
+    head_to_head_summary.tsv \
+    head_to_head_branch_audit.tsv \
+    head_to_head_fdr_audit.tsv \
+    head_to_head_timing.tsv; do
     if [[ -s "${WORK_SHARD_DIR}/${name}" ]]; then
       copy_atomic "${WORK_SHARD_DIR}/${name}" "${SHARD_DIR}/${name}"
     fi
@@ -136,7 +141,12 @@ fi
 
 if [[ "${NODE_LOCAL_WORK}" == "1" \
       && ( "${COPY_RESUME_STATE}" == "1" || "${COPY_RESUME_STATE}" == "true" ) ]]; then
-  for name in head_to_head_detail.tsv head_to_head_summary.tsv; do
+  for name in \
+    head_to_head_detail.tsv \
+    head_to_head_summary.tsv \
+    head_to_head_branch_audit.tsv \
+    head_to_head_fdr_audit.tsv \
+    head_to_head_timing.tsv; do
     if [[ -s "${SHARD_DIR}/${name}" ]]; then
       cp "${SHARD_DIR}/${name}" "${WORK_SHARD_DIR}/${name}"
     fi
@@ -150,6 +160,7 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "created_utc\t%s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     printf "slurm_array_job_id\t%s\n" "${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-manual}}"
     printf "run_name\t%s\n" "${RUN_NAME}"
+    printf "benchmark_schema_version\t2\n"
     printf "replicates\t%s\n" "${REPS}"
     printf "shard_count\t%s\n" "${SHARD_COUNT}"
     printf "resume_shards\t%s\n" "${RESUME_SHARDS}"
@@ -171,6 +182,10 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     fi
     printf "evonaps_sha256\t%s\n" "$(sha256sum "${EVONAPS_BRANCH_LENGTHS}" | awk '{print $1}')"
     printf "driver_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/run.py" | awk '{print $1}')"
+    printf "benchmark_contracts_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/benchmark_contracts.py" | awk '{print $1}')"
+    printf "benchmark_summary_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/benchmark_summary.py" | awk '{print $1}')"
+    printf "native_results_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/native_results.py" | awk '{print $1}')"
+    printf "requirements_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/requirements.txt" | awk '{print $1}')"
     printf "satute_facade_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute.cpp" | awk '{print $1}')"
     printf "satute_statistics_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_statistics.cpp" | awk '{print $1}')"
     printf "satute_support_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_support.cpp" | awk '{print $1}')"
