@@ -38,6 +38,7 @@ check:
 	$(PYTHON) tests/unit/test_benchmark_contracts.py
 	$(PYTHON) tests/unit/test_multiple_testing.py
 	$(PYTHON) tests/unit/test_fdr_calibration.py
+	$(PYTHON) tests/unit/test_fdr_postprocess.py
 	$(PYTHON) tests/exact/test_weighted_likelihood.py
 	$(PYTHON) tests/exact/test_saturation_null.py --replicates 2000 --output artifacts/local/check/exact-null.tsv
 	PYTHON_BIN=$(PYTHON) tests/native/run_satute_phase1_checks.sh $(IQTREE) artifacts/local/check/native

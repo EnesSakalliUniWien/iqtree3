@@ -93,6 +93,25 @@ taxon-Bonferroni, and BY rules. The 5,000-replicate exact-null and
 `tools/cluster/lisc/submit_fdr_calibration_suite.sh`; their outputs must not be
 merged into the publication power-curve summaries.
 
+After strict shard postprocessing, `render_fdr_calibration.R` consumes the
+exact-null and mixed-null replicate tables plus the held-out calibration table.
+It refuses incomplete 5,000/2,000-replicate grids and produces separate
+dominant, eigenvalue-weighted and paired-difference figures. The static 2D
+outputs are written as PDF, SVG and 450-dpi PNG; each measured 3D line view is
+written as a vector PDF and a self-contained interactive HTML file. Unadjusted,
+taxon-Bonferroni and Benjamini--Yekutieli results remain separate facets, and
+the renderer reports empirical mean FDP as FDR rather than relabelling native
+adjusted decisions as FDR calibration.
+
+On LiSC, postprocessing is submitted with
+`tools/cluster/lisc/submit_fdr_postprocess_suite.sh`. The compute-node job first
+requires every shard table, archive and checksum, rejects any non-empty array
+stderr or durable `runs` directory, verifies all archive checksums and samples
+zstd/tar integrity. The merger streams branch-level truth rows instead of
+loading them into memory, validates each family against its replicate summary,
+and atomically publishes the merged tables. The large truth audit is then
+stored as a tested `.zst` file with a complete checksum manifest.
+
 The publication-summary renderer also requires schema-v2 summaries and accepts
 the same `--decision-rule` flag. It refuses incomplete replicate cells unless
 `--allow-incomplete` is explicitly supplied, and it derives the observed site,
