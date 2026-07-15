@@ -60,6 +60,12 @@ FORMULAS = [
     ("eigenvalue_weighted", "eigenvalue-weighted", "#E69504"),
 ]
 
+DECISION_RULE_LABELS = {
+    "unadjusted": "unadjusted",
+    "taxon_bonferroni": "taxon-pair Bonferroni",
+    "by_fdr": "Benjamini--Yekutieli FDR",
+}
+
 SITE_DASH = {
     "100": "8,5",
     "250": "4,4",
@@ -68,9 +74,19 @@ SITE_DASH = {
 }
 
 
-def read_rows(path):
+def read_rows(path, decision_rule):
     with path.open("r", encoding="utf-8", newline="") as handle:
-        return list(csv.DictReader(handle, delimiter="\t"))
+        rows = list(csv.DictReader(handle, delimiter="\t"))
+    if not rows:
+        raise SystemExit(f"Summary is empty: {path}")
+    if "decision_rule" not in rows[0]:
+        raise SystemExit(
+            f"Summary must use schema version 2 with a decision_rule column: {path}"
+        )
+    rows = [row for row in rows if row["decision_rule"] == decision_rule]
+    if not rows:
+        raise SystemExit(f"Summary contains no rows for decision rule {decision_rule}: {path}")
+    return rows
 
 
 def sx(value, xmin, xmax, left, width):
@@ -103,14 +119,26 @@ def grouped(rows, dataset, tree_case):
         if row["fraction_informative"] == "":
             continue
         key = (row["formula"], row["nsites"])
-        values.setdefault(key, {})[float(row["branch_length"])] = float(row["fraction_informative"])
+        branch = float(row["branch_length"])
+        series = values.setdefault(key, {})
+        if branch in series:
+            raise SystemExit(
+                "Duplicate summary cell after decision-rule filtering: "
+                f"{dataset['label']}/{tree_case}/{row['formula']}/n{row['nsites']}/b{branch}"
+            )
+        series[branch] = float(row["fraction_informative"])
     return values
 
 
 def draw_panel(svg, rows, dataset, tree_case, title, left, top, width, height, show_y, show_x):
     data = grouped(rows, dataset, tree_case)
     all_branch_lengths = sorted({branch for series in data.values() for branch in series})
+    if not all_branch_lengths:
+        raise SystemExit(f"No true-tree fixed-length rows for {dataset['label']}/{tree_case}")
     xmin, xmax = min(all_branch_lengths), max(all_branch_lengths)
+    if xmin == xmax:
+        center = math.log10(xmin)
+        xmin, xmax = 10 ** (center - 0.5), 10 ** (center + 0.5)
 
     svg.append(f'<text x="{left + width / 2:.1f}" y="{top - 18}" text-anchor="middle" font-size="17" font-weight="700">{escape(title)}</text>')
     svg.append(f'<rect x="{left}" y="{top}" width="{width}" height="{height}" fill="white" stroke="#444" stroke-width="1.1"/>')
@@ -122,6 +150,8 @@ def draw_panel(svg, rows, dataset, tree_case, title, left, top, width, height, s
             svg.append(f'<text x="{left - 10}" y="{y + 5:.2f}" text-anchor="end" font-size="14">{value:g}</text>')
 
     for tick in dataset["branch_ticks"]:
+        if tick < xmin or tick > xmax:
+            continue
         x = sx(tick, xmin, xmax, left, width)
         svg.append(f'<line x1="{x:.2f}" x2="{x:.2f}" y1="{top}" y2="{top + height}" stroke="#eeeeee" stroke-width="1"/>')
         if show_x:
@@ -147,7 +177,7 @@ def draw_panel(svg, rows, dataset, tree_case, title, left, top, width, height, s
         svg.append(f'<text x="{left + width / 2:.1f}" y="{top + height + 50}" text-anchor="middle" font-size="15">target branch length</text>')
 
 
-def legend(svg, x, y):
+def legend(svg, x, y, site_lengths):
     svg.append(f'<text x="{x}" y="{y}" font-size="17" font-weight="700">Formula</text>')
     for i, (_formula, label, color) in enumerate(FORMULAS):
         yy = y + 28 + i * 28
@@ -156,7 +186,7 @@ def legend(svg, x, y):
 
     y2 = y + 100
     svg.append(f'<text x="{x}" y="{y2}" font-size="17" font-weight="700">Alignment length</text>')
-    for i, nsites in enumerate(["100", "250", "1000", "10000"]):
+    for i, nsites in enumerate(site_lengths):
         yy = y2 + 28 + i * 28
         dash = SITE_DASH.get(nsites, "")
         dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
@@ -168,18 +198,89 @@ def main():
     parser = argparse.ArgumentParser(description="Render the reviewed relative-weighting power summary.")
     parser.add_argument("--output-dir", type=Path, default=OUTDIR)
     parser.add_argument("--jc-summary", type=Path, default=DATASETS[0]["path"])
-    parser.add_argument("--rate-summary", type=Path, default=DATASETS[1]["path"])
+    parser.add_argument(
+        "--gtr-summary",
+        "--rate-summary",
+        dest="gtr_summary",
+        type=Path,
+        default=DATASETS[1]["path"],
+        help="Summary for the GTR+F+G4 dataset (legacy alias: --rate-summary).",
+    )
+    parser.add_argument("--lg-summary", type=Path, default=DATASETS[2]["path"])
+    parser.add_argument("--gtr-simulation-model", default=DATASETS[1]["simulation_model"])
+    parser.add_argument("--gtr-evaluation-model", default=DATASETS[1]["evaluation_model"])
+    parser.add_argument("--lg-simulation-model", default=DATASETS[2]["simulation_model"])
+    parser.add_argument("--lg-evaluation-model", default=DATASETS[2]["evaluation_model"])
+    parser.add_argument(
+        "--decision-rule",
+        choices=tuple(DECISION_RULE_LABELS),
+        default="unadjusted",
+        help="Decision contract to render; schema-v2 summaries contain all rules.",
+    )
+    parser.add_argument("--expected-reps", type=int, default=1000)
+    parser.add_argument(
+        "--allow-incomplete",
+        action="store_true",
+        help="Allow development-only summaries with incomplete replicate cells.",
+    )
     args = parser.parse_args()
     datasets = [dict(dataset) for dataset in DATASETS]
     datasets[0]["path"] = args.jc_summary
-    datasets[1]["path"] = args.rate_summary
-    datasets[2]["path"] = args.rate_summary
+    datasets[1]["path"] = args.gtr_summary
+    datasets[2]["path"] = args.lg_summary
+    datasets[1]["simulation_model"] = args.gtr_simulation_model
+    datasets[1]["evaluation_model"] = args.gtr_evaluation_model
+    datasets[2]["simulation_model"] = args.lg_simulation_model
+    datasets[2]["evaluation_model"] = args.lg_evaluation_model
     out_svg = args.output_dir / "figure_power_curve_summary.svg"
     out_pdf = args.output_dir / "figure_power_curve_summary.pdf"
 
     rows_by_path = {}
     for dataset in datasets:
-        rows_by_path.setdefault(dataset["path"], read_rows(dataset["path"]))
+        rows_by_path.setdefault(
+            dataset["path"], read_rows(dataset["path"], args.decision_rule)
+        )
+
+    if args.expected_reps < 1:
+        raise SystemExit("--expected-reps must be positive")
+    for path, rows in rows_by_path.items():
+        problems = []
+        for row in rows:
+            try:
+                total = int(row["evaluated"]) + int(row["missing_split"])
+            except (KeyError, TypeError, ValueError) as exc:
+                raise SystemExit(f"Malformed summary row in {path}: {row}") from exc
+            if total != args.expected_reps:
+                problems.append(
+                    f"{row.get('tree_case')}/n{row.get('nsites')}/b{row.get('branch_length')} "
+                    f"has evaluated+missing_split={total}, expected {args.expected_reps}"
+                )
+        if problems and not args.allow_incomplete:
+            sample = "\n".join(f"- {problem}" for problem in problems[:10])
+            raise SystemExit(
+                f"Summary {path} is not complete for {args.expected_reps} replicates. "
+                "Use --allow-incomplete only for development plots.\n" + sample
+            )
+
+    site_lengths = {
+        dataset["label"]: sorted(
+            {row["nsites"] for row in rows_by_path[dataset["path"]]}
+        )
+        for dataset in datasets
+    }
+    tree_case_sets = [
+        {row["tree_case"] for row in rows_by_path[dataset["path"]]}
+        for dataset in datasets
+    ]
+    tree_cases = [
+        ("five_external", "five-taxon external branch"),
+        ("sixteen_internal", "16-taxon internal branch"),
+    ]
+    tree_cases = [
+        item for item in tree_cases if all(item[0] in available for available in tree_case_sets)
+    ]
+    if not tree_cases:
+        raise SystemExit("No tree case is present in every selected summary")
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     width, height = 1480, 1300
@@ -191,14 +292,14 @@ def main():
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="#ffffff"/>',
         f'<text x="{width / 2:.1f}" y="46" text-anchor="middle" font-size="30" font-weight="700">Full-alignment simulation curves</text>',
-        f'<text x="{width / 2:.1f}" y="78" text-anchor="middle" font-size="17" fill="#333333">True-tree fixed-length scenario; 1,000 replicates per point</text>',
+        f'<text x="{width / 2:.1f}" y="78" text-anchor="middle" font-size="17" fill="#333333">True-tree fixed-length scenario; {args.expected_reps:,} replicates per point; {DECISION_RULE_LABELS[args.decision_rule]}</text>',
     ]
 
     for row_idx, dataset in enumerate(datasets):
         top = y0 + row_idx * (panel_h + ygap)
         svg.append(f'<text x="30" y="{top + panel_h / 2:.1f}" text-anchor="middle" font-size="21" font-weight="700" transform="rotate(-90 30 {top + panel_h / 2:.1f})">{escape(dataset["label"])}</text>')
         rows = rows_by_path[dataset["path"]]
-        for col_idx, (tree_case, tree_label) in enumerate(TREE_CASES):
+        for col_idx, (tree_case, tree_label) in enumerate(tree_cases):
             left = x0 + col_idx * (panel_w + xgap)
             draw_panel(
                 svg,
@@ -214,8 +315,8 @@ def main():
                 show_x=True,
             )
 
-    legend(svg, 1160, 140)
-    svg.append('<text x="135" y="1250" font-size="14" fill="#555555">JC panels use 100, 1,000 and 10,000 sites; GTR+F+G4 and LG+G4 panels use 100, 250 and 1,000 sites.</text>')
+    legend(svg, 1160, 140, sorted({site for values in site_lengths.values() for site in values}, key=int))
+    svg.append(f'<text x="135" y="1250" font-size="14" fill="#555555">Decision rule: {escape(DECISION_RULE_LABELS[args.decision_rule])}. Curves show observed grid cells only.</text>')
     svg.append("</svg>")
 
     out_svg.write_text("\n".join(svg) + "\n", encoding="utf-8")

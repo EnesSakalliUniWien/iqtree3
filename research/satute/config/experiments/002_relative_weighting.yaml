@@ -1,6 +1,15 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "experiment": "002_relative_weighting",
   "paired": true,
-  "output": "artifacts/local/relative-weighting"
+  "fdr_calibration_required_before_claim": true,
+  "output": "artifacts/local/relative-weighting",
+  "decision_rules": ["unadjusted", "taxon_bonferroni", "by_fdr"],
+  "plot_contract": {
+    "independent_formula_figures": true,
+    "paired_difference_figures": true,
+    "static_2d": ["pdf", "svg", "png"],
+    "static_3d": ["pdf"],
+    "interactive_3d": ["html"]
+  }
 }

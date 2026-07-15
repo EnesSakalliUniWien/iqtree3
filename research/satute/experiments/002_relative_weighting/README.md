@@ -15,7 +15,12 @@ contracts side by side: `decision_unadjusted`, `decision_taxon_bonf`, and
 Bonferroni or BY-FDR plot never requires a second simulation. Every shard also
 writes `head_to_head_branch_audit.tsv`, `head_to_head_fdr_audit.tsv`, and
 `head_to_head_timing.tsv`; the first is required for empirical tree-wide FDR
-and the last identifies simulation, topology-search, and I/O bottlenecks.
+audits and the last identifies simulation, topology-search, and I/O
+bottlenecks. The audit files alone do not estimate empirical FDR: a publication
+claim about FDR control still requires a separate truth-labelled exact-null and
+mixed-null calibration design, with held-out FDP/FDR/TPR summaries. Until that
+design is run, `by_fdr` is reported as a native BY decision rule, not as a
+validated operating-characteristic claim.
 
 The production driver compares the native IQ-TREE `dominant` and
 `eigenvalue_weighted` rows directly. It does not recompute either statistic in
@@ -67,6 +72,22 @@ Pass `--decision-rule unadjusted`, `--decision-rule taxon_bonferroni`, or
 `--decision-rule by_fdr` to render the corresponding correction contract.
 `by_fdr` is the tree-wide Benjamini--Yekutieli result; it is not a relabeling
 of the paper's taxon-pair Bonferroni correction.
+
+The separate calibration gate and its 5,000 exact-null / 2,000 mixed-null
+design are specified in
+[`docs/experiments/fdr-calibration-design.md`](../../docs/experiments/fdr-calibration-design.md).
+
+The publication-summary renderer also requires schema-v2 summaries and accepts
+the same `--decision-rule` flag. It refuses incomplete replicate cells unless
+`--allow-incomplete` is explicitly supplied, and it derives the observed site,
+branch and tree-case grid instead of silently filling missing cells from the
+legacy Fig. 2 defaults.
+
+For regenerated rate-heterogeneous curves, pass separate summaries and exact
+model strings with `--gtr-summary`, `--lg-summary`,
+`--gtr-simulation-model`, `--gtr-evaluation-model`, `--lg-simulation-model`,
+and `--lg-evaluation-model`; the legacy `--rate-summary` option remains an
+alias for the GTR summary.
 
 Required R packages are `ggplot2`, `plot3D`, `plotly`, `ragg`, `svglite`,
 `scales`, `viridisLite`, and `htmlwidgets`.
