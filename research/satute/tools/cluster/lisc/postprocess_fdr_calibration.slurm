@@ -76,10 +76,15 @@ fi
 )
 mapfile -t representative_archives < <(
   find "${RUN_ROOT}/run-archives" -maxdepth 1 -type f -name '*.tar.zst' | sort | awk \
-    -v expected="${EXPECTED_SHARDS}" 'NR==1 || NR==int((expected+1)/2) || NR==expected'
+    -v expected="${EXPECTED_SHARDS}" \
+    'NR==1 || (expected > 2 && NR==int((expected+1)/2)) || NR==expected'
 )
-if [[ "${#representative_archives[@]}" -ne 3 ]]; then
-  echo "Could not select three representative archives" >&2
+representative_count=3
+if [[ "${EXPECTED_SHARDS}" -lt "${representative_count}" ]]; then
+  representative_count="${EXPECTED_SHARDS}"
+fi
+if [[ "${#representative_archives[@]}" -ne "${representative_count}" ]]; then
+  echo "Could not select ${representative_count} representative archives" >&2
   exit 2
 fi
 for archive in "${representative_archives[@]}"; do
