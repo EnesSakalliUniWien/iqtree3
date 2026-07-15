@@ -77,6 +77,13 @@ The separate calibration gate and its 5,000 exact-null / 2,000 mixed-null
 design are specified in
 [`docs/experiments/fdr-calibration-design.md`](../../docs/experiments/fdr-calibration-design.md).
 
+The publication curve design uses fixed aliases rather than fitting a rate
+mixture independently in every replicate. `GTR_PF06346_G4` resolves to the
+frozen PF06346 exchangeabilities and frequencies with `+G4{0.5}`;
+`GTR_PF06346_I_G4` adds the fixed invariant proportion `+I{0.1}`. The latter
+must use IQ-TREE AliSim. The driver rejects it under Seq-Gen instead of silently
+dropping the invariant component.
+
 The publication-summary renderer also requires schema-v2 summaries and accepts
 the same `--decision-rule` flag. It refuses incomplete replicate cells unless
 `--allow-incomplete` is explicitly supplied, and it derives the observed site,

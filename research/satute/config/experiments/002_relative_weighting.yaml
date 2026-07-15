@@ -11,5 +11,37 @@
     "static_2d": ["pdf", "svg", "png"],
     "static_3d": ["pdf"],
     "interactive_3d": ["html"]
+  },
+  "publication_curve_design": {
+    "replicates_per_cell": 1000,
+    "tree_cases": ["five_external", "sixteen_internal"],
+    "site_lengths": [100, 250, 1000],
+    "branch_lengths": [4, 5, 6, 7, 8, 9, 10, 12],
+    "scenario_set": "fig2",
+    "simulator": "alisim",
+    "matched_model_pairs": [
+      "GTR_PF06346:GTR_PF06346",
+      "GTR_PF06346_G4:GTR_PF06346_G4",
+      "GTR_PF06346_I_G4:GTR_PF06346_I_G4",
+      "LG_G4:LG_G4",
+      "WAG_G4:WAG_G4",
+      "JTT_G4:JTT_G4",
+      "Q.PFAM_G4:Q.PFAM_G4"
+    ],
+    "misspecification_model_pairs": [
+      "GTR_PF06346:GTR_PF06346",
+      "GTR_PF06346:JC",
+      "GTR_PF06346:K2P",
+      "GTR_PF06346:F81"
+    ]
+  },
+  "fdr_calibration_design": {
+    "separate_from_publication_curves": true,
+    "exact_null_replicates_per_cell": 5000,
+    "exact_null_training_replicates": 2500,
+    "exact_null_holdout_replicates": 2500,
+    "mixed_null_replicates_per_cell": 2000,
+    "truth_labels_keyed_by": "normalized_split",
+    "required_rules": ["unadjusted", "taxon_bonferroni", "by_fdr"]
   }
 }

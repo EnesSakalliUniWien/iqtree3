@@ -7,6 +7,7 @@ import random
 import tempfile
 from collections import defaultdict
 from pathlib import Path
+from unittest import mock
 
 
 RUN_PATH = Path(__file__).resolve().parents[2] / "experiments" / "002_relative_weighting" / "run.py"
@@ -41,6 +42,41 @@ def check_protein_model_contract():
         raise SystemExit("IQ-TREE's 189-parameter GTR20 syntax was not expanded for Seq-Gen")
 
 
+def check_fixed_dna_mixture_contract():
+    module = load_run_module()
+    base = module.GTR_PF06346_MODEL
+    expected = {
+        "GTR_PF06346_G4": base + "+G4{0.5}",
+        "GTR_PF06346_I_G4": base + "+I{0.1}+G4{0.5}",
+    }
+    observed = {alias: module.resolve_model_alias(alias) for alias in expected}
+    if observed != expected:
+        raise SystemExit(f"Fixed DNA mixture alias contract mismatch: {observed}")
+    for alias in expected:
+        if not module.is_fixed_model_spec(alias):
+            raise SystemExit(f"{alias} must be treated as a fixed evaluation model")
+    gamma_command = module.seqgen_command("seq-gen", expected["GTR_PF06346_G4"], 100, 7)
+    if gamma_command[-10:] != [
+        "-a", "0.5", "-g", "4", "-l", "100", "-n", "1", "-z", "7"
+    ]:
+        raise SystemExit(f"Unexpected Seq-Gen fixed GTR+G4 command: {gamma_command}")
+    try:
+        module.seqgen_command("seq-gen", expected["GTR_PF06346_I_G4"], 100, 7)
+    except ValueError as exc:
+        if "--simulator alisim" not in str(exc):
+            raise SystemExit(f"Unexpected +I backend error: {exc}") from exc
+    else:
+        raise SystemExit("Seq-Gen must reject +I models rather than silently dropping invariant sites")
+    pairs = module.resolve_requested_model_pairs(
+        "GTR_PF06346_G4:GTR_PF06346_G4,GTR_PF06346_I_G4:GTR_PF06346_I_G4",
+        "",
+        "",
+    )
+    description = module.format_resolved_model_pairs(pairs)
+    if expected["GTR_PF06346_G4"] not in description or expected["GTR_PF06346_I_G4"] not in description:
+        raise SystemExit(f"Resolved model-pair description lost fixed parameters: {description}")
+
+
 def check_unrooted_tree_contract():
     module = load_run_module()
     with tempfile.TemporaryDirectory() as temporary:
@@ -66,6 +102,40 @@ def check_unrooted_tree_contract():
                 raise SystemExit(f"{tree_case} focal branch was not preserved: {edge}")
 
 
+def check_simulation_cache_contract():
+    module = load_run_module()
+    cache = {}
+    with tempfile.TemporaryDirectory() as temporary:
+        temporary = Path(temporary)
+
+        def fake_simulator(_iqtree, _seqgen, _indelible, _backend, _tree, _model, _nsites, _seed, prefix):
+            alignment = Path(str(prefix) + ".fa")
+            alignment.write_text(">A1\nAAAA\n>A2\nAAAA\n>A3\nAAAA\n>A4\nAAAA\n>B\nAAAA\n", encoding="utf-8")
+            return alignment
+
+        with mock.patch.object(module, "simulate_alignment", side_effect=fake_simulator) as simulator:
+            positional = (
+                "iqtree", "seq-gen", "indelible", "alisim", {"internal": [], "external": []},
+                temporary, cache,
+            )
+            # Exercise only the cache-creation logic through run_case by
+            # replacing the expensive native-analysis stages with no-ops.
+            with mock.patch.object(module, "selected_scenarios", return_value=[]):
+                writer = mock.Mock()
+                timing_writer = mock.Mock()
+                trailing = (
+                    writer, writer, writer, timing_writer, "five_external", module.GTR_PF06346_MODEL,
+                    module.GTR_PF06346_MODEL, 4, 0.5, 1, 17, 0.05, "fig2",
+                )
+                module.run_case(*positional, *trailing)
+                module.run_case(*positional, *trailing)
+        if simulator.call_count != 1:
+            raise SystemExit(f"Simulation cache did not reuse the alignment: calls={simulator.call_count}")
+        timing_rows = [call.args[0] for call in timing_writer.writerow.call_args_list]
+        if [row["simulation_cache_hit"] for row in timing_rows] != [0, 1]:
+            raise SystemExit(f"Unexpected cache-hit timing flags: {timing_rows}")
+
+
 def load_rows(path):
     with open(path, "r", encoding="utf-8") as handle:
         return list(csv.DictReader(handle, delimiter="\t"))
@@ -78,7 +148,9 @@ def main():
     args = parser.parse_args()
 
     check_protein_model_contract()
+    check_fixed_dna_mixture_contract()
     check_unrooted_tree_contract()
+    check_simulation_cache_contract()
     if not args.detail:
         print("Protein and unrooted-tree contracts: passed")
         return

@@ -54,6 +54,8 @@ resolve_alias <- function(value, available) {
   patterns <- c(
     JC = "^JC$",
     GTR_PF06346 = "^GTR\\{0\\.6676,3\\.7807,4\\.2833,0\\.5354,0\\.8718,1\\.0\\}\\+F\\{0\\.125,0\\.436,0\\.191,0\\.245\\}$",
+    GTR_PF06346_G4 = "^GTR\\{0\\.6676,3\\.7807,4\\.2833,0\\.5354,0\\.8718,1\\.0\\}\\+F\\{0\\.125,0\\.436,0\\.191,0\\.245\\}\\+G4\\{0\\.5\\}$",
+    GTR_PF06346_I_G4 = "^GTR\\{0\\.6676,3\\.7807,4\\.2833,0\\.5354,0\\.8718,1\\.0\\}\\+F\\{0\\.125,0\\.436,0\\.191,0\\.245\\}\\+I\\{0\\.1\\}\\+G4\\{0\\.5\\}$",
     LG = "^LG$", WAG = "^WAG$", JTT = "^JTT$", Q.PFAM = "^Q\\.pfam$",
     LG_G4 = "^LG\\+G4\\{", WAG_G4 = "^WAG\\+G4\\{", JTT_G4 = "^JTT\\+G4\\{",
     Q.PFAM_G4 = "^Q\\.pfam\\+G4\\{"
@@ -68,7 +70,11 @@ resolve_alias <- function(value, available) {
 
 short_model_label <- function(model) {
   if (model == "JC") return("JC")
-  if (grepl("^GTR\\{0\\.6676,", model)) return("GTR_PF06346")
+  if (grepl("^GTR\\{0\\.6676,", model)) {
+    if (grepl("\\+I\\{0\\.1\\}\\+G4\\{0\\.5\\}$", model)) return("GTR_PF06346_I_G4")
+    if (grepl("\\+G4\\{0\\.5\\}$", model)) return("GTR_PF06346_G4")
+    return("GTR_PF06346")
+  }
   if (grepl("^Q\\.pfam", model)) return(sub("^Q\\.pfam", "Q.PFAM", model))
   sub("\\{.*$", "", model)
 }

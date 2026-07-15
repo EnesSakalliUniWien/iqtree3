@@ -74,6 +74,24 @@ array; it checks all four matrices with and without fixed four-category gamma.
 
 ## Submit
 
+For the corrected boundary-grid publication suite, use the reviewed wrapper.
+It transports comma-containing model and grid values through the inherited
+environment and deliberately avoids `sbatch --export`:
+
+```bash
+bash research/satute/tools/cluster/lisc/submit_publication_suite.sh gtr --dry-run
+bash research/satute/tools/cluster/lisc/submit_publication_suite.sh protein --dry-run
+bash research/satute/tools/cluster/lisc/submit_publication_suite.sh misspec --dry-run
+```
+
+Remove `--dry-run` only after the exact source tree and matching IQ-TREE binary
+have passed the LiSC canary. The three designs use 1,000 replicates per cell,
+100/250/1,000 sites, branch lengths 4--12, both benchmark trees, and AliSim.
+The GTR design contains homogeneous GTR, fixed GTR+G4, and fixed GTR+I+G4.
+The protein design contains fixed LG/WAG/JTT/Q.PFAM+G4 models. The
+misspecification design evaluates the same GTR alignments under GTR, JC, K2P,
+and F81; the shard-local simulation cache prevents four redundant simulations.
+
 Paper Fig. 2 JC-only run:
 
 ```bash

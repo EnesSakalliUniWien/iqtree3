@@ -154,6 +154,12 @@ if [[ "${NODE_LOCAL_WORK}" == "1" \
 fi
 
 if [[ "${SHARD_INDEX}" == "0" ]]; then
+  RESOLVED_MODEL_PAIRS="$(${PYTHON_BIN} \
+    "${PROJECT_DIR}/experiments/002_relative_weighting/run.py" \
+    --model-pairs "${MODEL_PAIRS}" \
+    --simulation-models "${SIMULATION_MODELS}" \
+    --evaluation-models "${EVALUATION_MODELS}" \
+    --print-resolved-model-pairs)"
   MANIFEST_TMP="${OUT_ROOT}/.run_manifest_${SLURM_JOB_ID:-manual}.tmp"
   {
     printf "field\tvalue\n"
@@ -168,6 +174,7 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "simulation_models\t%s\n" "${SIMULATION_MODELS}"
     printf "evaluation_models\t%s\n" "${EVALUATION_MODELS}"
     printf "model_pairs\t%s\n" "${MODEL_PAIRS}"
+    printf "resolved_model_pairs\t%s\n" "${RESOLVED_MODEL_PAIRS}"
     printf "scenario_set\t%s\n" "${SCENARIO_SET}"
     printf "simulator\t%s\n" "${SIMULATOR}"
     printf "paper_grid\t%s\n" "${PAPER_GRID}"
@@ -186,6 +193,10 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "benchmark_summary_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/benchmark_summary.py" | awk '{print $1}')"
     printf "native_results_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/native_results.py" | awk '{print $1}')"
     printf "requirements_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/requirements.txt" | awk '{print $1}')"
+    printf "experiment_config_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/config/experiments/002_relative_weighting.yaml" | awk '{print $1}')"
+    printf "r_figure_driver_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/render_formula_comparison.R" | awk '{print $1}')"
+    printf "shard_wrapper_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/tools/cluster/lisc/run_full_head_to_head_shard.sh" | awk '{print $1}')"
+    printf "suite_submitter_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/tools/cluster/lisc/submit_publication_suite.sh" | awk '{print $1}')"
     printf "satute_facade_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute.cpp" | awk '{print $1}')"
     printf "satute_statistics_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_statistics.cpp" | awk '{print $1}')"
     printf "satute_support_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_support.cpp" | awk '{print $1}')"

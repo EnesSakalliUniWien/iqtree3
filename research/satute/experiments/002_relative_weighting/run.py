@@ -54,6 +54,12 @@ AA_ALPHABET = "ARNDCQEGHILKMFPSTWYV"
 AA_STATE_INDEX = {symbol: index for index, symbol in enumerate(AA_ALPHABET)}
 PAPER_BRANCH_LENGTHS = "0.1,0.2,0.3,0.4,0.5,0.8,1.0,1.5,2.0,2.5,3.0,3.5,4.0,5.0,7.5,10.0"
 GTR_PF06346_MODEL = "GTR{0.6676,3.7807,4.2833,0.5354,0.8718,1.0}+F{0.125,0.436,0.191,0.245}"
+DNA_GAMMA_SHAPE = 0.5
+INVARIANT_PROPORTION = 0.1
+GTR_PF06346_G4_MODEL = f"{GTR_PF06346_MODEL}+G4{{{DNA_GAMMA_SHAPE}}}"
+GTR_PF06346_I_G4_MODEL = (
+    f"{GTR_PF06346_MODEL}+I{{{INVARIANT_PROPORTION}}}+G4{{{DNA_GAMMA_SHAPE}}}"
+)
 GTR_SKEW_FREQ_MODEL = "GTR{1.0,1.0,1.0,1.0,1.0,1.0}+F{0.70,0.10,0.10,0.10}"
 GTR_SKEW_RATES_MODEL = "GTR{0.05,8.0,0.10,0.10,5.0,0.05}+F{0.25,0.25,0.25,0.25}"
 GTR_SKEW_BOTH_MODEL = "GTR{0.05,8.0,0.10,0.10,5.0,0.05}+F{0.70,0.10,0.10,0.10}"
@@ -103,6 +109,8 @@ MODEL_ALIASES = {
     "F81": "F81",
     "GTR_PF06346": GTR_PF06346_MODEL,
     "GTR_EvoNAPS_PF06346": GTR_PF06346_MODEL,
+    "GTR_PF06346_G4": GTR_PF06346_G4_MODEL,
+    "GTR_PF06346_I_G4": GTR_PF06346_I_G4_MODEL,
     "GTR_SKEW_FREQ": GTR_SKEW_FREQ_MODEL,
     "GTR_SKEW_RATES": GTR_SKEW_RATES_MODEL,
     "GTR_SKEW_BOTH": GTR_SKEW_BOTH_MODEL,
@@ -185,6 +193,24 @@ def parse_model_pairs(text):
             raise ValueError(f"Model pair must have non-empty SIM:EVAL aliases, got: {item}")
         pairs.append((resolve_model_alias(simulation_alias), resolve_model_alias(evaluation_alias)))
     return pairs
+
+
+def resolve_requested_model_pairs(model_pairs_text, simulation_models_text, evaluation_models_text):
+    if model_pairs_text:
+        return parse_model_pairs(model_pairs_text)
+    simulation_aliases = parse_csv_text(simulation_models_text)
+    evaluation_aliases = parse_csv_text(evaluation_models_text) or simulation_aliases
+    simulation_models = [resolve_model_alias(alias) for alias in simulation_aliases]
+    evaluation_models = [resolve_model_alias(alias) for alias in evaluation_aliases]
+    return [
+        (simulation_model, evaluation_model)
+        for simulation_model in simulation_models
+        for evaluation_model in evaluation_models
+    ]
+
+
+def format_resolved_model_pairs(model_pairs):
+    return ";".join(f"{simulation_model}=>{evaluation_model}" for simulation_model, evaluation_model in model_pairs)
 
 
 def sniff_delimiter(path):
@@ -805,6 +831,11 @@ def write_tree(tree_case, branch_length, path, rng, pools):
 
 def seqgen_command(seqgen, model, nsites, seed):
     base_model, gamma_shape = split_fixed_gamma(model)
+    if "+I{" in base_model:
+        raise ValueError(
+            f"Seq-Gen is not configured for the fixed invariant-site model {model}; "
+            "use --simulator alisim so the +I proportion is preserved exactly."
+        )
     gamma_args = ["-a", f"{gamma_shape:.10g}", "-g", "4"] if gamma_shape is not None else []
     if base_model == "JC":
         cmd = [seqgen, "-mHKY"]
@@ -1081,6 +1112,7 @@ def run_case(
     simulator,
     pools,
     outdir,
+    simulation_cache,
     writer,
     branch_writer,
     fdr_writer,
@@ -1107,14 +1139,52 @@ def run_case(
         / f"r{rep:04d}"
     )
     case_dir.mkdir(parents=True, exist_ok=True)
-    tree_file = case_dir / "true.tree"
-    rng = random.Random(seed)
-    write_tree(tree_case, branch_length, tree_file, rng, pools)
-
-    sim_prefix = case_dir / "sim"
-    simulation_started = time.perf_counter()
-    alignment = simulate_alignment(iqtree, seqgen, indelible, simulator, tree_file, simulation_model, nsites, seed, sim_prefix)
-    simulation_seconds = time.perf_counter() - simulation_started
+    cache_key = (
+        simulator,
+        tree_case,
+        simulation_model,
+        int(nsites),
+        f"{float(branch_length):.10g}",
+        int(rep),
+        int(seed),
+    )
+    cached = simulation_cache.get(cache_key)
+    simulation_cache_hit = bool(
+        cached and Path(cached[0]).is_file() and Path(cached[1]).is_file()
+    )
+    if simulation_cache_hit:
+        tree_file, alignment = map(Path, cached)
+        simulation_seconds = 0.0
+    else:
+        simulation_dir = (
+            outdir
+            / "runs"
+            / "_simulations"
+            / tree_case
+            / f"sim_{sanitize_model(simulation_model)}"
+            / f"n{nsites}"
+            / f"b{branch_length:.2f}"
+            / f"r{rep:04d}"
+        )
+        simulation_dir.mkdir(parents=True, exist_ok=True)
+        tree_file = simulation_dir / "true.tree"
+        rng = random.Random(seed)
+        write_tree(tree_case, branch_length, tree_file, rng, pools)
+        sim_prefix = simulation_dir / "sim"
+        simulation_started = time.perf_counter()
+        alignment = simulate_alignment(
+            iqtree,
+            seqgen,
+            indelible,
+            simulator,
+            tree_file,
+            simulation_model,
+            nsites,
+            seed,
+            sim_prefix,
+        )
+        simulation_seconds = time.perf_counter() - simulation_started
+        simulation_cache[cache_key] = (str(tree_file), str(alignment))
     target_taxa = target_taxa_for_case(tree_case)
     scenarios = set(selected_scenarios(simulation_model, evaluation_model, scenario_set))
     base = {
@@ -1203,7 +1273,7 @@ def run_case(
             "branch_length": branch_length,
             "replicate": rep,
             "seed": seed,
-            "simulation_cache_hit": 0,
+            "simulation_cache_hit": int(simulation_cache_hit),
             "simulation_seconds": f"{simulation_seconds:.6f}",
             "true_fixed_seconds": f"{scenario_seconds[TRUE_FIXED]:.6f}",
             "true_ml_lengths_seconds": f"{scenario_seconds[TRUE_ML_LENGTHS]:.6f}",
@@ -1350,6 +1420,11 @@ def main():
         help="Exact comma-separated SIM:EVAL model pairs. Use this for matched extension designs such as GTR_SKEW_FREQ:GTR_SKEW_FREQ.",
     )
     parser.add_argument(
+        "--print-resolved-model-pairs",
+        action="store_true",
+        help="Print the exact resolved SIM=>EVAL model specifications and exit without running IQ-TREE.",
+    )
+    parser.add_argument(
         "--scenario-set",
         choices=["fig2", "misspecification", "all"],
         default="fig2",
@@ -1365,6 +1440,16 @@ def main():
     parser.add_argument("--alpha", type=float, default=0.05)
     parser.add_argument("--resume", action="store_true", help="Append to an existing shard output and skip completed replicate tasks.")
     args = parser.parse_args()
+
+    try:
+        model_pairs = resolve_requested_model_pairs(
+            args.model_pairs, args.simulation_models, args.evaluation_models
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    if args.print_resolved_model_pairs:
+        print(format_resolved_model_pairs(model_pairs))
+        return
 
     iqtree = str(Path(args.iqtree))
     if not os.path.exists(iqtree) or not os.access(iqtree, os.X_OK):
@@ -1385,17 +1470,6 @@ def main():
     branch_lengths = parse_csv_numbers(PAPER_BRANCH_LENGTHS if args.paper_grid else args.branch_lengths, float)
     site_lengths = parse_csv_numbers("100,1000,10000" if args.paper_grid else args.site_lengths, int)
     tree_cases = [value.strip() for value in args.tree_cases.split(",") if value.strip()]
-    if args.model_pairs:
-        try:
-            model_pairs = parse_model_pairs(args.model_pairs)
-        except ValueError as exc:
-            raise SystemExit(str(exc)) from exc
-    else:
-        simulation_aliases = parse_csv_text(args.simulation_models)
-        evaluation_aliases = parse_csv_text(args.evaluation_models) or simulation_aliases
-        simulation_models = [resolve_model_alias(alias) for alias in simulation_aliases]
-        evaluation_models = [resolve_model_alias(alias) for alias in evaluation_aliases]
-        model_pairs = [(simulation_model, evaluation_model) for simulation_model in simulation_models for evaluation_model in evaluation_models]
     pools = load_branch_length_pools(args.evonaps_branch_lengths)
 
     detail_path = outdir / "head_to_head_detail.tsv"
@@ -1455,6 +1529,7 @@ def main():
         if modes["timing"] == "w":
             timing_writer.writeheader()
         task_index = 0
+        simulation_cache = {}
         selected_tasks = 0
         skipped_tasks = 0
         for tree_case in tree_cases:
@@ -1486,6 +1561,7 @@ def main():
                                 args.simulator,
                                 pools,
                                 outdir,
+                                simulation_cache,
                                 writer,
                                 branch_writer,
                                 fdr_writer,
