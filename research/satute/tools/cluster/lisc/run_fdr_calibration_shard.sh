@@ -46,7 +46,10 @@ WORK_SHARD="${TMPDIR:-${SHARD_DIR}}/satute-fdr-${SLURM_ARRAY_JOB_ID:-manual}-${S
 mkdir -p "${OUT_ROOT}/run-archives" "${SHARD_DIR}" "${WORK_SHARD}"
 
 copy_atomic() {
-  local source="$1" destination="$2" temporary="${destination}.tmp.${SLURM_JOB_ID:-$$}"
+  local source="$1"
+  local destination="$2"
+  local temporary="${destination}.tmp.${SLURM_JOB_ID:-$$}"
+  rm -f "${temporary}"
   cp "${source}" "${temporary}"
   mv "${temporary}" "${destination}"
 }
