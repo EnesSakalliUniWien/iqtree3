@@ -84,6 +84,15 @@ frozen PF06346 exchangeabilities and frequencies with `+G4{0.5}`;
 must use IQ-TREE AliSim. The driver rejects it under Seq-Gen instead of silently
 dropping the invariant component.
 
+Truth-labelled multiple-testing calibration is run separately with
+`fdr_calibration_run.py`. It simulates exact independence across the target
+edge under homogeneous fixed JC/GTR models, retains normalized-split truth for
+every pooled branch, and reports per-replicate FDP and power for unadjusted,
+taxon-Bonferroni, and BY rules. The 5,000-replicate exact-null and
+2,000-replicate mixed-null designs are submitted with
+`tools/cluster/lisc/submit_fdr_calibration_suite.sh`; their outputs must not be
+merged into the publication power-curve summaries.
+
 The publication-summary renderer also requires schema-v2 summaries and accepts
 the same `--decision-rule` flag. It refuses incomplete replicate cells unless
 `--allow-incomplete` is explicitly supplied, and it derives the observed site,

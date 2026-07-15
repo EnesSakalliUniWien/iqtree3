@@ -37,10 +37,16 @@
   },
   "fdr_calibration_design": {
     "separate_from_publication_curves": true,
+    "models": ["JC", "GTR_PF06346"],
+    "tree_cases": ["five_external", "sixteen_internal"],
+    "site_lengths": [100, 1000],
+    "branch_lengths": [4, 8],
+    "rate_mixture_scope": "homogeneous_fixed_DNA_only",
     "exact_null_replicates_per_cell": 5000,
     "exact_null_training_replicates": 2500,
     "exact_null_holdout_replicates": 2500,
     "mixed_null_replicates_per_cell": 2000,
+    "mixed_null_target_fraction": 0.5,
     "truth_labels_keyed_by": "normalized_split",
     "required_rules": ["unadjusted", "taxon_bonferroni", "by_fdr"]
   }

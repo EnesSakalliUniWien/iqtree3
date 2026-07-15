@@ -14,6 +14,22 @@ p-values. This document is the gate for any FDR-control claim in the paper.
    prespecified mixture of null and finite-branch alternatives. The mixture
    proportions and branch truth labels are fixed before running IQ-TREE.
 
+The implemented calibration grid uses fixed homogeneous JC and PF06346 GTR
+models, five-taxon external and 16-taxon internal targets, 100 and 1,000 sites,
+and target lengths 4 and 8. Rate-mixture models are deliberately excluded from
+this calibration: an exact independent-components simulator must share the
+latent rate category across both sides, and independent AliSim calls would not
+do so. The publication power curves still include fixed `+G4` and `+I+G4`.
+
+For an exact-null replicate, the two components separated by the target edge
+receive independent stationary root states. Every finite edge inside either
+component remains an alternative. In the mixed design, odd-numbered replicates
+use this exact-null target and even-numbered replicates simulate the finite
+target transition, producing a prespecified 50:50 null/alternative target mix.
+All non-target finite edges remain alternatives. The evaluation topology and
+branch lengths are fixed, so every pooled native branch maps to exactly one
+generative split.
+
 The same alignment is evaluated by the dominant and eigenvalue-weighted native
 implementations. Each replicate must retain a truth-labelled branch map keyed
 by normalized split, not by transient branch ID. The audit must contain, for
@@ -27,8 +43,9 @@ branches, discoveries, false discoveries, true discoveries, FDP and power.
   unresolved or duplicated splits fail the run.
 - BY decisions must be computed within the prespecified formula-specific tree
   family, with the family size recorded in the audit.
-- Report mean FDP (empirical FDR), the distribution of replicate FDPs, power and
-  held-out null rejection separately for each formula and correction rule.
+- Report mean FDP (empirical FDR), the separately labelled pooled false
+  discovery fraction, the distribution of replicate FDPs, power and held-out
+  null rejection separately for each formula and correction rule.
 - The 5,000/2,000 calibration outputs are separate from the 1,000-replicate
   publication power curves and must not be mixed into their summary tables.
 
