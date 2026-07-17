@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -35,6 +36,38 @@ TIMING_FIELDS = (
     "analysis_seconds",
     "total_seconds",
 )
+
+
+def load_postprocess_module():
+    specification = importlib.util.spec_from_file_location(
+        "satute_fdr_calibration_postprocess", POSTPROCESS
+    )
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
+
+
+def check_discrete_tie_calibration():
+    module = load_postprocess_module()
+    cell = ("exact_null", "five_external", "JC", "JC", "100", "4", "dominant", "taxon_bonferroni")
+
+    # A mass of adjusted p-values at one must never turn a nominal 5% rule
+    # into 100% rejection simply because the selected order statistic is tied.
+    all_tied = module.heldout_calibration({cell: [1.0] * 20}, {cell: [1.0] * 20}, 0.05)[0]
+    if not all_tied["empirical_threshold"] < 1.0:
+        raise SystemExit("Discrete all-tie calibration did not move below the minimum")
+    if all_tied["holdout_rejections"] != 0:
+        raise SystemExit("Discrete all-tie calibration is anti-conservative")
+
+    one_attainable = module.heldout_calibration(
+        {cell: [0.01] + [1.0] * 19},
+        {cell: [0.01, 0.02] + [1.0] * 18},
+        0.05,
+    )[0]
+    if one_attainable["empirical_threshold"] != 0.01:
+        raise SystemExit("Calibration failed to retain the largest valid threshold")
+    if one_attainable["holdout_rejections"] != 1:
+        raise SystemExit("Held-out rejection count does not match the calibrated rule")
 
 
 def write_table(path, fields, rows):
@@ -172,6 +205,7 @@ def run(root, outdir, expect_success):
 
 
 def main():
+    check_discrete_tie_calibration()
     with tempfile.TemporaryDirectory(prefix="satute-fdr-postprocess-") as temporary:
         temporary = Path(temporary)
         root = temporary / "valid"

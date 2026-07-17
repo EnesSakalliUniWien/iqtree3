@@ -3,6 +3,10 @@
 
 The \(+I\) analysis uses a four-taxon tree with two two-tip subtrees, terminal branches of length 0.05 and a varied focal branch. The substitution process is fixed to GTR with exchangeabilities \(\{1,2,1,1,2,1\}\) and stationary frequencies \(\{0.30,0.20,0.20,0.30\}\). Both models have invariant proportion \(q_0=0.10\). The \(+I+G4\) model uses four equal-probability discrete-gamma categories with shape 0.5. The \(+I+R4\) model uses positive-category proportions \(\{0.35,0.25,0.23,0.17\}\) and rates \(\{0.0747656,0.420849,1.15850,3.54214\}\), rescaled after addition of the invariant component so that the overall mean rate is one.
 
+The \(+I+R4\) construction is retained only as an exploratory methodological
+control.  The publication benchmark uses the fixed \(+I+G4\) specification
+and reports fixed-model GTR+F+G4 and GTR+F+I+G4 comparisons separately.
+
 All \(4^4=256\) site-pattern probabilities are enumerated exactly under the correct finite-branch distribution and under the infinite-branch null in \cref{eq-invariant-null}. Each simulated alignment is a multinomial draw from one of these exact distributions. The same pattern counts are evaluated by the counterfactual and refined statistics, producing paired decisions without simulator-stream variation.
 
 Alignment lengths are

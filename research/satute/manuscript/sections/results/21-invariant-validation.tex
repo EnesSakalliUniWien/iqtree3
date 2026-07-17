@@ -11,6 +11,13 @@ The first grid used 100 replicates per condition and increased the alignment len
 
 \subsection*{The corrected invariant null restores false-positive control}
 
+This dense exact-enumeration experiment is retained as an exploratory
+methodological validation of the finite-branch \(+I\) null.  It is not the
+publication-scale rate-heterogeneity benchmark: the primary comparisons below
+use the fixed GTR+F+G4 and GTR+F+I+G4 models and the independent calibration
+suite reported in the publication-scale section.  In particular, the
+exploratory \(+I+R4\) values below are not relabelled as \(+I+G4\) results.
+
 The dense invariant-mixture grid evaluated 270 model--branch--alignment-length cells. With 20,000 null and 20,000 alternative replicates per cell, 10.8 million paired alignments were evaluated by both formulas. Exact enumeration verified \cref{eq-soft-mixture-identity} with maximum absolute error \(1.55\times10^{-11}\). The refined score had exact null expectation below \(1.53\times10^{-16}\) in absolute value. The counterfactual score retained a positive null expectation between 0.0354 and 0.2176 across the branch grid.
 
 At the ordinary one-sided \(N(0,1)\) threshold, the counterfactual null rejection rate averaged 0.900 across the 270 cells and ranged from 0.500 to 1.000. The refined rejection rate averaged 0.0492 and ranged from 0.0423 to 0.0591. Splitting the null sample into threshold-training and held-out halves restored empirical rejection rates near 0.05 for both formulas, with means of 0.0501 and 0.0499, respectively. This calibration did not repair the counterfactual statistic as a standard-normal pivot: at \(t=10{,}000\), its empirical threshold increased from approximately 3.15 at 100 sites to 18.47 at 10,000 sites. The refined threshold remained between 1.62 and 1.69.

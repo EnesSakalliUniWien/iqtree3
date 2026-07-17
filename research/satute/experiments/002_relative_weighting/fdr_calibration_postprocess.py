@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from bisect import bisect_right
 import csv
 import itertools
 import math
@@ -289,8 +290,19 @@ def heldout_calibration(training, holdout, alpha):
         heldout = holdout[cell]
         if not values or not heldout:
             raise ValueError(f"Missing training or held-out nulls for {cell}")
-        rank = max(1, min(len(values), math.floor(alpha * (len(values) + 1))))
-        threshold = values[rank - 1]
+        # Calibrate against the actual ``p <= threshold`` decision rule.  A
+        # simple order statistic is anti-conservative when adjusted p-values
+        # are discrete: if the selected value is tied (often at 1.0), every
+        # member of that tie is rejected.  Select the largest attainable
+        # threshold whose complete tie block keeps the empirical training
+        # rejection proportion at or below alpha.  If even the minimum value
+        # is too frequent, place the threshold immediately below it.
+        allowed = math.floor(alpha * len(values))
+        threshold = math.nextafter(values[0], -math.inf)
+        for candidate in sorted(set(values)):
+            if bisect_right(values, candidate) > allowed:
+                break
+            threshold = candidate
         rejected = sum(value <= threshold for value in heldout)
         (
             design,

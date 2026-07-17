@@ -24,6 +24,7 @@ SCENARIO_LABELS <- c(
   true_topology_ml_lengths = "True topology, ML lengths",
   ml_tree = "ML tree"
 )
+SCENARIO_ORDER <- c("ml_tree", "true_topology_ml_lengths", "true_tree_fixed_lengths")
 TREE_LABELS <- c(
   five_external = "Five-taxon external branch",
   sixteen_internal = "16-taxon internal branch"
@@ -157,15 +158,45 @@ if (is.null(simulation_arg) || is.null(evaluation_arg)) {
   evaluation_model <- resolve_alias(evaluation_arg, available_eval)
 }
 
-rows <- rows[
-  rows$simulation_model == simulation_model & rows$evaluation_model == evaluation_model,
+detail <- read.delim(detail_path, check.names = FALSE, stringsAsFactors = FALSE)
+detail_required <- c(
+  "tree_case", "simulation_model", "evaluation_model", "nsites", "branch_length", "replicate",
+  "seed", "target_split", "scenario", "formula", "target_found", decision_column
+)
+detail_missing <- setdiff(detail_required, names(detail))
+if (length(detail_missing)) stop("Detail is missing columns: ", paste(detail_missing, collapse = ", "))
+detail <- detail[
+  detail$simulation_model == simulation_model & detail$evaluation_model == evaluation_model &
+    detail$formula %in% FORMULA_LEVELS,
   , drop = FALSE
 ]
-rows <- rows[rows$formula %in% FORMULA_LEVELS, , drop = FALSE]
-if (!nrow(rows)) stop("No rows remain after model/formula filtering")
-if (!setequal(unique(rows$formula), FORMULA_LEVELS)) {
-  stop("The comparison requires exactly dominant and eigenvalue_weighted rows")
+if (!nrow(detail)) stop("No detail rows remain after model/formula filtering")
+if (!setequal(unique(detail$formula), FORMULA_LEVELS)) {
+  stop("The comparison requires exactly dominant and eigenvalue_weighted detail rows")
 }
+
+# Recompute every rule-specific summary from the schema-v2 detail table.  Some
+# historical shard summaries contain taxon-Bonferroni rows only for the ML-tree
+# scenario even though the detail table contains complete decisions for all
+# three scenarios.  Using detail here keeps the 2D/3D method panels and the
+# paired panels on the same complete, verified grid.
+summary_keys <- c(
+  "tree_case", "simulation_model", "evaluation_model", "nsites",
+  "branch_length", "scenario", "formula"
+)
+summary_groups <- interaction(detail[summary_keys], drop = TRUE, lex.order = TRUE)
+rows <- do.call(rbind, lapply(split(detail, summary_groups), function(group) {
+  found <- as.integer(group$target_found) == 1L
+  evaluated <- sum(found)
+  informative <- sum(found & group[[decision_column]] == "informative")
+  data.frame(
+    group[1L, summary_keys, drop = FALSE], decision_rule = decision_rule,
+    evaluated = evaluated, informative = informative,
+    missing_split = nrow(group) - evaluated,
+    fraction_informative = if (evaluated) informative / evaluated else NA_real_,
+    stringsAsFactors = FALSE
+  )
+}))
 if (!is.na(expected_reps)) {
   totals <- rows$evaluated + rows$missing_split
   if (any(totals != expected_reps)) {
@@ -189,8 +220,8 @@ rows$tree_label <- unname(TREE_LABELS[rows$tree_case])
 rows$tree_label[is.na(rows$tree_label)] <- rows$tree_case[is.na(rows$tree_label)]
 rows$scenario_label <- unname(SCENARIO_LABELS[rows$scenario])
 rows$scenario_label[is.na(rows$scenario_label)] <- rows$scenario[is.na(rows$scenario_label)]
-rows$tree_label <- factor(rows$tree_label, levels = unique(rows$tree_label))
-rows$scenario_label <- factor(rows$scenario_label, levels = unique(rows$scenario_label))
+rows$tree_label <- factor(rows$tree_label, levels = unname(TREE_LABELS))
+rows$scenario_label <- factor(rows$scenario_label, levels = unname(SCENARIO_LABELS[SCENARIO_ORDER]))
 
 sim_label <- short_model_label(simulation_model)
 eval_label <- short_model_label(evaluation_model)
@@ -247,18 +278,6 @@ for (formula_name in FORMULA_LEVELS) {
 }
 
 # Pair decisions on the same alignment before estimating the method difference.
-detail <- read.delim(detail_path, check.names = FALSE, stringsAsFactors = FALSE)
-detail_required <- c(
-  "tree_case", "simulation_model", "evaluation_model", "nsites", "branch_length", "replicate",
-  "seed", "target_split", "scenario", "formula", "target_found", decision_column
-)
-detail_missing <- setdiff(detail_required, names(detail))
-if (length(detail_missing)) stop("Detail is missing columns: ", paste(detail_missing, collapse = ", "))
-detail <- detail[
-  detail$simulation_model == simulation_model & detail$evaluation_model == evaluation_model &
-    detail$formula %in% FORMULA_LEVELS,
-  , drop = FALSE
-]
 pair_keys <- c(
   "tree_case", "simulation_model", "evaluation_model", "nsites", "branch_length", "replicate",
   "seed", "target_split", "scenario"
