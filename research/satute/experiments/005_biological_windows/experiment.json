@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "005_biological_windows",
+  "question": "How do weighted statistics change biological sliding-window calls?",
+  "status": "reviewed-example",
+  "driver": "analyze_dataset.py",
+  "workflow": "workflow.py",
+  "consumers": [
+    "manuscript"
+  ],
+  "config": {
+    "schema_version": 1,
+    "window_size": 36,
+    "output": "artifacts/local/biological-windows"
+  }
+}

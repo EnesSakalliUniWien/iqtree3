@@ -100,7 +100,7 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf 'iqtree_sha256\t%s\n' "$(sha256sum "${IQTREE_BIN}" | awk '{print $1}')"
     printf 'driver_sha256\t%s\n' "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/fdr_calibration_run.py" | awk '{print $1}')"
     printf 'analysis_module_sha256\t%s\n' "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/fdr_calibration.py" | awk '{print $1}')"
-    printf 'config_sha256\t%s\n' "$(sha256sum "${PROJECT_DIR}/config/experiments/002_relative_weighting.yaml" | awk '{print $1}')"
+    printf 'config_sha256\t%s\n' "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/experiment.json" | awk '{print $1}')"
   } > "${manifest_tmp}"
   mv "${manifest_tmp}" "${OUT_ROOT}/run_manifest.tsv"
 fi

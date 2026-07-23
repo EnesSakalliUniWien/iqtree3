@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Print one compact, observable view of the SatuTe workspace."""
 
-import json
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -9,6 +8,11 @@ from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[2]
 REPOSITORY = PROJECT.parents[1]
+import sys
+
+sys.path.insert(0, str(PROJECT / "src"))
+
+from satute_analysis.experiments import ExperimentCatalog
 
 
 def directory_size(path):
@@ -34,13 +38,17 @@ def git_lines():
 
 
 def main():
-    registry = json.loads((PROJECT / "experiments/registry.yaml").read_text())
+    catalog = ExperimentCatalog.discover(PROJECT)
     print("SatuTe workspace")
     print(f"  root: {PROJECT}")
     print("\nExperiments")
-    for experiment in registry["experiments"]:
-        release = experiment.get("release", "-")
-        print(f"  {experiment['id']:<28} {experiment['status']:<20} {release}")
+    for experiment in catalog:
+        release = (
+            str(experiment.release_path.relative_to(PROJECT))
+            if experiment.release_path
+            else "-"
+        )
+        print(f"  {experiment.id:<28} {experiment.status:<20} {release}")
 
     print("\nArtifacts")
     for name in ("local", "cluster", "releases"):

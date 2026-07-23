@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit project boundaries, registry paths, and manuscript dependencies."""
+"""Audit experiment modules, project seams, and manuscript dependencies."""
 
 import json
 import os
@@ -14,6 +14,7 @@ REPOSITORY = PROJECT.parents[1]
 sys.path.insert(0, str(PROJECT / "src"))
 
 from satute_analysis.artifacts import file_sha256
+from satute_analysis.experiments import ExperimentCatalog, ExperimentError
 
 
 def fail(message, failures):
@@ -23,20 +24,19 @@ def fail(message, failures):
 
 def main():
     failures = []
-    registry = json.loads((PROJECT / "experiments/registry.yaml").read_text())
+    try:
+        catalog = ExperimentCatalog.discover(PROJECT)
+    except ExperimentError as error:
+        fail(f"experiment discovery failed: {error}", failures)
+        catalog = ()
     environment = dict(os.environ)
     environment["PYTHONPATH"] = str(PROJECT / "src") + os.pathsep + environment.get(
         "PYTHONPATH", ""
     )
-    for experiment in registry["experiments"]:
-        for key in ("driver", "config"):
-            path = PROJECT / experiment[key]
-            if not path.exists():
-                fail(f"registry path missing: {experiment['id']} {key}={path}", failures)
-        driver = PROJECT / experiment["driver"]
-        if driver.exists():
+    for experiment in catalog:
+        if experiment.driver_path.exists():
             result = subprocess.run(
-                [sys.executable, str(driver), "--help"],
+                [sys.executable, str(experiment.driver_path), "--help"],
                 cwd=PROJECT,
                 env=environment,
                 stdout=subprocess.DEVNULL,
@@ -45,7 +45,7 @@ def main():
             )
             if result.returncode:
                 fail(
-                    f"driver CLI failed: {experiment['id']}: {result.stderr[-500:]}",
+                    f"driver CLI failed: {experiment.id}: {result.stderr[-500:]}",
                     failures,
                 )
 
@@ -103,7 +103,7 @@ def main():
         print(f"\nAudit failed with {len(failures)} issue(s).")
         return 1
     print(
-        "Audit passed: registry CLIs, manuscript assets, module boundaries, "
+        "Audit passed: experiment modules, driver CLIs, manuscript assets, module boundaries, "
         "cluster scripts, compatibility links, and release checksums are valid."
     )
     return 0

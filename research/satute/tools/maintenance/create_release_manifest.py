@@ -2,7 +2,6 @@
 """Create or refresh checksummed release provenance."""
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -11,6 +10,7 @@ PROJECT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT / "src"))
 
 from satute_analysis.artifacts import write_manifest
+from satute_analysis.experiments import ExperimentCatalog
 
 
 def main():
@@ -22,13 +22,12 @@ def main():
     release = PROJECT / "artifacts/releases" / release_name
     if not release.exists():
         raise SystemExit(f"Release directory does not exist: {release}")
-    config_path = PROJECT / "config/experiments" / f"{args.experiment}.yaml"
-    config = json.loads(config_path.read_text())
+    experiment = ExperimentCatalog.discover(PROJECT).get(args.experiment)
     outputs = sorted(path for path in release.rglob("*") if path.is_file() and path.name != "manifest.json")
     write_manifest(
         release / "manifest.json",
         args.experiment,
-        config,
+        experiment.configuration,
         PROJECT.parents[1],
         outputs,
     )

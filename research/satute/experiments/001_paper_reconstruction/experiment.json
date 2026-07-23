@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "001_paper_reconstruction",
+  "question": "Can the original SatuTe simulation design and figure inputs be reconstructed?",
+  "status": "historical-baseline",
+  "driver": "run.py",
+  "workflow": "workflow.py",
+  "consumers": [
+    "docs",
+    "manuscript"
+  ],
+  "config": {
+    "schema_version": 1,
+    "output": "artifacts/local/paper-reconstruction"
+  }
+}

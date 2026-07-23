@@ -1,8 +1,12 @@
 """Shared mathematical and project utilities for SatuTe experiments."""
 
+from .experiments import Experiment, ExperimentCatalog, ExperimentError
 from .project import PROJECT_ROOT, REPOSITORY_ROOT
 
 __all__ = [
+    "Experiment",
+    "ExperimentCatalog",
+    "ExperimentError",
     "PROJECT_ROOT",
     "REPOSITORY_ROOT",
     "build_q",

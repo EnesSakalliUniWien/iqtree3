@@ -6,7 +6,8 @@ paired exact-pattern multinomial alignments.
 - Driver: `run.py`
 - Full renderer: `render_full.py`
 - Direct-shift renderer: `render_shift.py`
-- Config: `../../config/experiments/003_invariant_mixture.yaml`
+- Manifest and run configuration: `experiment.json`
+- Common workflow adapter: `workflow.py`
 - Reviewed release: `../../artifacts/releases/invariant-mixture-v1/`
 
 Smoke test:

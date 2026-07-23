@@ -193,7 +193,7 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "benchmark_summary_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/benchmark_summary.py" | awk '{print $1}')"
     printf "native_results_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/native_results.py" | awk '{print $1}')"
     printf "requirements_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/requirements.txt" | awk '{print $1}')"
-    printf "experiment_config_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/config/experiments/002_relative_weighting.yaml" | awk '{print $1}')"
+    printf "experiment_config_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/experiment.json" | awk '{print $1}')"
     printf "r_figure_driver_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/render_formula_comparison.R" | awk '{print $1}')"
     printf "shard_wrapper_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/tools/cluster/lisc/run_full_head_to_head_shard.sh" | awk '{print $1}')"
     printf "suite_submitter_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/tools/cluster/lisc/submit_publication_suite.sh" | awk '{print $1}')"

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "004_saturation_diagnostics",
+  "question": "How do coherence, uncertainty, detection, persistence, and the monotonic saturation scale move with branch length?",
+  "status": "reviewed",
+  "driver": "run.py",
+  "workflow": "workflow.py",
+  "consumers": [
+    "docs"
+  ],
+  "config": {
+    "schema_version": 1,
+    "sites": 1000,
+    "alternative_replicates": 100,
+    "null_replicates": 500,
+    "output": "artifacts/local/saturation-diagnostics"
+  }
+}

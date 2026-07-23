@@ -7,7 +7,9 @@ Production code remains in [`../../tree/satute.cpp`](../../tree/satute.cpp).
 ## Start Here
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md): current implementation and evidence.
-- [`experiments/registry.yaml`](experiments/registry.yaml): authoritative experiment registry.
+- [`experiments/`](experiments/): self-contained experiment modules and their manifests.
+- [`docs/overview/experiment-architecture.md`](docs/overview/experiment-architecture.md):
+  module ownership and dependency direction.
 - [`artifacts/releases/`](artifacts/releases/): reviewed, compact evidence.
 - [`manuscript/main.tex`](manuscript/main.tex): modular manuscript entry point.
 - [`tests/`](tests/): exact, native, and regression validation.
@@ -41,7 +43,7 @@ clean. Reviewed summaries and final figures are promoted explicitly to
 |---|---|---|
 | `src/` | Shared Python analysis library | tracked |
 | `tests/` | Exact, native, and regression tests | tracked |
-| `experiments/` | Thin experiment drivers and configs | tracked |
+| `experiments/` | Self-contained manifests, workflows, drivers, and renderers | tracked |
 | `artifacts/releases/` | Reviewed summaries and final figures | tracked |
 | `artifacts/local/` | Workstation runs | ignored |
 | `artifacts/cluster/` | LiSC/AWS raw outputs and shards | ignored |
@@ -51,6 +53,9 @@ clean. Reviewed summaries and final figures are promoted explicitly to
 
 The former `doc/satute-wiki` and `doc/satute-phase1` paths are compatibility
 links for directory-level navigation and should not be used for new commands.
+Experiments are discovered from their colocated `experiment.json` manifests;
+the common execution interface is implemented by
+`src/satute_analysis/experiments.py`.
 The canonical manuscript order is defined by `manuscript/main.tex`; Results
 and Online Methods are further split into focused modules under
 `manuscript/sections/results/` and `manuscript/sections/methods/`.

@@ -25,7 +25,10 @@ pre-existing user changes. No production file was reset or discarded.
 ## Resulting boundaries
 
 - `src/` owns shared mathematical and artifact utilities.
-- `experiments/` owns thin, numbered drivers and renderers.
+- Each numbered `experiments/` module owns its colocated manifest, workflow
+  adapter, drivers, renderers, and README.
+- `src/satute_analysis/experiments.py` provides the single discovery and
+  execution interface; no central registry duplicates experiment ownership.
 - `tests/` owns exact, native/reference, and unit checks.
 - `artifacts/local/` and `artifacts/cluster/` are ignored working data.
 - `artifacts/releases/` contains compact reviewed evidence with checksums.

@@ -5,5 +5,6 @@ This is a historical baseline, not the primary weighted-statistic power result.
 
 - Driver: `run.py`
 - Renderer: `render.py`
-- Config: `../../config/experiments/001_paper_reconstruction.yaml`
+- Manifest and run configuration: `experiment.json`
+- Common workflow adapter: `workflow.py`
 - Reviewed legacy summaries: `../../artifacts/releases/legacy/`

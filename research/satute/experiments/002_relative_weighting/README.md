@@ -7,7 +7,8 @@ eigenvalue weighting under nucleotide and protein settings.
 - Shard combiner: `combine.py`
 - Renderers: `render.py`, `render_power_summary.py`,
   `render_formula_comparison.R`
-- Config: `../../config/experiments/002_relative_weighting.yaml`
+- Manifest and run configuration: `experiment.json`
+- Common workflow adapter: `workflow.py`
 
 The production detail schema is versioned and keeps the three native decision
 contracts side by side: `decision_unadjusted`, `decision_taxon_bonf`, and
