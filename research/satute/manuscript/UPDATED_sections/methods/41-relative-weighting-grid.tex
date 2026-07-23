@@ -1,0 +1,22 @@
+% !TEX root = ../../UPDATED_main.tex
+\subsection*{Simulation protocol}
+
+The five-taxon tree is a balanced four-taxon subtree \(T_A\), with all subtree branches set to 0.2, and a single taxon \(B\) attached by focal branch \(AB\). The 16-taxon tree contains two balanced eight-taxon subtrees; internal and external lengths are drawn from EvoNAPS-derived distributions and restricted to 0.04--0.2. The original SatuTe baseline uses JC, \(n\in\{100,1{,}000,10{,}000\}\), 1,000 replicates per cell, and focal lengths
+\[
+t\in\{0.1,0.2,0.3,0.4,0.5,0.8,1,1.5,2,2.5,3,3.5,4,5,7.5,10\}.
+\]
+Every alignment is analyzed under four scenarios: the true topology and branch lengths; the true topology with ML branch lengths; an ML-inferred topology and branch lengths; and that inferred-tree analysis with threshold \(\alpha/(m_A m_B)\). For the five- and 16-taxon targets, the Bonferroni denominators are 4 and 64, respectively. Baseline alignments were simulated with Seq-Gen and evaluated with IQ-TREE and SatuTe \cite{rambaut1997,minh2020iqtree}.
+
+The rate-heterogeneous extensions use full alignments and paired formula evaluation. Within each replicate, original and weighted formulas use the same alignment, tree, branch length, target split, and random seed. This pairing isolates the formula effect from simulator and topology variation.
+
+The nucleotide simulations use the Tree-of-Life 16S rRNA GTR+F+G4 setting, implemented as a fixed four-category model in the IQ-TREE integration. Exploratory protein simulations use the Tree-of-Life LG+G4 setting. The growing-site grid uses
+\[
+n\in\{100,250,500,1{,}000,2{,}000,4{,}000,10{,}000\},
+\]
+focal lengths \(4,5,6,7.5,10,12\), and 100 replicates per cell. The corrected publication suite uses 1,000 replicates, alignment lengths of \(100,250,1{,}000\) sites, and focal lengths \(4,5,6,7,8,9,10,12\). It evaluates fixed GTR+F, GTR+F+G4, GTR+F+I+G4, LG+G4, WAG+G4, JTT+G4, and Q.pfam+G4 models. The branch-neighborhood audit computes both statistics for the target and adjacent branches in the same trees.
+
+For model misspecification, alignments are generated under fixed GTR+F and evaluated under GTR, JC, K2P, or F81. This comparison separates formula equality under JC from the adequacy of JC for GTR-generated data. We report formula-specific informative-call fractions in addition to paired differences.
+
+The independent calibration experiment uses 5,000 exact-null replicates in every cell, with replicates 1--2,500 prespecified for threshold training and replicates 2,501--5,000 for held-out evaluation. A separate 2,000-replicate design alternates target-null and target-alternative branches to form a 50:50 mixed-null sample for empirical false-discovery rate and power. For discrete adjusted \(p\)-values, the training-derived cutoff is the largest attainable value for which the complete tied block has empirical probability at most 0.05; if the minimum value already exceeds that mass, the cutoff is placed immediately below it. This tie-aware definition makes the fitted cutoff agree with the implemented \(p\leq c\) decision rule. We report Wilson intervals for held-out null rejection and paired bootstrap intervals for differences between formulas.
+
+All publication outputs use schema-v2 detail, summary, branch-audit, decision-rule-audit, and timing tables. Replicate completeness is checked within every model--tree--scenario--site--branch cell before aggregation. Paired percentile-bootstrap intervals resample replicate-level discordance, and exact McNemar tests use the two discordant call counts.

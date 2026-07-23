@@ -1,0 +1,14 @@
+% !TEX root = ../../UPDATED_main.tex
+\subsection*{The original SatuTe benchmark separates support from signal}
+
+We retained the original SatuTe simulation controls: five- and 16-taxon trees, alignments of 100--10,000 sites, focal branch lengths of 0.1--10, and 1,000 JC replicates per point. Four analyses separate branch-length estimation from topology selection: the true tree and branch lengths; the true tree with maximum-likelihood (ML) branch lengths; an ML tree and branch lengths; and the same inferred-tree analysis with taxon-pair Bonferroni correction.
+
+With the true tree and branch lengths, the fraction of informative calls declined from nearly one to the 5\% null level as the focal branch length increased; longer alignments retained signal across longer branches (Supplementary Fig. S3). Estimating ML branch lengths on the true topology closely followed this reference. Selecting and testing a topology on the same alignment was liberal at long branches, reaching approximately 15\% for the external target and 50\% for the internal target. Taxon-pair Bonferroni correction largely restored the reference curve, although it became conservative for subtrees containing nearly indistinguishable sequences.
+
+For 100-site, 16-taxon alignments, correct topology recovery fell from 63.2\% at focal branch length 0.1 to 4.5\% at length 1 and to nearly zero beyond length 3. Bootstrap support for the target split nevertheless reached 100\% by length 0.8 and remained there, whereas Bonferroni-corrected SatuTe calls fell to the 3.5--4.6\% null range (Supplementary Tables S2 and S3). Thus, high split support does not imply recoverable historical signal across the split.
+
+JC also provides the prespecified formula control. Its three non-stationary directions have equal eigenvalues, so weighted and original SatuTe curves coincide exactly. Differences between the formulations can arise only in models with distinct non-stationary eigenvalues and occurred mainly for short alignments near the long-branch detection boundary.
+
+\subsection*{Extension effects are concentrated on the focal branch}
+
+A branch-neighborhood audit showed that weighting did not produce a tree-wide score shift. At branch length 12 and 100 sites, informative-call fractions on the focal branch increased by 14.5--22.0 percentage points under GTR+G4 and by 38.1--39.1 points under LG+G4, whereas changes on adjacent branches were effectively zero (Supplementary Fig. S1).
