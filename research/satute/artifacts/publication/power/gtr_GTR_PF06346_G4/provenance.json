@@ -1,0 +1,15 @@
+{
+  "colour_semantics": {
+    "difference": "viridis colour-safe palette by alignment length",
+    "dominant": "#0072B2",
+    "weighted": "#D55E00"
+  },
+  "data_policy": "case-local symbolic links to immutable merged source tables",
+  "dataset": "artifacts/cluster/lisc/paper-matched-gtr-rate-invar-reps1000-ff7c9034b00-20260715-postprocessed-7b264fe9c5ef-v2/merged",
+  "decision_rule": "taxon_bonferroni",
+  "evaluation_model": "GTR_PF06346_G4",
+  "expected_replicates": 1000,
+  "experiment": "002_relative_weighting",
+  "id": "gtr_GTR_PF06346_G4",
+  "simulation_model": "GTR_PF06346_G4"
+}

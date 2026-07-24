@@ -1,0 +1,15 @@
+{
+  "colour_semantics": {
+    "difference": "viridis colour-safe palette by alignment length",
+    "dominant": "#0072B2",
+    "weighted": "#D55E00"
+  },
+  "data_policy": "case-local symbolic links to immutable merged source tables",
+  "dataset": "artifacts/cluster/lisc/paper-fig2-jc-reps1000-v4-217bd244e77-20260715/merged",
+  "decision_rule": "taxon_bonferroni",
+  "evaluation_model": "JC",
+  "expected_replicates": 1000,
+  "experiment": "001_paper_reconstruction",
+  "id": "jc_JC",
+  "simulation_model": "JC"
+}

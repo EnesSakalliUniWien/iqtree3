@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage: render_publication_pairs.sh --summary FILE --detail FILE --out-root DIR
-       [--suite gtr|protein|misspec|all] [--expected-reps N]
+       [--suite jc|gtr|protein|misspec|all] [--expected-reps N]
        [--bootstrap-reps N] [--render-script FILE] [--force]
 
 Each pair/rule directory must contain the R renderer's 16 non-empty outputs:
@@ -49,6 +49,9 @@ fi
 [[ -s "$render_script" ]] || { echo "Missing renderer: $render_script" >&2; exit 1; }
 
 case "$suite" in
+  jc)
+    pairs=(JC:JC)
+    ;;
   gtr)
     pairs=(
       GTR_PF06346:GTR_PF06346
@@ -64,6 +67,7 @@ case "$suite" in
     ;;
   all)
     pairs=(
+      JC:JC
       GTR_PF06346:GTR_PF06346
       GTR_PF06346_G4:GTR_PF06346_G4
       GTR_PF06346_I_G4:GTR_PF06346_I_G4
