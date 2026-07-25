@@ -199,7 +199,7 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "suite_submitter_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/tools/cluster/lisc/submit_publication_suite.sh" | awk '{print $1}')"
     printf "satute_facade_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute.cpp" | awk '{print $1}')"
     printf "satute_statistics_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_statistics.cpp" | awk '{print $1}')"
-    printf "satute_support_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_support.cpp" | awk '{print $1}')"
+    printf "satute_construction_sha256\t%s\n" "$(cat "${ROOT_DIR}"/tree/satute/satute_{edges,format,formulas,information,rates,results,topology}.h "${ROOT_DIR}"/tree/satute/satute_{edges,format,formulas,information,rates,results,topology}.cpp | sha256sum | awk '{print $1}')"
     printf "satute_report_writer_sha256\t%s\n" "$(sha256sum "${ROOT_DIR}/tree/satute/satute_report_writer.cpp" | awk '{print $1}')"
   } > "${MANIFEST_TMP}"
   mv "${MANIFEST_TMP}" "${OUT_ROOT}/run_manifest.tsv"
