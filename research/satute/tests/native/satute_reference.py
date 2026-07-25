@@ -21,6 +21,23 @@ from satute_analysis.multiple_testing import annotate_satute_rows
 STATE_INDEX = {"A": 0, "C": 1, "G": 2, "T": 3}
 FORMULA_VARIANTS = ("dominant", "eigenvalue_weighted")
 
+# IUPAC ambiguity codes stand for a subset of states, not for "unknown". The
+# native side resolves these through ModelSubst::computeTipLikelihood; mirror
+# that here so the reference does not silently disagree with IQ-TREE on
+# alignments that contain them.
+IUPAC_SUBSETS = {
+    "R": "AG",
+    "Y": "CT",
+    "S": "CG",
+    "W": "AT",
+    "K": "GT",
+    "M": "AC",
+    "B": "CGT",
+    "D": "AGT",
+    "H": "ACT",
+    "V": "ACG",
+}
+
 
 @dataclass
 class TreeNode:
@@ -389,11 +406,18 @@ def formula_modes_and_weights(evals, formula, effective_branch_length):
 
 def side_partial(sequences, site, node, dad, transition_builder):
     if node.is_leaf():
-        state = STATE_INDEX.get(sequences[node.name][site])
-        if state is None:
+        character = sequences[node.name][site]
+        state = STATE_INDEX.get(character)
+        if state is not None:
+            partial = np.zeros(4, dtype=float)
+            partial[state] = 1.0
+            return partial
+        subset = IUPAC_SUBSETS.get(character)
+        if subset is None:
             return np.ones(4, dtype=float)
         partial = np.zeros(4, dtype=float)
-        partial[state] = 1.0
+        for member in subset:
+            partial[STATE_INDEX[member]] = 1.0
         return partial
 
     partial = np.ones(4, dtype=float)
@@ -403,6 +427,11 @@ def side_partial(sequences, site, node, dad, transition_builder):
         child_partial = side_partial(sequences, site, child, node, transition_builder)
         transition = transition_builder(length)
         partial *= transition @ child_partial
+    # Rescale for parity with the native implementation; only posterior ratios
+    # of this vector are used downstream, so any positive factor cancels.
+    total = partial.sum()
+    if total > 0.0 and np.isfinite(total):
+        partial /= total
     return partial
 
 
