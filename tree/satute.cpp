@@ -11,7 +11,13 @@
 #include "phylotree.h"
 #include "satute/satute_report_writer.h"
 #include "satute/satute_statistics.h"
-#include "satute/satute_support.h"
+#include "satute/satute_edges.h"
+#include "satute/satute_format.h"
+#include "satute/satute_formulas.h"
+#include "satute/satute_information.h"
+#include "satute/satute_rates.h"
+#include "satute/satute_results.h"
+#include "satute/satute_topology.h"
 
 #include <cstring>
 #include <iostream>
@@ -49,16 +55,16 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     if (eval == nullptr)
         outError("SatuTe requires eigenvalues from the substitution model");
 
-    int zero_index = findZeroEigenIndex(eval, nstates);
-    vector<SatuTeFormulaSpec> formulas = buildFormulaSpecs(eval, nstates, zero_index);
-    vector<int> all_nonzero_modes = findNonZeroModes(eval, nstates, zero_index);
+    int zero_index = formulas::findZeroEigenIndex(eval, nstates);
+    vector<SatuTeFormulaSpec> formula_specs = formulas::buildFormulaSpecs(eval, nstates, zero_index);
+    vector<int> all_nonzero_modes = formulas::findNonZeroModes(eval, nstates, zero_index);
 
     DoubleVector pattern_rates;
     IntVector pattern_cat;
-    vector<SatuTeRateCategory> rate_categories = buildRateCategories(site_rate, pattern_rates, pattern_cat);
+    vector<SatuTeRateCategory> rate_categories = rates::buildRateCategories(site_rate, pattern_rates, pattern_cat);
     const IntVector *pattern_cat_ptr = pattern_cat.empty() ? nullptr : &pattern_cat;
 
-    set<int> target_edges = readEdgeFile(edges_file);
+    set<int> target_edges = edges::readEdgeFile(edges_file);
     bool restrict_edges = (edges_file != nullptr && strlen(edges_file) > 0);
 
     BranchVector branches;
@@ -88,24 +94,24 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         if (!label.empty())
             annotated_branch->putAttr("label", label);
 
-        int left_taxa = countTipsAwayFrom(brit->first, brit->second);
-        int right_taxa = countTipsAwayFrom(brit->second, brit->first);
-        string split = splitLabel(brit->first, brit->second);
-        double pooled_information_fraction = computePooledInformationFraction(
+        int left_taxa = topology::countTipsAwayFrom(brit->first, brit->second);
+        int right_taxa = topology::countTipsAwayFrom(brit->second, brit->first);
+        string split = topology::splitLabel(brit->first, brit->second);
+        double pooled_information_fraction = information::computePooledInformationFraction(
             eval,
             all_nonzero_modes,
             rate_categories,
             annotated_branch->length);
 
-        for (size_t formula_index = 0; formula_index < formulas.size(); formula_index++) {
-            const SatuTeFormulaSpec &formula = formulas[formula_index];
+        for (size_t formula_index = 0; formula_index < formula_specs.size(); formula_index++) {
+            const SatuTeFormulaSpec &formula = formula_specs[formula_index];
             vector<SatuTeBranchResult> category_results;
 
             for (size_t category_index = 0; category_index < rate_categories.size(); category_index++) {
                 const SatuTeRateCategory &category = rate_categories[category_index];
                 double effective_length = annotated_branch->length * category.rate;
-                vector<double> weights = buildFormulaWeights(eval, formula, effective_length);
-                SatuTeBranchResult base = makeBaseResult(
+                vector<double> weights = formulas::buildFormulaWeights(eval, formula, effective_length);
+                SatuTeBranchResult base = results::makeBaseResult(
                     branch_id,
                     left_taxa,
                     right_taxa,
@@ -114,15 +120,15 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                     alpha,
                     formula.name,
                     category.label,
-                    formatDouble(category.rate),
-                    formatIntVector(formula.modes),
-                    eigenvalueString(eval, formula.modes),
-                    formatVector(weights),
+                    format::formatDouble(category.rate),
+                    format::formatIntVector(formula.modes),
+                    format::eigenvalueString(eval, formula.modes),
+                    format::formatVector(weights),
                     label,
                     split);
-                setSaturationScale(
+                information::setSaturationScale(
                     base,
-                    computeInformationFraction(eval, all_nonzero_modes, effective_length));
+                    information::computeInformationFraction(eval, all_nonzero_modes, effective_length));
 
                 category_results.push_back(
                     computeCategoryStatistic(
@@ -139,10 +145,11 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         pattern_cat_ptr,
                         category.pattern_cat,
                         category.rate,
+                        num_threads,
                         base));
             }
 
-            SatuTeBranchResult pooled_base = makeBaseResult(
+            SatuTeBranchResult pooled_base = results::makeBaseResult(
                 branch_id,
                 left_taxa,
                 right_taxa,
@@ -152,12 +159,12 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                 formula.name,
                 "pooled",
                 "NA",
-                formatIntVector(formula.modes),
-                eigenvalueString(eval, formula.modes),
+                format::formatIntVector(formula.modes),
+                format::eigenvalueString(eval, formula.modes),
                 "NA",
                 label,
                 split);
-            setSaturationScale(pooled_base, pooled_information_fraction);
+            information::setSaturationScale(pooled_base, pooled_information_fraction);
 
             SatuTeBranchResult pooled = (rate_categories.size() == 1 && rate_categories[0].pattern_cat < 0)
                 ? category_results[0]
@@ -165,7 +172,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             pooled.rate_category = "pooled";
             pooled.rate_multiplier = "NA";
             pooled.effective_length = pooled.length;
-            setSaturationScale(pooled, pooled_information_fraction);
+            information::setSaturationScale(pooled, pooled_information_fraction);
             results.push_back(pooled);
 
             if (!(rate_categories.size() == 1 && rate_categories[0].pattern_cat < 0)) {
@@ -205,7 +212,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         Neighbor *annotated_branch = branch_it->second;
 
         if (result.formula == "dominant") {
-            annotated_branch->putAttr("satDominantFDR", formatDouble(result.fdr_by));
+            annotated_branch->putAttr("satDominantFDR", format::formatDouble(result.fdr_by));
             annotated_branch->putAttr("satDominantFDRDecision", result.decision_fdr);
             continue;
         }
@@ -213,14 +220,14 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             continue;
 
         annotated_branch->putAttr("satFormula", result.formula);
-        annotated_branch->putAttr("satC", formatDouble(result.coherence));
-        annotated_branch->putAttr("satSE", formatDouble(result.se));
-        annotated_branch->putAttr("satZ", formatDouble(result.z_score));
-        annotated_branch->putAttr("satP", formatDouble(result.p_value));
-        annotated_branch->putAttr("satFDR", formatDouble(result.fdr_by));
+        annotated_branch->putAttr("satC", format::formatDouble(result.coherence));
+        annotated_branch->putAttr("satSE", format::formatDouble(result.se));
+        annotated_branch->putAttr("satZ", format::formatDouble(result.z_score));
+        annotated_branch->putAttr("satP", format::formatDouble(result.p_value));
+        annotated_branch->putAttr("satFDR", format::formatDouble(result.fdr_by));
         annotated_branch->putAttr("satFDRDecision", result.decision_fdr);
-        annotated_branch->putAttr("satInfo", formatDouble(result.information_fraction));
-        annotated_branch->putAttr("satIndex", formatDouble(result.saturation_index));
+        annotated_branch->putAttr("satInfo", format::formatDouble(result.information_fraction));
+        annotated_branch->putAttr("satIndex", format::formatDouble(result.saturation_index));
         annotated_branch->putAttr("sat", result.decision);
         annotated_branch->putAttr("satBonf", result.decision_bonferroni);
     }

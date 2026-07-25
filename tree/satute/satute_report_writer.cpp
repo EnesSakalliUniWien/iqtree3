@@ -9,7 +9,7 @@
  ***************************************************************************/
 
 #include "satute_report_writer.h"
-#include "satute_support.h"
+#include "satute_format.h"
 
 #include <fstream>
 #include <iostream>
@@ -39,6 +39,8 @@ void ReportWriter::write(
     cout << "Tree with SatuTe branch IDs written to " << str << endl;
 
     ofstream out(filename.c_str());
+    if (!out.is_open())
+        outError("Cannot write SatuTe statistics file ", filename);
     out << "# SatuTe branch saturation statistics" << endl
         << "# This file can be read in MS Excel or in R with command:" << endl
         << "#   tab=read.table('" << filename << "',header=TRUE)" << endl
@@ -84,22 +86,22 @@ void ReportWriter::write(
             << '\t' << result.right_taxa
             << '\t' << result.valid_sites
             << '\t' << result.skipped_sites
-            << '\t' << formatDouble(result.coherence)
-            << '\t' << formatDouble(result.variance)
-            << '\t' << formatDouble(result.se)
-            << '\t' << formatDouble(result.z_score)
-            << '\t' << formatDouble(result.p_value)
-            << '\t' << formatDouble(result.alpha)
-            << '\t' << formatDouble(result.alpha_adjusted)
+            << '\t' << format::formatDouble(result.coherence)
+            << '\t' << format::formatDouble(result.variance)
+            << '\t' << format::formatDouble(result.se)
+            << '\t' << format::formatDouble(result.z_score)
+            << '\t' << format::formatDouble(result.p_value)
+            << '\t' << format::formatDouble(result.alpha)
+            << '\t' << format::formatDouble(result.alpha_adjusted)
             << '\t' << result.decision
             << '\t' << result.decision_bonferroni
-            << '\t' << formatDouble(result.fdr_by)
+            << '\t' << format::formatDouble(result.fdr_by)
             << '\t' << result.decision_fdr
             << '\t' << result.label
-            << '\t' << formatDouble(result.length)
-            << '\t' << formatDouble(result.effective_length)
-            << '\t' << formatDouble(result.information_fraction)
-            << '\t' << formatDouble(result.saturation_index)
+            << '\t' << format::formatDouble(result.length)
+            << '\t' << format::formatDouble(result.effective_length)
+            << '\t' << format::formatDouble(result.information_fraction)
+            << '\t' << format::formatDouble(result.saturation_index)
             << '\t' << result.split
             << '\t' << result.modes
             << '\t' << result.eigenvalues
