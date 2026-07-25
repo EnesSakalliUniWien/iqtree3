@@ -996,7 +996,7 @@ def main():
     parser.add_argument("--null-length", type=float, default=10000.0)
     parser.add_argument("--reps", type=int, default=100)
     parser.add_argument("--null-reps", type=int, default=500)
-    parser.add_argument("--workers", type=int, default=max(1, min(8, os.cpu_count() or 1)))
+    parser.add_argument("--workers", type=int, default=max(1, os.cpu_count() or 1))
     parser.add_argument("--base-seed", type=int, default=1200000)
     parser.add_argument("--keep-runs", action="store_true")
     parser.add_argument("--plot-only", action="store_true")

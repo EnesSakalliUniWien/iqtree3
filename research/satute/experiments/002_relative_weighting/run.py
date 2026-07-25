@@ -1391,6 +1391,97 @@ def completed_tasks(
     return complete
 
 
+def strip_option(argv, names):
+    """Drop `--name value` and `--name=value` pairs from an argv list."""
+    remaining = []
+    index = 0
+    while index < len(argv):
+        token = argv[index]
+        for name in names:
+            if token == name:
+                index += 2
+                break
+            if token.startswith(name + "="):
+                index += 1
+                break
+        else:
+            remaining.append(token)
+            index += 1
+    return remaining
+
+
+def merge_shard_tables(shard_paths, destination):
+    """Concatenate shard tables under one header, in a worker-count-independent order."""
+    header = None
+    rows = []
+    for path in shard_paths:
+        if not path.exists() or path.stat().st_size == 0:
+            continue
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if not lines:
+            continue
+        if header is None:
+            header = lines[0]
+        rows.extend(lines[1:])
+    if header is None:
+        return
+    # Sorted rather than serial order: shards interleave tasks, so this is the
+    # cheapest way to make the merged table identical for any --workers value.
+    rows.sort()
+    # csv.DictWriter terminates rows with CRLF, so the shard writers do too;
+    # match it here or the merged table differs from a serial run on every line.
+    with destination.open("w", encoding="utf-8", newline="") as handle:
+        for line in [header] + rows:
+            handle.write(line + "\r\n")
+
+
+def run_local_shards(args, outdir):
+    """Run the existing shard mechanism as N local processes, then merge.
+
+    Reuses the same code path the LiSC array jobs take, so each process keeps a
+    single writer and its own output directory. Seeds derive from the case
+    parameters, not from execution order, so results do not depend on --workers.
+    """
+    worker_count = max(1, args.workers)
+    shard_root = outdir / "shards"
+    shard_root.mkdir(parents=True, exist_ok=True)
+    passthrough = strip_option(sys.argv[1:], ["--workers", "--shard-index", "--shard-count", "--outdir"])
+
+    processes = []
+    shard_dirs = []
+    for shard_index in range(worker_count):
+        shard_dir = shard_root / f"shard-{shard_index}"
+        shard_dir.mkdir(parents=True, exist_ok=True)
+        shard_dirs.append(shard_dir)
+        processes.append(
+            subprocess.Popen(
+                [sys.executable, str(Path(__file__).resolve())]
+                + passthrough
+                + ["--outdir", str(shard_dir), "--shard-index", str(shard_index), "--shard-count", str(worker_count)]
+            )
+        )
+
+    failures = [index for index, process in enumerate(processes) if process.wait() != 0]
+    if failures:
+        raise SystemExit(f"Shard workers failed: {', '.join(str(index) for index in failures)}")
+
+    detail_path = outdir / "head_to_head_detail.tsv"
+    summary_path = outdir / "head_to_head_summary.tsv"
+    for name in (
+        "head_to_head_detail.tsv",
+        "head_to_head_branch_audit.tsv",
+        "head_to_head_fdr_audit.tsv",
+        "head_to_head_timing.tsv",
+    ):
+        merge_shard_tables([shard_dir / name for shard_dir in shard_dirs], outdir / name)
+    aggregate_detail(detail_path, summary_path)
+
+    print(f"Workers: {worker_count}")
+    print(f"Shards:  {shard_root}")
+    print(f"Detail:  {detail_path}")
+    print(f"Summary: {summary_path}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Paired native IQ-TREE dominant versus eigenvalue-weighted SatuTe simulations."
@@ -1435,6 +1526,14 @@ def main():
     parser.add_argument("--seqgen", default=shutil.which("seq-gen") or shutil.which("seqgen") or "")
     parser.add_argument("--indelible", default=shutil.which("indelible") or shutil.which("INDELible") or "")
     parser.add_argument("--evonaps-branch-lengths", default="", help="CSV/TSV with columns type/kind/branch_type and length/branch_length/blen.")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=max(1, os.cpu_count() or 1),
+        help="Local shard processes to run concurrently. Each case pins IQ-TREE to -T 1,"
+        " so process-level concurrency is what uses the machine. Ignored when --shard-count"
+        " is set, since the caller is already sharding.",
+    )
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--alpha", type=float, default=0.05)
@@ -1466,6 +1565,11 @@ def main():
         raise SystemExit("--shard-count must be >= 1")
     if args.shard_index < 0 or args.shard_index >= args.shard_count:
         raise SystemExit("--shard-index must satisfy 0 <= shard-index < shard-count")
+
+    # A caller that already shards (the LiSC array jobs) owns its own concurrency.
+    if args.workers > 1 and args.shard_count == 1:
+        run_local_shards(args, outdir)
+        return
 
     branch_lengths = parse_csv_numbers(PAPER_BRANCH_LENGTHS if args.paper_grid else args.branch_lengths, float)
     site_lengths = parse_csv_numbers("100,1000,10000" if args.paper_grid else args.site_lengths, int)

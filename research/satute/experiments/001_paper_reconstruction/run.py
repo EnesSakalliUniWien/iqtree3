@@ -2,8 +2,10 @@
 
 import argparse
 import csv
+import os
 import shutil
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
 from pathlib import Path
 
@@ -65,9 +67,9 @@ def target_row(stat_file, split):
     return None
 
 
-def write_row(writer, tree_case, nsites, branch_length, rep, scenario, row, decision_column):
+def append_row(rows, tree_case, nsites, branch_length, rep, scenario, row, decision_column):
     if row is None:
-        writer.writerow(
+        rows.append(
             {
                 "tree_case": tree_case,
                 "nsites": nsites,
@@ -86,7 +88,7 @@ def write_row(writer, tree_case, nsites, branch_length, rep, scenario, row, deci
         return
 
     decision = row[decision_column]
-    writer.writerow(
+    rows.append(
         {
             "tree_case": tree_case,
             "nsites": nsites,
@@ -104,7 +106,7 @@ def write_row(writer, tree_case, nsites, branch_length, rep, scenario, row, deci
     )
 
 
-def run_satute(iqtree, alignment, prefix, split, tree=None, fixed_lengths=False):
+def run_satute(iqtree, alignment, prefix, split, tree=None, fixed_lengths=False, seed=None):
     cmd = [
         iqtree,
         "-s",
@@ -127,11 +129,15 @@ def run_satute(iqtree, alignment, prefix, split, tree=None, fixed_lengths=False)
     )
     if fixed_lengths:
         cmd.append("-blfix")
+    if seed is not None:
+        # Without this the ml_tree scenarios run an unseeded tree search and the
+        # detail table is not reproducible between runs.
+        cmd.extend(["--seed", str(seed)])
     run(cmd)
     return target_row(str(prefix) + ".sat.stat", split)
 
 
-def run_case(iqtree, outdir, writer, tree_case, nsites, branch_length, rep, seed):
+def run_case(iqtree, outdir, tree_case, nsites, branch_length, rep, seed):
     case_dir = outdir / "runs" / tree_case / f"n{nsites}" / f"b{branch_length:.2f}" / f"r{rep:03d}"
     case_dir.mkdir(parents=True, exist_ok=True)
     tree_file = case_dir / "true.tree"
@@ -166,15 +172,17 @@ def run_case(iqtree, outdir, writer, tree_case, nsites, branch_length, rep, seed
     )
     alignment = Path(str(sim_prefix) + ".fa")
 
-    row = run_satute(iqtree, alignment, case_dir / "true_fixed", split, tree_file, fixed_lengths=True)
-    write_row(writer, tree_case, nsites, branch_length, rep, "true_tree_fixed_lengths", row, "Decision")
+    rows = []
+    row = run_satute(iqtree, alignment, case_dir / "true_fixed", split, tree_file, fixed_lengths=True, seed=seed)
+    append_row(rows, tree_case, nsites, branch_length, rep, "true_tree_fixed_lengths", row, "Decision")
 
-    row = run_satute(iqtree, alignment, case_dir / "true_topology_ml_lengths", split, tree_file, fixed_lengths=False)
-    write_row(writer, tree_case, nsites, branch_length, rep, "true_topology_ml_lengths", row, "Decision")
+    row = run_satute(iqtree, alignment, case_dir / "true_topology_ml_lengths", split, tree_file, fixed_lengths=False, seed=seed)
+    append_row(rows, tree_case, nsites, branch_length, rep, "true_topology_ml_lengths", row, "Decision")
 
-    row = run_satute(iqtree, alignment, case_dir / "ml_tree", split, tree=None, fixed_lengths=False)
-    write_row(writer, tree_case, nsites, branch_length, rep, "ml_tree_unadjusted", row, "Decision")
-    write_row(writer, tree_case, nsites, branch_length, rep, "ml_tree_bonferroni", row, "DecisionTaxonBonf")
+    row = run_satute(iqtree, alignment, case_dir / "ml_tree", split, tree=None, fixed_lengths=False, seed=seed)
+    append_row(rows, tree_case, nsites, branch_length, rep, "ml_tree_unadjusted", row, "Decision")
+    append_row(rows, tree_case, nsites, branch_length, rep, "ml_tree_bonferroni", row, "DecisionTaxonBonf")
+    return rows
 
 
 def aggregate(detail_path, summary_path):
@@ -230,6 +238,14 @@ def main():
     parser.add_argument("--branch-lengths", default="0.1,1.0,5.0")
     parser.add_argument("--paper-grid", action="store_true", help="Use the paper branch-length grid and site lengths 100,1000,10000.")
     parser.add_argument("--tree-cases", default="five_external,sixteen_internal")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=max(1, os.cpu_count() or 1),
+        help="Replicate cases to run concurrently. Each case pins IQ-TREE to -T 1, so"
+        " process-level concurrency is what uses the machine. Output is written in"
+        " submission order and does not depend on this value.",
+    )
     args = parser.parse_args()
 
     iqtree = str(Path(args.iqtree))
@@ -264,12 +280,24 @@ def main():
         ]
         writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
-        for tree_case in tree_cases:
-            for nsites in site_lengths:
-                for branch_length in branch_lengths:
-                    for rep in range(1, args.reps + 1):
-                        seed = 100000 + rep + nsites * 10 + int(branch_length * 1000)
-                        run_case(iqtree, outdir, writer, tree_case, nsites, branch_length, rep, seed)
+        cases = [
+            (tree_case, nsites, branch_length, rep, 100000 + rep + nsites * 10 + int(branch_length * 1000))
+            for tree_case in tree_cases
+            for nsites in site_lengths
+            for branch_length in branch_lengths
+            for rep in range(1, args.reps + 1)
+        ]
+        # Cases are independent and each blocks on its own single-threaded
+        # IQ-TREE processes, so threads are enough to saturate the machine.
+        # executor.map yields in submission order, keeping the detail table
+        # byte-identical to a serial run regardless of --workers.
+        with ThreadPoolExecutor(max_workers=max(1, args.workers)) as executor:
+            for case_rows in executor.map(
+                lambda case: run_case(iqtree, outdir, case[0], case[1], case[2], case[3], case[4]),
+                cases,
+            ):
+                for case_row in case_rows:
+                    writer.writerow(case_row)
 
     aggregate(detail_path, summary_path)
     print(f"Detail:  {detail_path}")
