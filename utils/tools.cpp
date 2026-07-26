@@ -1756,6 +1756,12 @@ void parseArg(int argc, char *argv[], Params &params) {
                 params.satute_edges_file = argv[cnt];
                 continue;
             }
+            if (strcmp(argv[cnt], "--satute-enhanced-weights") == 0) {
+                params.satute_analysis = true;
+                params.ignore_identical_seqs = false;
+                params.satute_enhanced_weights = true;
+                continue;
+            }
             if (strcmp(argv[cnt], "--qic") == 0) {
                 params.internode_certainty = 1;
                 continue;
@@ -6037,7 +6043,10 @@ void usage_iqtree(char* argv[], bool full_command) {
     << "                       Annotates trees with pooled eigenvalue_weighted results" << endl
     << "                       and rate-category rows for discrete rate models" << endl
     << "  --satute-alpha NUM   Significance and FDR level (default: 0.05)" << endl
-    << "  --satute-edges FILE  Analyze only branch IDs listed in FILE" << endl;
+    << "  --satute-edges FILE  Analyze only branch IDs listed in FILE" << endl
+    << "  --satute-enhanced-weights" << endl
+    << "                       Use GLS/matched-filter mode weighting for" << endl
+    << "                       eigenvalue_weighted (experimental; default off)" << endl;
     
     usage_alisim();
     cout
@@ -7101,6 +7110,7 @@ void Params::setDefault() {
     satute_analysis = false;
     satute_alpha = 0.05;
     satute_edges_file = nullptr;
+    satute_enhanced_weights = false;
     internode_certainty = 0;
     tree_weight_file = nullptr;
     consensus_type = CT_NONE;

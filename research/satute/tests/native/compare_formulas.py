@@ -187,7 +187,7 @@ def partial_two_leaf_side(sequences, site, left_leaf, right_leaf, left_length, r
     return partial
 
 
-def compute_formula(sequences, lengths, model, formula, alpha=0.05):
+def compute_formula(sequences, lengths, model, formula, alpha=0.05, enhanced_weights=False):
     q, pi = build_q(model)
     evals, eigenvectors, inv_eigenvectors = reversible_eigendecomposition(q, pi)
     modes = mode_indices(evals, formula)
@@ -204,9 +204,16 @@ def compute_formula(sequences, lengths, model, formula, alpha=0.05):
     }
 
     nsites = len(next(iter(sequences.values())))
-    coherence = 0.0
+    # Per-mode, unweighted: weighting is linear, so accumulating per mode and
+    # combining with a weight vector afterward equals weighting per site, but
+    # deferring it is what lets eigenvalue_weighted solve for its weights
+    # from the same covariance matrices this loop already produces.
+    coherence_vec = np.zeros(len(modes), dtype=float)
     left_second = np.zeros((len(modes), len(modes)), dtype=float)
     right_second = np.zeros((len(modes), len(modes)), dtype=float)
+    # First moments, to centre the statistic exactly as the native side does.
+    left_first = np.zeros(len(modes), dtype=float)
+    right_first = np.zeros(len(modes), dtype=float)
     valid_sites = 0
 
     for site in range(nsites):
@@ -235,14 +242,36 @@ def compute_formula(sequences, lengths, model, formula, alpha=0.05):
             dtype=float,
         )
 
-        coherence += float(np.dot(weights, left_factor * right_factor))
+        coherence_vec += left_factor * right_factor
         left_second += np.outer(left_factor, left_factor)
         right_second += np.outer(right_factor, right_factor)
+        left_first += left_factor
+        right_first += right_factor
         valid_sites += 1
 
-    coherence /= valid_sites
-    weight_matrix = np.outer(weights, weights)
-    variance = float(np.sum(weight_matrix * (left_second / valid_sites) * (right_second / valid_sites)))
+    # Centred second moments -- Cov_L(i,j), Cov_R(i,j). Needed for the
+    # variance regardless of formula, and, for eigenvalue_weighted only, to
+    # build the noise-covariance matrix the enhanced weights solve against.
+    left_mean = left_first / valid_sites
+    right_mean = right_first / valid_sites
+    left_cov = left_second / valid_sites - np.outer(left_mean, left_mean)
+    right_cov = right_second / valid_sites - np.outer(right_mean, right_mean)
+
+    # dominant never sets eigenvalue_weighted, so it always takes this branch
+    # unchanged: active_weights == weights. eigenvalue_weighted solves
+    # w = M+ s via a truncated pseudo-inverse of the noise-covariance matrix
+    # M = Cov_L (Hadamard) Cov_R only when enhanced_weights is requested,
+    # matching native's --satute-enhanced-weights (default off). Mirrors
+    # tree/satute/satute_statistics.cpp::solveEnhancedWeights exactly.
+    active_weights = weights
+    if formula == "eigenvalue_weighted" and enhanced_weights:
+        noise_matrix = left_cov * right_cov
+        active_weights = np.linalg.pinv(noise_matrix, rcond=1e-8) @ weights
+
+    # Centre the cross-moment into a covariance, matching the native side.
+    coherence = float(np.dot(active_weights, coherence_vec / valid_sites - left_mean * right_mean))
+    weight_matrix = np.outer(active_weights, active_weights)
+    variance = float(np.sum(weight_matrix * left_cov * right_cov))
     se = math.sqrt(variance / valid_sites)
     z_score = coherence / se
     p_value = 0.5 * math.erfc(z_score / math.sqrt(2.0))
@@ -273,6 +302,8 @@ def compute_mode_decomposition(sequences, lengths, model, alpha=0.05):
     coherence = np.zeros(len(modes), dtype=float)
     left_second = np.zeros(len(modes), dtype=float)
     right_second = np.zeros(len(modes), dtype=float)
+    left_first = np.zeros(len(modes), dtype=float)
+    right_first = np.zeros(len(modes), dtype=float)
     valid_sites = 0
 
     for site in range(nsites):
@@ -298,12 +329,19 @@ def compute_mode_decomposition(sequences, lengths, model, alpha=0.05):
             coherence[idx] += left_factor * right_factor
             left_second[idx] += left_factor * left_factor
             right_second[idx] += right_factor * right_factor
+            left_first[idx] += left_factor
+            right_first[idx] += right_factor
         valid_sites += 1
 
     rows = []
     for idx, mode in enumerate(modes):
-        sat_c = float(coherence[idx] / valid_sites)
-        variance = float((left_second[idx] / valid_sites) * (right_second[idx] / valid_sites))
+        left_mean = float(left_first[idx] / valid_sites)
+        right_mean = float(right_first[idx] / valid_sites)
+        sat_c = float(coherence[idx] / valid_sites) - left_mean * right_mean
+        variance = float(
+            (left_second[idx] / valid_sites - left_mean * left_mean)
+            * (right_second[idx] / valid_sites - right_mean * right_mean)
+        )
         se = math.sqrt(variance / valid_sites)
         z_score = sat_c / se
         p_value = 0.5 * math.erfc(z_score / math.sqrt(2.0))
@@ -328,17 +366,21 @@ def compute_mode_decomposition(sequences, lengths, model, alpha=0.05):
     return rows
 
 
-def assert_native_matches_python_reference(label, formula, implementation, reference):
+def assert_native_matches_python_reference(label, formula, implementation, reference, enhanced_weights=False):
     for field in ("satC", "satVar", "satSE", "satZ", "satP"):
+        # Only widened when enhanced_weights is active: see the matching
+        # comment in solveEnhancedWeights (tree/satute/satute_statistics.cpp).
+        tolerance = max(NATIVE_REFERENCE_TOL, abs(reference[field]) * 1e-2) \
+            if enhanced_weights and formula == "eigenvalue_weighted" else NATIVE_REFERENCE_TOL
         if not math.isclose(
             implementation[field],
             reference[field],
             rel_tol=0.0,
-            abs_tol=NATIVE_REFERENCE_TOL,
+            abs_tol=tolerance,
         ):
             raise AssertionError(
                 f"{label} {formula}: native {field}={implementation[field]} differs from "
-                f"Python reference {reference[field]}"
+                f"Python reference {reference[field]} (tolerance={tolerance:.6g})"
             )
     if implementation["Decision"] != reference["Decision"]:
         raise AssertionError(

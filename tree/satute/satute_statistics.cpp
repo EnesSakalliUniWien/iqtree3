@@ -9,6 +9,7 @@
  ***************************************************************************/
 
 #include "satute_statistics.h"
+#include "satute_format.h"
 #include "../../gsl/mygsl.h"
 
 #ifdef _OPENMP
@@ -187,6 +188,125 @@ static void finalizeSatuTeResult(SatuTeBranchResult &result) {
     }
 }
 
+/**
+ * Symmetric eigenvalue decomposition by cyclic Jacobi rotations: a, IN/OUT,
+ * becomes diagonal; eigenvectors, OUT, has the eigenvectors as columns.
+ * Adequate for the small matrices here (n <= ~19 for protein, typically 1-3
+ * for DNA): a handful of sweeps converges to machine precision at this size,
+ * and no external linear-algebra dependency is needed for it.
+ */
+static void jacobiEigenSymmetric(vector<double> &a, int n, vector<double> &eigenvectors)
+{
+    eigenvectors.assign((size_t)n * n, 0.0);
+    for (int i = 0; i < n; i++)
+        eigenvectors[(size_t)i * n + i] = 1.0;
+
+    const int max_sweeps = 100;
+    for (int sweep = 0; sweep < max_sweeps; sweep++) {
+        double off_diagonal = 0.0;
+        for (int p = 0; p < n; p++)
+            for (int q = p + 1; q < n; q++)
+                off_diagonal += a[(size_t)p * n + q] * a[(size_t)p * n + q];
+        if (off_diagonal < 1e-30)
+            break;
+
+        for (int p = 0; p < n; p++) {
+            for (int q = p + 1; q < n; q++) {
+                if (fabs(a[(size_t)p * n + q]) < 1e-300)
+                    continue;
+                double theta = (a[(size_t)q * n + q] - a[(size_t)p * n + p]) /
+                    (2.0 * a[(size_t)p * n + q]);
+                double t = ((theta >= 0.0) ? 1.0 : -1.0) / (fabs(theta) + sqrt(theta * theta + 1.0));
+                double c = 1.0 / sqrt(t * t + 1.0);
+                double s = t * c;
+                double app = a[(size_t)p * n + p];
+                double aqq = a[(size_t)q * n + q];
+                double apq = a[(size_t)p * n + q];
+
+                a[(size_t)p * n + p] = c * c * app - 2.0 * s * c * apq + s * s * aqq;
+                a[(size_t)q * n + q] = s * s * app + 2.0 * s * c * apq + c * c * aqq;
+                a[(size_t)p * n + q] = 0.0;
+                a[(size_t)q * n + p] = 0.0;
+
+                for (int i = 0; i < n; i++) {
+                    if (i == p || i == q)
+                        continue;
+                    double aip = a[(size_t)i * n + p];
+                    double aiq = a[(size_t)i * n + q];
+                    a[(size_t)i * n + p] = c * aip - s * aiq;
+                    a[(size_t)p * n + i] = a[(size_t)i * n + p];
+                    a[(size_t)i * n + q] = s * aip + c * aiq;
+                    a[(size_t)q * n + i] = a[(size_t)i * n + q];
+                }
+                for (int i = 0; i < n; i++) {
+                    double vip = eigenvectors[(size_t)i * n + p];
+                    double viq = eigenvectors[(size_t)i * n + q];
+                    eigenvectors[(size_t)i * n + p] = c * vip - s * viq;
+                    eigenvectors[(size_t)i * n + q] = s * vip + c * viq;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Solve w = M+ s: the Rayleigh-quotient-maximising combination of modes for
+ * detecting a signal shaped like s under noise covariance M, where M+ is the
+ * Moore-Penrose pseudo-inverse of M. M is the Hadamard product of the left
+ * and right per-mode covariance matrices and is PSD by the Schur product
+ * theorem (a Hadamard product of two PSD matrices is PSD), so its
+ * eigenvalues are all >= 0 and a truncated pseudo-inverse is well-defined.
+ *
+ * s here is exp((lambda_k - lambda_max) * effective_length), the current
+ * formula's own weight vector, reused as the model-predicted signal shape.
+ * This reduces to the un-enhanced formula exactly when M is a scalar
+ * multiple of the identity (equal, uncorrelated per-mode noise -- the
+ * implicit assumption the plain weighted sum makes) and interpolates
+ * smoothly as modes become near-degenerate, which is precisely where that
+ * assumption breaks down and findDominantModes's hard-threshold mode
+ * SELECTION (used by the dominant formula, untouched here) becomes unstable
+ * -- see spectral_gap_stability in tests/native/validate_weighted_formula.py.
+ *
+ * Eigenvalues of M at or below `tolerance` are treated as zero (truncated,
+ * not naively inverted): M is estimated from finite data, so near-zero
+ * eigenvalues are noise, not signal, and inverting them would blow up the
+ * weight on exactly the least-trustworthy directions -- again, exactly the
+ * case a near-degenerate spectral gap produces.
+ */
+static vector<double> solveEnhancedWeights(const vector<double> &noise_matrix, const vector<double> &signal, size_t n)
+{
+    if (n == 1) {
+        double m = noise_matrix[0];
+        double tolerance = fabs(m) * 1e-8;
+        return vector<double>(1, (m > tolerance) ? signal[0] / m : 0.0);
+    }
+
+    vector<double> a = noise_matrix;
+    vector<double> eigenvectors;
+    jacobiEigenSymmetric(a, (int)n, eigenvectors);
+
+    vector<double> eigenvalues(n);
+    double max_eigenvalue = 0.0;
+    for (size_t i = 0; i < n; i++) {
+        eigenvalues[i] = a[i * n + i];
+        max_eigenvalue = max(max_eigenvalue, eigenvalues[i]);
+    }
+    double tolerance = max_eigenvalue * 1e-8;
+
+    vector<double> weights(n, 0.0);
+    for (size_t k = 0; k < n; k++) {
+        if (eigenvalues[k] <= tolerance)
+            continue;
+        double projection = 0.0;
+        for (size_t i = 0; i < n; i++)
+            projection += eigenvectors[i * n + k] * signal[i];
+        double scale = projection / eigenvalues[k];
+        for (size_t i = 0; i < n; i++)
+            weights[i] += scale * eigenvectors[i * n + k];
+    }
+    return weights;
+}
+
 static SatuTeBranchResult computeCategoryStatisticImpl(
     Node *left_node,
     Node *left_dad,
@@ -202,12 +322,29 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     int required_pattern_cat,
     double rate_multiplier,
     int num_threads,
+    bool enhanced_weights,
     const SatuTeBranchResult &base)
 {
     SatuTeBranchResult result = base;
     size_t nmodes = formula.modes.size();
     vector<double> left_second(nmodes * nmodes, 0.0);
     vector<double> right_second(nmodes * nmodes, 0.0);
+    // First moments, needed to centre the statistic. The raw cross-moment
+    // sum_k w_k L_k R_k is only a valid independence test when E[L_k]=E[R_k]=0,
+    // which holds when the fitted model's eigenvectors are orthogonal to its
+    // own stationary distribution. Under a misspecified model both means drift
+    // off zero and E[C] = sum_k w_k E[L_k] E[R_k] != 0, a bias that grows as
+    // sqrt(n) in the z-score. Centring turns the statistic into a covariance,
+    // which is zero under independence whatever the marginal means are.
+    vector<double> left_first(nmodes, 0.0);
+    vector<double> right_first(nmodes, 0.0);
+    // Per-mode, unweighted: sum_site freq * left_factor[i] * right_factor[i].
+    // Weighting is linear, so summing per mode and combining with a weight
+    // vector afterward equals summing pre-weighted per site, but deferring it
+    // is what lets eigenvalue_weighted solve for its weights from the same
+    // covariance matrices this loop already produces, without a second pass
+    // over the alignment.
+    vector<double> coherence_vec(nmodes, 0.0);
     vector<double> state_freq(nstates, 0.0);
     // One matrix slot per node id; 2*nseq is a safe upper bound on node count.
     vector<double> transition_cache(
@@ -236,12 +373,14 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     nthreads = (num_threads > 0) ? num_threads : omp_get_max_threads();
 #endif
     const size_t second_size = nmodes * nmodes;
-    vector<double> thread_coherence(nthreads, 0.0);
     vector<double> thread_valid(nthreads, 0.0);
     vector<int> thread_rate_category_sites(nthreads, 0);
     vector<int> thread_skipped(nthreads, 0);
     vector<double> thread_left_second(nthreads * second_size, 0.0);
     vector<double> thread_right_second(nthreads * second_size, 0.0);
+    vector<double> thread_left_first(nthreads * nmodes, 0.0);
+    vector<double> thread_right_first(nthreads * nmodes, 0.0);
+    vector<double> thread_coherence_vec(nthreads * nmodes, 0.0);
 
 #ifdef _OPENMP
 #pragma omp parallel num_threads(nthreads)
@@ -262,7 +401,9 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     vector<double> scratch((aln->getNSeq() + 2) * (size_t)nstates, 0.0);
     vector<double> local_left_second(second_size, 0.0);
     vector<double> local_right_second(second_size, 0.0);
-    double local_coherence_sum = 0.0;
+    vector<double> local_left_first(nmodes, 0.0);
+    vector<double> local_right_first(nmodes, 0.0);
+    vector<double> local_coherence_vec(nmodes, 0.0);
     double local_valid_sites = 0.0;
     int local_rate_category_sites = 0;
     int local_skipped_sites = 0;
@@ -324,7 +465,6 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
             right_posterior[state] /= right_sum;
         }
 
-        double site_coherence = 0.0;
         bool valid = true;
         for (size_t i = 0; i < nmodes; i++) {
             left_factor[i] = 0.0;
@@ -338,15 +478,18 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
                 valid = false;
                 break;
             }
-            site_coherence += mode_weights[i] * left_factor[i] * right_factor[i];
         }
         if (!valid) {
             local_skipped_sites += freq;
             continue;
         }
 
-        local_coherence_sum += freq * site_coherence;
         local_valid_sites += freq;
+        for (size_t i = 0; i < nmodes; i++) {
+            local_left_first[i] += freq * left_factor[i];
+            local_right_first[i] += freq * right_factor[i];
+            local_coherence_vec[i] += freq * left_factor[i] * right_factor[i];
+        }
         for (size_t i = 0; i < nmodes; i++) {
             for (size_t j = 0; j < nmodes; j++) {
                 size_t idx = i * nmodes + j;
@@ -356,7 +499,6 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         }
     }
 
-    thread_coherence[thread_id] = local_coherence_sum;
     thread_valid[thread_id] = local_valid_sites;
     thread_rate_category_sites[thread_id] = local_rate_category_sites;
     thread_skipped[thread_id] = local_skipped_sites;
@@ -364,21 +506,29 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         thread_left_second[thread_id * second_size + idx] = local_left_second[idx];
         thread_right_second[thread_id * second_size + idx] = local_right_second[idx];
     }
+    for (size_t i = 0; i < nmodes; i++) {
+        thread_left_first[thread_id * nmodes + i] = local_left_first[i];
+        thread_right_first[thread_id * nmodes + i] = local_right_first[i];
+        thread_coherence_vec[thread_id * nmodes + i] = local_coherence_vec[i];
+    }
     } // omp parallel
 
     // Fixed combination order, so the totals do not depend on thread timing.
-    double coherence_sum = 0.0;
     double valid_sites = 0.0;
     int rate_category_sites = 0;
     int skipped_sites = 0;
     for (int thread = 0; thread < nthreads; thread++) {
-        coherence_sum += thread_coherence[thread];
         valid_sites += thread_valid[thread];
         rate_category_sites += thread_rate_category_sites[thread];
         skipped_sites += thread_skipped[thread];
         for (size_t idx = 0; idx < second_size; idx++) {
             left_second[idx] += thread_left_second[thread * second_size + idx];
             right_second[idx] += thread_right_second[thread * second_size + idx];
+        }
+        for (size_t i = 0; i < nmodes; i++) {
+            left_first[i] += thread_left_first[thread * nmodes + i];
+            right_first[i] += thread_right_first[thread * nmodes + i];
+            coherence_vec[i] += thread_coherence_vec[thread * nmodes + i];
         }
     }
 
@@ -390,16 +540,62 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         return result;
     }
 
-    result.coherence = coherence_sum / valid_sites;
+    // Centre with the observed marginal means. Under a correctly specified
+    // model these are ~0 and this is a no-op; under misspecification they carry
+    // the bias that would otherwise be read as branch signal.
+    vector<double> left_mean(nmodes, 0.0);
+    vector<double> right_mean(nmodes, 0.0);
+    for (size_t i = 0; i < nmodes; i++) {
+        left_mean[i] = left_first[i] / valid_sites;
+        right_mean[i] = right_first[i] / valid_sites;
+    }
+
+    // Centred second moments -- Cov_L(i,j), Cov_R(i,j). Needed for the
+    // variance regardless of formula, and, for eigenvalue_weighted only, to
+    // build the noise-covariance matrix the enhanced weights solve against.
+    vector<double> left_cov(nmodes * nmodes, 0.0);
+    vector<double> right_cov(nmodes * nmodes, 0.0);
+    for (size_t i = 0; i < nmodes; i++) {
+        for (size_t j = 0; j < nmodes; j++) {
+            size_t idx = i * nmodes + j;
+            left_cov[idx] = left_second[idx] / valid_sites - left_mean[i] * left_mean[j];
+            right_cov[idx] = right_second[idx] / valid_sites - right_mean[i] * right_mean[j];
+        }
+    }
+
+    // dominant never sets eigenvalue_weighted, so it always takes this
+    // branch unchanged: active_weights == mode_weights, exactly today's
+    // behaviour. eigenvalue_weighted solves for an enhanced weight only when
+    // explicitly requested via --satute-enhanced-weights: mathematically
+    // valid (proven not to affect calibration) but empirically inert at
+    // short side-branch lengths and measurably worse for power at long ones
+    // (see tests/native/validate_weighted_formula.py); opt-in, default off.
+    vector<double> active_weights = mode_weights;
+    if (formula.eigenvalue_weighted && enhanced_weights) {
+        vector<double> noise_matrix(nmodes * nmodes, 0.0);
+        for (size_t idx = 0; idx < nmodes * nmodes; idx++)
+            noise_matrix[idx] = left_cov[idx] * right_cov[idx];
+        active_weights = solveEnhancedWeights(noise_matrix, mode_weights, nmodes);
+    }
+
+    double centred_coherence = 0.0;
+    for (size_t i = 0; i < nmodes; i++)
+        centred_coherence += active_weights[i] * (coherence_vec[i] / valid_sites - left_mean[i] * right_mean[i]);
+    result.coherence = centred_coherence;
+
+    // Matching centred second moments, so the variance describes the same
+    // centred quantity the numerator now measures.
     result.variance = 0.0;
     for (size_t i = 0; i < nmodes; i++) {
         for (size_t j = 0; j < nmodes; j++) {
             size_t idx = i * nmodes + j;
-            result.variance += mode_weights[i] * mode_weights[j] *
-                (left_second[idx] / valid_sites) *
-                (right_second[idx] / valid_sites);
+            result.variance += active_weights[i] * active_weights[j] * left_cov[idx] * right_cov[idx];
         }
     }
+    // Report what was actually applied. For dominant this is identical to
+    // the pre-solve weights already formatted by the caller; for
+    // eigenvalue_weighted it is now data-dependent and only known here.
+    result.weights = format::formatVector(active_weights);
     finalizeSatuTeResult(result);
     return result;
 }
@@ -528,6 +724,7 @@ SatuTeBranchResult computeCategoryStatistic(
     int required_pattern_cat,
     double rate_multiplier,
     int num_threads,
+    bool enhanced_weights,
     const SatuTeBranchResult &base)
 {
     return computeCategoryStatisticImpl(
@@ -545,6 +742,7 @@ SatuTeBranchResult computeCategoryStatistic(
         required_pattern_cat,
         rate_multiplier,
         num_threads,
+        enhanced_weights,
         base);
 }
 

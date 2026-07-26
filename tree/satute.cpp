@@ -29,7 +29,7 @@
 using namespace std;
 using namespace satute;
 
-void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edges_file) {
+void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edges_file, bool enhanced_weights) {
     if (prefix == nullptr || strlen(prefix) == 0)
         outError("SatuTe requires a valid output prefix");
     if (alpha <= 0.0 || alpha >= 1.0)
@@ -146,6 +146,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         category.pattern_cat,
                         category.rate,
                         num_threads,
+                        enhanced_weights,
                         base));
             }
 

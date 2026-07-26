@@ -1468,6 +1468,14 @@ public:
 
     /** Optional file listing branch IDs to analyze with SatuTe */
     char *satute_edges_file;
+
+    /** TRUE to use the GLS/matched-filter (M-inverse) mode weighting for
+     * eigenvalue_weighted instead of the shipped signal-decay weighting.
+     * Mathematically valid (does not affect calibration) but empirically
+     * inert at the short side-branch lengths tested so far, and measurably
+     * worse for power at long side branches -- opt-in, default off. Never
+     * affects the dominant formula. */
+    bool satute_enhanced_weights;
     
     /** 1 to compute internode certainty */
     int internode_certainty;

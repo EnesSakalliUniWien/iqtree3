@@ -443,7 +443,7 @@ def posterior(partial, pi):
     return values / total
 
 
-def compute_reference(sequences, split_edge, sites, model, formula, rate_multiplier, alpha):
+def compute_reference(sequences, split_edge, sites, model, formula, rate_multiplier, alpha, enhanced_weights=False):
     q, pi = build_q(model)
     evals, eigenvectors, inv_eigenvectors = reversible_eigendecomposition(q, pi)
     effective_branch_length = split_edge.branch_length * rate_multiplier
@@ -461,9 +461,16 @@ def compute_reference(sequences, split_edge, sites, model, formula, rate_multipl
             )
         return transition_cache[scaled_length]
 
-    coherence_sum = 0.0
+    # Per-mode, unweighted: weighting is linear, so accumulating per mode and
+    # combining with a weight vector afterward equals weighting per site, but
+    # deferring it is what lets eigenvalue_weighted solve for its weights
+    # from the same covariance matrices this loop already produces.
+    coherence_vec = np.zeros(len(modes), dtype=float)
     left_second = np.zeros((len(modes), len(modes)), dtype=float)
     right_second = np.zeros((len(modes), len(modes)), dtype=float)
+    # First moments, to centre the statistic exactly as the native side does.
+    left_first = np.zeros(len(modes), dtype=float)
+    right_first = np.zeros(len(modes), dtype=float)
     valid_sites = 0
 
     for site in sites:
@@ -480,18 +487,45 @@ def compute_reference(sequences, split_edge, sites, model, formula, rate_multipl
 
         left_factors = np.array([float(np.dot(eigenvectors[:, mode], left_post)) for mode in modes])
         right_factors = np.array([float(np.dot(eigenvectors[:, mode], right_post)) for mode in modes])
-        coherence_sum += float(np.dot(weights, left_factors * right_factors))
+        coherence_vec += left_factors * right_factors
         left_second += np.outer(left_factors, left_factors)
         right_second += np.outer(right_factors, right_factors)
+        left_first += left_factors
+        right_first += right_factors
         valid_sites += 1
 
     if valid_sites == 0:
         raise ValueError("No valid sites for the requested reference calculation")
 
-    sat_c = coherence_sum / valid_sites
-    sat_var = float(
-        np.sum(np.outer(weights, weights) * (left_second / valid_sites) * (right_second / valid_sites))
-    )
+    # Centred second moments -- Cov_L(i,j), Cov_R(i,j). Needed for the
+    # variance regardless of formula, and, for eigenvalue_weighted only, to
+    # build the noise-covariance matrix the enhanced weights solve against.
+    left_mean = left_first / valid_sites
+    right_mean = right_first / valid_sites
+    left_cov = left_second / valid_sites - np.outer(left_mean, left_mean)
+    right_cov = right_second / valid_sites - np.outer(right_mean, right_mean)
+
+    # dominant never sets eigenvalue_weighted (see formula_modes_and_weights),
+    # so it always takes this branch unchanged: active_weights == weights.
+    # eigenvalue_weighted solves w = M+ s -- the Rayleigh-quotient-maximising
+    # combination of modes for signal shape s under noise covariance
+    # M = Cov_L (Hadamard) Cov_R, via a truncated (rcond=1e-8) pseudo-inverse
+    # -- only when enhanced_weights is requested, matching native's
+    # --satute-enhanced-weights (default off: mathematically valid but
+    # empirically inert/harmful at the branch lengths tested so far; see
+    # tests/native/validate_weighted_formula.py). Mirrors
+    # tree/satute/satute_statistics.cpp::solveEnhancedWeights exactly.
+    active_weights = weights
+    if formula == "eigenvalue_weighted" and enhanced_weights:
+        noise_matrix = left_cov * right_cov
+        active_weights = np.linalg.pinv(noise_matrix, rcond=1e-8) @ weights
+
+    # Centre the cross-moment into a covariance. The raw form is only a valid
+    # independence test when E[L]=E[R]=0, which fails under a misspecified
+    # model and biases the statistic; the centred form is zero under
+    # independence whatever the marginal means are.
+    sat_c = float(np.dot(active_weights, coherence_vec / valid_sites - left_mean * right_mean))
+    sat_var = float(np.sum(np.outer(active_weights, active_weights) * left_cov * right_cov))
     sat_se = math.sqrt(sat_var / valid_sites)
     sat_z = sat_c / sat_se
     sat_p = 0.5 * math.erfc(sat_z / math.sqrt(2.0))
@@ -512,7 +546,7 @@ def compute_reference(sequences, split_edge, sites, model, formula, rate_multipl
         "Decision": "informative" if sat_p <= alpha else "saturated",
         "Modes": ",".join(str(mode) for mode in modes),
         "Eigenvalues": ",".join(format_float(float(evals[mode])) for mode in modes),
-        "Weights": ",".join(format_float(float(weight)) for weight in weights),
+        "Weights": ",".join(format_float(float(weight)) for weight in active_weights),
     }
 
 
@@ -823,7 +857,7 @@ def mode_count(value):
     return len([item for item in value.split(",") if item])
 
 
-def compare_native_rows(native_path, reference_rows, tolerance, split_labels, branch_id=None):
+def compare_native_rows(native_path, reference_rows, tolerance, split_labels, branch_id=None, enhanced_weights=False):
     native_rows = parse_native_sat_stat(native_path, split_labels, branch_id)
     checked = 0
 
@@ -850,9 +884,19 @@ def compare_native_rows(native_path, reference_rows, tolerance, split_labels, br
         ):
             observed = float(native[field])
             expected = float(reference[field])
-            if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=tolerance):
+            # Only widened when enhanced_weights is active: eigenvalue_weighted
+            # then solves w = M+ s (see solveEnhancedWeights in
+            # tree/satute/satute_statistics.cpp), and the pseudo-inverse
+            # amplifies the usual cross-implementation floating-point
+            # difference between the two independently-computed M matrices.
+            # Scaled per field: a Z-score ~40 and a p-value in [0,1] cannot
+            # share one absolute tolerance.
+            field_tolerance = max(tolerance, abs(expected) * 1e-2) \
+                if enhanced_weights and reference["Formula"] == "eigenvalue_weighted" else tolerance
+            if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=field_tolerance):
                 raise AssertionError(
-                    f"{key} {field}: native {observed} differs from reference {expected}"
+                    f"{key} {field}: native {observed} differs from reference {expected} "
+                    f"(tolerance={field_tolerance:.6g})"
                 )
 
         if native["Decision"] != reference["Decision"]:
@@ -872,7 +916,7 @@ def compare_native_rows(native_path, reference_rows, tolerance, split_labels, br
     return checked
 
 
-def compare_native_all_rows(native_path, reference_rows, tolerance):
+def compare_native_all_rows(native_path, reference_rows, tolerance, enhanced_weights=False):
     native_rows = parse_native_sat_stat(native_path)
     checked = 0
 
@@ -906,9 +950,14 @@ def compare_native_all_rows(native_path, reference_rows, tolerance):
         ):
             observed = float(native[field])
             expected = float(reference[field])
-            if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=tolerance):
+            # See the matching comment in compare_native_rows: only widened
+            # when enhanced_weights is active.
+            field_tolerance = max(tolerance, abs(expected) * 1e-2) \
+                if enhanced_weights and reference["Formula"] == "eigenvalue_weighted" else tolerance
+            if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=field_tolerance):
                 raise AssertionError(
-                    f"{key} {field}: native {observed} differs from reference {expected}"
+                    f"{key} {field}: native {observed} differs from reference {expected} "
+                    f"(tolerance={field_tolerance:.6g})"
                 )
 
         for field in ("Decision", "DecisionTaxonBonf"):

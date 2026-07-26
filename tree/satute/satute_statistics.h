@@ -33,6 +33,7 @@ SatuTeBranchResult computeCategoryStatistic(
     int required_pattern_cat,
     double rate_multiplier,
     int num_threads,
+    bool enhanced_weights,
     const SatuTeBranchResult &base);
 
 SatuTeBranchResult poolCategoryResults(

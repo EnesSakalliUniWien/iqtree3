@@ -1986,7 +1986,7 @@ public:
     /**
      compute SatuTe branch saturation statistic and write annotated output files
      */
-    void computeSatuTe(const char *prefix, double alpha, const char *edges_file = nullptr);
+    void computeSatuTe(const char *prefix, double alpha, const char *edges_file = nullptr, bool enhanced_weights = false);
 
     /**
      compute site concordance factor
