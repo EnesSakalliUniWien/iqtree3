@@ -49,6 +49,52 @@ def main():
                     failures,
                 )
 
+    workspace_interface = PROJECT / "satute"
+    result = subprocess.run(
+        [str(workspace_interface), "data", "--profile", "smoke", "--plan"],
+        cwd=PROJECT,
+        env=environment,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if result.returncode:
+        fail(f"workspace data-generation plan failed: {result.stderr[-500:]}", failures)
+
+    simulation_map_path = PROJECT / "docs/overview/simulation-analysis-map.md"
+    simulation_map = simulation_map_path.read_text(encoding="utf-8")
+    required_map_entries = (
+        "experiments/001_paper_reconstruction/run.py",
+        "experiments/002_relative_weighting/run.py",
+        "experiments/002_relative_weighting/fdr_calibration_run.py",
+        "experiments/003_invariant_mixture/run.py",
+        "experiments/004_saturation_diagnostics/run.py",
+        "experiments/005_biological_windows/analyze_dataset.py",
+        "experiments/005_biological_windows/prepare_hcv_example.py",
+        "tests/exact/test_saturation_null.py",
+        "tests/native/compare_formulas.py",
+        "tests/native/test_satute_rate_categories.py",
+        "tests/native/test_satute_reference_general.py",
+        "tests/native/test_satute_simulated.sh",
+        "src/satute_analysis/statistics.py",
+        "experiments/002_relative_weighting/combine.py",
+        "experiments/002_relative_weighting/fdr_calibration_postprocess.py",
+        "experiments/002_relative_weighting/recalibrate_heldout_from_truth.py",
+        "experiments/002_relative_weighting/render_power_summary.py",
+        "experiments/003_invariant_mixture/render_full.py",
+        "experiments/004_saturation_diagnostics/summarize_null.py",
+        "experiments/005_biological_windows/render_hcv_example.py",
+    )
+    missing_map_entries = [
+        entry for entry in required_map_entries if entry not in simulation_map
+    ]
+    if missing_map_entries:
+        fail(
+            "simulation/analysis map omits internal adapters: "
+            + ", ".join(missing_map_entries),
+            failures,
+        )
+
     manuscript = PROJECT / "manuscript"
     tex_files = [manuscript / "main.tex", *sorted((manuscript / "sections").rglob("*.tex"))]
     for tex_file in tex_files:

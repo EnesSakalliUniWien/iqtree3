@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "documents": {
+    "main": "manuscript/main.tex",
+    "supplement": "manuscript/supplementary.tex"
+  },
+  "figures": [
+    {
+      "id": "workflow",
+      "kind": "main",
+      "order": 1,
+      "label": "fig-workflow",
+      "tex_source": "manuscript/sections/01-introduction.tex",
+      "assets": ["manuscript/figures/figure1_satute_weighted_workflow.pdf"],
+      "renderer": "tools/manuscript/render_workflow_latex.py",
+      "source_data": [],
+      "takeaway": "SatuTe tests branch-specific subtree coherence and weights spectral directions by persistence."
+    },
+    {
+      "id": "jc-original-baseline",
+      "kind": "main",
+      "order": 2,
+      "label": "fig-jc-baseline",
+      "tex_source": "manuscript/sections/results/22-weighted-simulations.tex",
+      "assets": ["manuscript/figures/figure_jc_baseline_power.pdf"],
+      "renderer": "experiments/001_paper_reconstruction/render_full_baseline.R",
+      "source_data": ["artifacts/publication/power/jc_JC/data/head_to_head_summary.tsv"],
+      "takeaway": "The current implementation recovers the original JC behavior for unrooted five- and sixteen-taxon targets."
+    },
+    {
+      "id": "invariant-null",
+      "kind": "main",
+      "order": 3,
+      "label": "fig-invariant-null",
+      "tex_source": "manuscript/sections/results/21-invariant-validation.tex",
+      "assets": ["manuscript/figures/figure_weighted_invariant_full.pdf"],
+      "renderer": "experiments/003_invariant_mixture/render_full.py",
+      "source_data": ["artifacts/releases/invariant-mixture-v1/tables/summary.tsv"],
+      "takeaway": "The corrected invariant-mixture null restores centering and calibration."
+    },
+    {
+      "id": "gtr-g4-power",
+      "kind": "main",
+      "order": 4,
+      "label": "fig-gtr-g4-power",
+      "tex_source": "manuscript/sections/results/24-publication-suite.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_G4_dominant.pdf",
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_G4_weighted.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/gtr_GTR_PF06346_G4/data/head_to_head_summary.tsv"],
+      "takeaway": "Weighting retains power further into the GTR+F+G4 long-branch boundary."
+    },
+    {
+      "id": "model-misspecification",
+      "kind": "main",
+      "order": 5,
+      "label": "fig-gtr-misspec-absolute",
+      "tex_source": "manuscript/sections/results/24-publication-suite.tex",
+      "assets": ["manuscript/figures/figure_model_misspecification.pdf"],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": [
+        "artifacts/publication/figures/model-misspecification/data/figure_model_misspecification_data.tsv"
+      ],
+      "takeaway": "JC and K2P misspecification causes alignment-length-dependent spurious rejection; F81 remains closer to the GTR+F reference."
+    },
+    {
+      "id": "cross-model-power",
+      "kind": "main",
+      "order": 6,
+      "label": "fig-cross-model-power",
+      "tex_source": "manuscript/sections/results/24-publication-suite.tex",
+      "assets": ["manuscript/figures/figure_power_curve_summary.pdf"],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": [
+        "artifacts/publication/figures/cross-model-power/data/figure_power_curve_summary_data.tsv",
+        "artifacts/publication/figures/cross-model-power/data/figure_power_curve_summary_claims.tsv"
+      ],
+      "takeaway": "Under inferred-tree taxon-pair Bonferroni testing, JC is unchanged, GTR+F+G4 shows the largest gain and LG+G4 shows a smaller boundary-localized gain."
+    },
+    {
+      "id": "truth-labelled-calibration",
+      "kind": "main",
+      "order": 7,
+      "label": "fig-fdr-calibration",
+      "tex_source": "manuscript/sections/results/24-publication-suite.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/figure_fdr_weighted_power_2d_gtr.pdf",
+        "manuscript/figures/publication-suite/figure_fdr_weighted_null_calibration_2d_gtr.pdf"
+      ],
+      "renderer": "experiments/002_relative_weighting/render_fdr_calibration.R",
+      "source_data": [
+        "artifacts/cluster/lisc/fdr-calibration-reps5000-2000-corrected-ties/figures/fdr_operating_summary.tsv",
+        "artifacts/cluster/lisc/fdr-calibration-reps5000-2000-corrected-ties/figures/heldout_null_plot_summary.tsv"
+      ],
+      "takeaway": "Independent mixed-null and held-out exact-null experiments preserve error control."
+    },
+    {
+      "id": "tree-of-life-windows",
+      "kind": "main",
+      "order": 8,
+      "label": "fig-biological-windows",
+      "tex_source": "manuscript/sections/results/23-biological-reruns.tex",
+      "assets": [
+        "manuscript/figures/published_vs_eigenvalue_weighted_curves.pdf",
+        "manuscript/figures/published_vs_eigenvalue_weighted_saturated_windows.pdf"
+      ],
+      "renderer": "experiments/005_biological_windows/render_independent.py",
+      "source_data": ["artifacts/releases/biological/independent_enhanced_sliding_window_20260619_151135/comparison_to_manuscript/published_vs_eigenvalue_weighted_summary.tsv"],
+      "takeaway": "Weighting changes local threshold crossings while preserving the protein-versus-rRNA contrast."
+    },
+    {
+      "id": "hcv-codon-windows",
+      "kind": "main",
+      "order": 9,
+      "label": "fig-hcv-windows",
+      "tex_source": "manuscript/sections/results/23-biological-reruns.tex",
+      "assets": [
+        "manuscript/figures/hcv_codon_position_window_curves.pdf",
+        "manuscript/figures/hcv_codon_position_saturated_windows.pdf"
+      ],
+      "renderer": "experiments/005_biological_windows/render_hcv_example.py",
+      "source_data": [
+        "artifacts/releases/biological/hcv-codon-windows-20260717/results/hcv_window_detail.tsv",
+        "artifacts/releases/biological/hcv-codon-windows-20260717/results/hcv_window_summary.tsv"
+      ],
+      "takeaway": "Localized losses concentrate in synonymous-enriched third codon positions."
+    },
+    {
+      "id": "branch-localization",
+      "kind": "supplement",
+      "order": 1,
+      "label": null,
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": ["manuscript/figures/figure_branch_localization_compact.pdf"],
+      "renderer": "tools/figures/export.py",
+      "source_data": ["artifacts/cluster/lisc/manuscript-ratehet-boundary-all-controls-reps1000/branch-neighborhood/branch_neighborhood_localization.tsv"],
+      "takeaway": "Weighted-minus-dominant changes remain localized to the focal branch."
+    },
+    {
+      "id": "tree-of-life-reference",
+      "kind": "supplement",
+      "order": 2,
+      "label": null,
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": ["manuscript/figures/figure_tree_of_life_reference.pdf"],
+      "renderer": "tools/manuscript/render_tree_references.R",
+      "source_data": [],
+      "takeaway": "Reference trees identify the biological branches tested in the manuscript."
+    },
+    {
+      "id": "jc-common-layout",
+      "kind": "supplement",
+      "order": 3,
+      "label": null,
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/jc_JC_dominant.pdf",
+        "manuscript/figures/publication-suite/power/jc_JC_weighted.pdf",
+        "manuscript/figures/publication-suite/power/jc_JC_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/jc_JC/data/head_to_head_summary.tsv"],
+      "takeaway": "The dominant and weighted formulas coincide exactly under JC."
+    },
+    {
+      "id": "gtr-common-layout",
+      "kind": "supplement",
+      "order": 4,
+      "label": "fig-supp-gtr-power-a",
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_dominant.pdf",
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_weighted.pdf",
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/gtr_GTR_PF06346/data/head_to_head_summary.tsv"],
+      "takeaway": "The homogeneous-rate GTR control has small paired differences."
+    },
+    {
+      "id": "gtr-g4-common-layout",
+      "kind": "supplement",
+      "order": 5,
+      "label": "fig-supp-gtr-power-b",
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_G4_dominant.pdf",
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_G4_weighted.pdf",
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_G4_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/gtr_GTR_PF06346_G4/data/head_to_head_summary.tsv"],
+      "takeaway": "GTR+F+G4 gains reach 57.6 percentage points under taxon Bonferroni."
+    },
+    {
+      "id": "gtr-i-g4-common-layout",
+      "kind": "supplement",
+      "order": 6,
+      "label": "fig-supp-gtr-power-c",
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_I_G4_dominant.pdf",
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_I_G4_weighted.pdf",
+        "manuscript/figures/publication-suite/power/gtr_GTR_PF06346_I_G4_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/gtr_GTR_PF06346_I_G4/data/head_to_head_summary.tsv"],
+      "takeaway": "The corrected invariant mixture supports large non-negative weighting gains."
+    },
+    {
+      "id": "protein-lg",
+      "kind": "supplement",
+      "order": 7,
+      "label": "fig-supp-protein-lg",
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/protein_LG_G4_dominant.pdf",
+        "manuscript/figures/publication-suite/power/protein_LG_G4_weighted.pdf",
+        "manuscript/figures/publication-suite/power/protein_LG_G4_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/protein_LG_G4/data/head_to_head_summary.tsv"],
+      "takeaway": "LG+G4 gains reach 32.7 percentage points."
+    },
+    {
+      "id": "protein-wag",
+      "kind": "supplement",
+      "order": 8,
+      "label": "fig-supp-protein-wag",
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/protein_WAG_G4_dominant.pdf",
+        "manuscript/figures/publication-suite/power/protein_WAG_G4_weighted.pdf",
+        "manuscript/figures/publication-suite/power/protein_WAG_G4_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/protein_WAG_G4/data/head_to_head_summary.tsv"],
+      "takeaway": "WAG+G4 gains reach 46.9 percentage points."
+    },
+    {
+      "id": "protein-jtt",
+      "kind": "supplement",
+      "order": 9,
+      "label": "fig-supp-protein-jtt",
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/protein_JTT_G4_dominant.pdf",
+        "manuscript/figures/publication-suite/power/protein_JTT_G4_weighted.pdf",
+        "manuscript/figures/publication-suite/power/protein_JTT_G4_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/protein_JTT_G4/data/head_to_head_summary.tsv"],
+      "takeaway": "JTT+G4 gains reach 55.5 percentage points."
+    },
+    {
+      "id": "protein-q-pfam",
+      "kind": "supplement",
+      "order": 10,
+      "label": "fig-supp-protein-qpfam",
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/protein_Q_PFAM_G4_dominant.pdf",
+        "manuscript/figures/publication-suite/power/protein_Q_PFAM_G4_weighted.pdf",
+        "manuscript/figures/publication-suite/power/protein_Q_PFAM_G4_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/protein_Q_PFAM_G4/data/head_to_head_summary.tsv"],
+      "takeaway": "Q.pfam+G4 gains reach 35.4 percentage points."
+    },
+    {
+      "id": "misspec-jc",
+      "kind": "supplement",
+      "order": 11,
+      "label": null,
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/misspec_JC_dominant.pdf",
+        "manuscript/figures/publication-suite/power/misspec_JC_weighted.pdf",
+        "manuscript/figures/publication-suite/power/misspec_JC_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/misspec_JC/data/head_to_head_summary.tsv"],
+      "takeaway": "JC is an exact formula control but remains misspecified for GTR data."
+    },
+    {
+      "id": "misspec-k2p",
+      "kind": "supplement",
+      "order": 12,
+      "label": null,
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/misspec_K2P_dominant.pdf",
+        "manuscript/figures/publication-suite/power/misspec_K2P_weighted.pdf",
+        "manuscript/figures/publication-suite/power/misspec_K2P_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/misspec_K2P/data/head_to_head_summary.tsv"],
+      "takeaway": "K2P misspecification changes absolute power and permits moderate paired gains."
+    },
+    {
+      "id": "misspec-f81",
+      "kind": "supplement",
+      "order": 13,
+      "label": null,
+      "tex_source": "manuscript/sections/06-supplementary-information.tex",
+      "assets": [
+        "manuscript/figures/publication-suite/power/misspec_F81_dominant.pdf",
+        "manuscript/figures/publication-suite/power/misspec_F81_weighted.pdf",
+        "manuscript/figures/publication-suite/power/misspec_F81_difference.pdf"
+      ],
+      "renderer": "tools/maintenance/generate_publication_power_figures.py",
+      "source_data": ["artifacts/publication/power/misspec_F81/data/head_to_head_summary.tsv"],
+      "takeaway": "Retaining base composition makes F81 closer to the correctly specified analysis."
+    }
+  ]
+}

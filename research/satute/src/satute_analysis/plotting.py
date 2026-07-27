@@ -4,22 +4,15 @@
 SATURATION_FORMULAS = (
     "dominant",
     "eigenvalue_weighted",
-    "mixture_likelihood_weighted",
 )
 
 SATURATION_FORMULA_STYLE = {
-    "dominant": ("Dominant", "#0A3FBA", "", "circle"),
+    "dominant": ("Published SatuTe", "#0A3FBA", "", "circle"),
     "eigenvalue_weighted": (
-        "Relative eigenvalue-weighted",
+        "Eigenvalue-weighted SatuTe",
         "#E69504",
         "9,5",
         "square",
-    ),
-    "mixture_likelihood_weighted": (
-        "Soft likelihood mixture",
-        "#B6497D",
-        "2,4",
-        "triangle",
     ),
 }
 

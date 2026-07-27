@@ -49,6 +49,12 @@ def main():
             else "-"
         )
         print(f"  {experiment.id:<28} {experiment.status:<20} {release}")
+        for study in experiment.studies:
+            default = " (default)" if study.id == experiment.default_study_id else ""
+            print(
+                f"    {study.id:<26} {study.outcome:<12} "
+                f"{study.scale:<8}{default}"
+            )
 
     print("\nArtifacts")
     for name in ("local", "cluster", "releases"):

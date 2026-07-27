@@ -8,12 +8,26 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
 
 PROJECT = Path(__file__).resolve().parents[2]
 RENDERER = PROJECT / "experiments" / "002_relative_weighting" / "render_formula_comparison.R"
+BASELINE_RENDERER = (
+    PROJECT / "experiments" / "001_paper_reconstruction" / "render_full_baseline.R"
+)
+MISSPECIFICATION_RENDERER = (
+    PROJECT
+    / "experiments"
+    / "002_relative_weighting"
+    / "render_misspecification_summary.py"
+)
+CROSS_MODEL_RENDERER = (
+    PROJECT / "experiments" / "002_relative_weighting" / "render_power_summary.py"
+)
+INTEGRATED_ROOT = PROJECT / "artifacts" / "publication" / "figures"
 CASE_ROOT = PROJECT / "artifacts" / "publication" / "power"
 PUBLICATION_ROOT = PROJECT / "manuscript" / "figures" / "publication-suite" / "power"
 
@@ -114,6 +128,8 @@ def render_case(case: Case, case_dir: Path, summary: Path, detail: Path, bootstr
             str(bootstrap_reps),
             "--decision-rule",
             "taxon_bonferroni",
+            "--scenario",
+            "ml_tree",
         ),
         cwd=PROJECT,
         check=True,
@@ -123,6 +139,34 @@ def render_case(case: Case, case_dir: Path, summary: Path, detail: Path, bootstr
         if len(matches) != 1:
             raise RuntimeError(f"{case.id}: expected one {pattern}, found {len(matches)}")
         shutil.copy2(matches[0], case_dir / "figures" / f"{plot_kind}.pdf")
+    paired_tables = list(raw_dir.glob("paired_formula_difference_*.tsv"))
+    if len(paired_tables) != 1:
+        raise RuntimeError(
+            f"{case.id}: expected one paired_formula_difference_*.tsv, "
+            f"found {len(paired_tables)}"
+        )
+    shutil.copy2(
+        paired_tables[0],
+        case_dir / "data" / "paired_formula_difference.tsv",
+    )
+    if case.id == "jc_JC":
+        original_style = case_dir / "figures" / "original-style-baseline.pdf"
+        subprocess.run(
+            (
+                "Rscript",
+                os.fspath(BASELINE_RENDERER),
+                "--summary",
+                os.fspath(summary),
+                "--output",
+                os.fspath(original_style),
+            ),
+            cwd=PROJECT,
+            check=True,
+        )
+        shutil.copy2(
+            original_style,
+            PROJECT / "manuscript" / "figures" / "figure_jc_baseline_power.pdf",
+        )
 
 
 def index_existing(case: Case, case_dir: Path) -> None:
@@ -131,6 +175,11 @@ def index_existing(case: Case, case_dir: Path) -> None:
         if not source.is_file():
             raise FileNotFoundError(f"{case.id}: missing existing publication plot: {source}")
         shutil.copy2(source, case_dir / "figures" / f"{plot_kind}.pdf")
+    if case.id == "jc_JC":
+        shutil.copy2(
+            PROJECT / "manuscript" / "figures" / "figure_jc_baseline_power.pdf",
+            case_dir / "figures" / "original-style-baseline.pdf",
+        )
 
 
 def publish_case(case: Case, case_dir: Path) -> None:
@@ -144,10 +193,17 @@ def publish_case(case: Case, case_dir: Path) -> None:
     provenance = {
         **asdict(case),
         "decision_rule": "taxon_bonferroni",
+        "scenario": "ml_tree",
         "expected_replicates": 1000,
         "colour_semantics": COLOUR_SEMANTICS,
         "data_policy": "case-local symbolic links to immutable merged source tables",
     }
+    if case.id == "jc_JC":
+        provenance["additional_figure"] = (
+            "figures/original-style-baseline.pdf: visual reconstruction of the "
+            "original SatuTe two-panel JC figure with unrooted ape phylogenies "
+            "rendered by ggtree"
+        )
     (case_dir / "provenance.json").write_text(
         json.dumps(provenance, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -192,6 +248,34 @@ def index_original_paper() -> None:
     )
 
 
+def render_integrated_main_figures() -> None:
+    """Render and publish Figures 5 and 6 from stable case-local tables."""
+
+    subprocess.run(
+        (sys.executable, os.fspath(MISSPECIFICATION_RENDERER)),
+        cwd=PROJECT,
+        check=True,
+    )
+    subprocess.run(
+        (sys.executable, os.fspath(CROSS_MODEL_RENDERER)),
+        cwd=PROJECT,
+        check=True,
+    )
+    for name in (
+        "figure_model_misspecification.pdf",
+        "figure_power_curve_summary.pdf",
+    ):
+        figure_id = (
+            "model-misspecification"
+            if name == "figure_model_misspecification.pdf"
+            else "cross-model-power"
+        )
+        source = INTEGRATED_ROOT / figure_id / "figures" / name
+        if not source.is_file():
+            raise FileNotFoundError(f"integrated renderer did not create {source}")
+        shutil.copy2(source, PROJECT / "manuscript" / "figures" / name)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", action="append", dest="cases", help="Build only this case; repeat as needed.")
@@ -222,6 +306,20 @@ def main() -> int:
         else:
             index_existing(case, case_dir)
         publish_case(case, case_dir)
+
+    selected_ids = {case.id for case in selected}
+    integrated_dependencies = {
+        "jc_JC",
+        "gtr_GTR_PF06346",
+        "gtr_GTR_PF06346_G4",
+        "protein_LG_G4",
+        "misspec_JC",
+        "misspec_K2P",
+        "misspec_F81",
+    }
+    if args.mode == "render" and integrated_dependencies <= selected_ids:
+        print("\n[main figures] rendering contract-checked Figures 5 and 6")
+        render_integrated_main_figures()
 
     print(f"\nPublished {len(selected)} complete power-figure cases from {CASE_ROOT}")
     return 0

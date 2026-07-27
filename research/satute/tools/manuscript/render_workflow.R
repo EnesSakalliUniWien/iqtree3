@@ -15,6 +15,7 @@ script_path <- if (length(file_arg) == 1) {
 project_dir <- normalizePath(file.path(dirname(script_path), "..", ".."))
 out_dir <- file.path(project_dir, "artifacts", "releases", "generated-figures")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+latex_overlay <- identical(Sys.getenv("SATUTE_LATEX_OVERLAY"), "1")
 
 blue <- "#153E81"
 blue_fill <- adjustcolor(blue, alpha.f = 0.13)
@@ -50,7 +51,15 @@ txt <- function(label, x, y, size = 10, col = dark, fontface = "plain", just = "
 }
 
 expr_txt <- function(expr, x, y, size = 12, col = dark, just = "centre") {
-  grid.text(expr, x, y, just = just, gp = gpar(fontsize = size, col = col))
+  if (!latex_overlay) {
+    grid.text(expr, x, y, just = just, gp = gpar(fontsize = size, col = col))
+  }
+}
+
+math_txt <- function(expr, x, y, size = 12, col = dark, just = "centre") {
+  if (!latex_overlay) {
+    txt(expr, x, y, size = size, col = col, just = just)
+  }
 }
 
 seg <- function(x0, y0, x1, y1, col = dark, lwd = 1.2, arrow = FALSE, lty = 1) {
@@ -89,7 +98,7 @@ draw_alignment_panel <- function() {
   left_end_x <- site_x - 0.025
   right_start_x <- site_x + 0.026
 
-  txt(expression(partialdiff), site_x, 0.785, size = 18)
+  math_txt(expression(partialdiff), site_x, 0.785, size = 18)
 
   taxa <- paste0("s", 1:5, ":")
   left <- c("... ATTAC", "... CTTAT", "... AATAG", "... ATTAG", "... ATTAG")
@@ -122,21 +131,21 @@ draw_likelihood_panel <- function() {
   txt("C", 0.494, 0.663, size = 14, col = blue, fontface = "bold")
   txt("T", 0.494, 0.618, size = 14, col = blue, fontface = "bold")
   txt("C", 0.494, 0.573, size = 14, col = blue, fontface = "bold")
-  txt(expression(partialdiff[A]), 0.489, 0.704, size = 13)
+  math_txt(expression(partialdiff[A]), 0.489, 0.704, size = 13)
 
   grid.roundrect(0.882, 0.618, width = unit(0.032, "npc"), height = unit(0.145, "npc"),
                  r = unit(0.015, "npc"), gp = gpar(fill = "white", col = "black", lwd = 0.7))
   txt("T", 0.882, 0.655, size = 14, col = orange, fontface = "bold")
   txt("T", 0.882, 0.585, size = 14, col = orange, fontface = "bold")
-  txt(expression(partialdiff[B]), 0.882, 0.704, size = 13)
+  math_txt(expression(partialdiff[B]), 0.882, 0.704, size = 13)
 
   # subtree wedges
   grid.polygon(c(0.514, 0.660, 0.514), c(0.714, 0.625, 0.536),
                gp = gpar(fill = blue_fill, col = NA))
   grid.polygon(c(0.862, 0.716, 0.862), c(0.714, 0.625, 0.536),
                gp = gpar(fill = orange_fill, col = NA))
-  txt(expression(T[A]), 0.600, 0.716, size = 15)
-  txt(expression(T[B]), 0.820, 0.716, size = 15)
+  math_txt(expression(T[A]), 0.600, 0.716, size = 15)
+  math_txt(expression(T[B]), 0.820, 0.716, size = 15)
 
   left_tips <- c("s1", "s3", "s4")
   left_y <- c(0.690, 0.626, 0.562)
@@ -161,7 +170,7 @@ draw_likelihood_panel <- function() {
   txt("AB", 0.697, 0.603, size = 8.5, col = mid)
 
   # likelihood boxes
-  txt(expression(L(partialdiff[A])), 0.642, 0.774, size = 10)
+  math_txt(expression(L(partialdiff[A])), 0.642, 0.774, size = 10)
   grid.rect(0.642, 0.733, width = unit(0.055, "npc"), height = unit(0.052, "npc"),
             gp = gpar(fill = "white", col = "black", lwd = 0.5))
   states <- c("A", "C", "G", "T")
@@ -170,7 +179,7 @@ draw_likelihood_panel <- function() {
     txt(states[i], 0.626, 0.751 - (i - 1) * 0.012, size = 5.7, fontface = "bold")
     txt(vals[i], 0.652, 0.751 - (i - 1) * 0.012, size = 5.3, family = "Courier")
   }
-  txt(expression(L(partialdiff[B])), 0.743, 0.774, size = 10)
+  math_txt(expression(L(partialdiff[B])), 0.743, 0.774, size = 10)
   grid.rect(0.743, 0.733, width = unit(0.055, "npc"), height = unit(0.052, "npc"),
             gp = gpar(fill = "white", col = "black", lwd = 0.5))
   vals_b <- c("0.0620", "0.0068", "0.0620", "0.0067")
@@ -188,7 +197,7 @@ draw_likelihood_panel <- function() {
 
 draw_statistic_panel <- function() {
   panel_label("c", 0.515, 0.400)
-  txt("Weighted SatuTe statistic", 0.548, 0.402, size = 12.5, fontface = "bold", just = "left")
+  txt("Weighted coherence and z-score", 0.548, 0.402, size = 12.5, fontface = "bold", just = "left")
   txt("branch-length weights", 0.610, 0.350, size = 7.0, col = mid)
   expr_txt(expression(w[i](t) == exp((lambda[i] - lambda[1]) * t)), 0.660, 0.322, size = 9.8)
   txt("site-pattern coefficient", 0.615, 0.286, size = 7.0, col = mid)
@@ -244,8 +253,8 @@ draw_decision_panel <- function() {
       just = "left", col = mid, lineheight = 0.95)
   txt("Z under subtree\nindependence", 0.102, y0 + 0.106, size = 7.7,
       just = "left", lineheight = 0.88)
-  txt(expression(z[alpha]), sx(z_alpha) + 0.008, y0 - 0.022, size = 8, col = mid)
-  txt(expression(alpha == 0.01), sx(3.10), y0 + 0.030, size = 8, col = green)
+  math_txt(expression(z[alpha]), sx(z_alpha) + 0.008, y0 - 0.022, size = 8, col = mid)
+  math_txt(expression(alpha == 0.01), sx(3.10), y0 + 0.030, size = 8, col = green)
   txt("saturated", sx(-2.15), y0 + h + 0.040, size = 9.5, col = red)
   txt("phylogenetically\ninformative", sx(2.92), y0 + h + 0.044, size = 9.5, col = green)
   seg(sx(2.34), y0 + h + 0.020, sx(4.10), y0 + h + 0.020, col = green, lwd = 1.1, arrow = TRUE)
@@ -284,21 +293,30 @@ write_outputs <- function() {
   png_path <- file.path(out_dir, "figure1_satute_weighted_workflow.png")
   svg_path <- file.path(out_dir, "figure1_satute_weighted_workflow.svg")
 
-  cairo_pdf(pdf_path, width = 7.1, height = 7.0, family = "Helvetica")
+  svglite::svglite(
+    svg_path,
+    width = 7.1,
+    height = 7.0,
+    system_fonts = list(sans = "Helvetica", mono = "Courier")
+  )
   draw_figure()
   dev.off()
 
-  png(png_path, width = 7.1 * 320, height = 7.0 * 320, res = 320, bg = "white")
-  draw_figure()
-  dev.off()
+  if (latex_overlay) {
+    message("Wrote equation-free SVG base ", svg_path)
+  } else {
+    cairo_pdf(pdf_path, width = 7.1, height = 7.0, family = "Helvetica")
+    draw_figure()
+    dev.off()
 
-  svg(svg_path, width = 7.1, height = 7.0, family = "Helvetica")
-  draw_figure()
-  dev.off()
+    png(png_path, width = 7.1 * 320, height = 7.0 * 320, res = 320, bg = "white")
+    draw_figure()
+    dev.off()
 
-  message("Wrote ", pdf_path)
-  message("Wrote ", png_path)
-  message("Wrote ", svg_path)
+    message("Wrote ", pdf_path)
+    message("Wrote ", png_path)
+    message("Wrote ", svg_path)
+  }
 }
 
 write_outputs()

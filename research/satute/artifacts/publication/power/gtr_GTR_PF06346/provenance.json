@@ -11,5 +11,6 @@
   "expected_replicates": 1000,
   "experiment": "002_relative_weighting",
   "id": "gtr_GTR_PF06346",
+  "scenario": "ml_tree",
   "simulation_model": "GTR_PF06346"
 }

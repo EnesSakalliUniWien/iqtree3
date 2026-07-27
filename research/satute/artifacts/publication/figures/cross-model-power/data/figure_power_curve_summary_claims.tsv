@@ -1,0 +1,7 @@
+model	tree_case	scenario	decision_rule	nsites	branch_length	published_fraction	eigenvalue_weighted_fraction	delta_fraction
+JC	five_external	ml_tree	taxon_bonferroni	1000	10.0	0.033	0.033	0.0
+JC	sixteen_internal	ml_tree	taxon_bonferroni	1000	10.0	0.028	0.028	0.0
+GTR+F+G4	five_external	ml_tree	taxon_bonferroni	100	10.0	0.619	0.953	0.33399999999999996
+GTR+F+G4	sixteen_internal	ml_tree	taxon_bonferroni	100	12.0	0.269	0.801	0.532
+LG+G4	five_external	ml_tree	taxon_bonferroni	100	12.0	0.909	1.0	0.09099999999999997
+LG+G4	sixteen_internal	ml_tree	taxon_bonferroni	100	12.0	0.732	1.0	0.268

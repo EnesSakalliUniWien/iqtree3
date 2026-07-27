@@ -1,4 +1,5 @@
 {
+  "additional_figure": "figures/original-style-baseline.pdf: visual reconstruction of the original SatuTe two-panel JC figure with unrooted ape phylogenies rendered by ggtree",
   "colour_semantics": {
     "difference": "viridis colour-safe palette by alignment length",
     "dominant": "#0072B2",
@@ -11,5 +12,6 @@
   "expected_replicates": 1000,
   "experiment": "001_paper_reconstruction",
   "id": "jc_JC",
+  "scenario": "ml_tree",
   "simulation_model": "JC"
 }

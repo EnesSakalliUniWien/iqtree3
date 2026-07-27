@@ -11,5 +11,6 @@
   "expected_replicates": 1000,
   "experiment": "002_relative_weighting",
   "id": "protein_WAG_G4",
+  "scenario": "ml_tree",
   "simulation_model": "WAG_G4"
 }

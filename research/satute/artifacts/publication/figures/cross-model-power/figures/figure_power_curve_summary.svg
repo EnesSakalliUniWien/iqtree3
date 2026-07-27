@@ -1,0 +1,437 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1300" viewBox="0 0 1480 1300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="740.0" y="46" text-anchor="middle" font-size="30" font-weight="700">Cross-model SatuTe power under inferred-tree testing</text>
+<text x="740.0" y="78" text-anchor="middle" font-size="17" fill="#333333">ML-tree scenario; 1,000 paired replicates per point; taxon-pair Bonferroni</text>
+<text x="30" y="240.0" text-anchor="middle" font-size="21" font-weight="700" transform="rotate(-90 30 240.0)">JC</text>
+<text x="332.5" y="112" text-anchor="middle" font-size="17" font-weight="700">five-taxon external branch</text>
+<rect x="135" y="130" width="395" height="220" fill="white" stroke="#444" stroke-width="1.1"/>
+<line x1="135" x2="530" y1="350.00" y2="350.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="355.00" text-anchor="end" font-size="14">0</text>
+<line x1="135" x2="530" y1="295.00" y2="295.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="300.00" text-anchor="end" font-size="14">0.25</text>
+<line x1="135" x2="530" y1="240.00" y2="240.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="245.00" text-anchor="end" font-size="14">0.5</text>
+<line x1="135" x2="530" y1="185.00" y2="185.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="190.00" text-anchor="end" font-size="14">0.75</text>
+<line x1="135" x2="530" y1="130.00" y2="130.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="135.00" text-anchor="end" font-size="14">1</text>
+<line x1="135.00" x2="135.00" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="135.00" y="372" text-anchor="middle" font-size="14">0.1</text>
+<line x1="273.05" x2="273.05" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="273.05" y="372" text-anchor="middle" font-size="14">0.5</text>
+<line x1="332.50" x2="332.50" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="332.50" y="372" text-anchor="middle" font-size="14">1</text>
+<line x1="411.09" x2="411.09" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="411.09" y="372" text-anchor="middle" font-size="14">2.5</text>
+<line x1="470.55" x2="470.55" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="470.55" y="372" text-anchor="middle" font-size="14">5</text>
+<line x1="530.00" x2="530.00" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="530.00" y="372" text-anchor="middle" font-size="14">10</text>
+<path d="M 135.00 130.00 L 194.45 130.00 L 229.23 130.00 L 253.91 130.00 L 273.05 130.00 L 313.36 131.32 L 332.50 142.54 L 367.28 228.34 L 391.95 298.08 L 411.09 320.08 L 426.73 330.42 L 439.95 334.38 L 451.41 333.94 L 470.55 338.12 L 505.32 338.12 L 530.00 338.34" fill="none" stroke="#0A3FBA" stroke-width="4.6" stroke-dasharray="8,5"/>
+<circle cx="135.00" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="194.45" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="229.23" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="253.91" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="273.05" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="313.36" cy="131.32" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="332.50" cy="142.54" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="367.28" cy="228.34" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="391.95" cy="298.08" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="411.09" cy="320.08" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="426.73" cy="330.42" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="439.95" cy="334.38" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="451.41" cy="333.94" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="470.55" cy="338.12" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="505.32" cy="338.12" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="530.00" cy="338.34" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 135.00 130.00 L 194.45 130.00 L 229.23 130.00 L 253.91 130.00 L 273.05 130.00 L 313.36 130.00 L 332.50 130.00 L 367.28 130.00 L 391.95 161.90 L 411.09 264.42 L 426.73 310.84 L 439.95 329.10 L 451.41 333.94 L 470.55 340.76 L 505.32 340.32 L 530.00 342.74" fill="none" stroke="#0A3FBA" stroke-width="4.6"/>
+<circle cx="135.00" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="194.45" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="229.23" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="253.91" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="273.05" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="313.36" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="332.50" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="367.28" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="391.95" cy="161.90" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="411.09" cy="264.42" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="426.73" cy="310.84" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="439.95" cy="329.10" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="451.41" cy="333.94" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="470.55" cy="340.76" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="505.32" cy="340.32" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="530.00" cy="342.74" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 135.00 130.00 L 194.45 130.00 L 229.23 130.00 L 253.91 130.00 L 273.05 130.00 L 313.36 131.32 L 332.50 142.54 L 367.28 228.34 L 391.95 298.08 L 411.09 320.08 L 426.73 330.42 L 439.95 334.38 L 451.41 333.94 L 470.55 338.12 L 505.32 338.12 L 530.00 338.34" fill="none" stroke="#E69504" stroke-width="2.4" stroke-dasharray="8,5"/>
+<polygon points="135.00,126.30 138.70,130.00 135.00,133.70 131.30,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="194.45,126.30 198.15,130.00 194.45,133.70 190.75,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="229.23,126.30 232.93,130.00 229.23,133.70 225.53,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="253.91,126.30 257.61,130.00 253.91,133.70 250.21,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="273.05,126.30 276.75,130.00 273.05,133.70 269.35,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="313.36,127.62 317.06,131.32 313.36,135.02 309.66,131.32" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="332.50,138.84 336.20,142.54 332.50,146.24 328.80,142.54" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="367.28,224.64 370.98,228.34 367.28,232.04 363.58,228.34" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="391.95,294.38 395.65,298.08 391.95,301.78 388.25,298.08" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="411.09,316.38 414.79,320.08 411.09,323.78 407.39,320.08" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="426.73,326.72 430.43,330.42 426.73,334.12 423.03,330.42" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="439.95,330.68 443.65,334.38 439.95,338.08 436.25,334.38" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="451.41,330.24 455.11,333.94 451.41,337.64 447.71,333.94" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="470.55,334.42 474.25,338.12 470.55,341.82 466.85,338.12" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="505.32,334.42 509.02,338.12 505.32,341.82 501.62,338.12" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="530.00,334.64 533.70,338.34 530.00,342.04 526.30,338.34" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<path d="M 135.00 130.00 L 194.45 130.00 L 229.23 130.00 L 253.91 130.00 L 273.05 130.00 L 313.36 130.00 L 332.50 130.00 L 367.28 130.00 L 391.95 161.90 L 411.09 264.42 L 426.73 310.84 L 439.95 329.10 L 451.41 333.94 L 470.55 340.76 L 505.32 340.32 L 530.00 342.74" fill="none" stroke="#E69504" stroke-width="2.4"/>
+<polygon points="135.00,126.30 138.70,130.00 135.00,133.70 131.30,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="194.45,126.30 198.15,130.00 194.45,133.70 190.75,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="229.23,126.30 232.93,130.00 229.23,133.70 225.53,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="253.91,126.30 257.61,130.00 253.91,133.70 250.21,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="273.05,126.30 276.75,130.00 273.05,133.70 269.35,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="313.36,126.30 317.06,130.00 313.36,133.70 309.66,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="332.50,126.30 336.20,130.00 332.50,133.70 328.80,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="367.28,126.30 370.98,130.00 367.28,133.70 363.58,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="391.95,158.20 395.65,161.90 391.95,165.60 388.25,161.90" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="411.09,260.72 414.79,264.42 411.09,268.12 407.39,264.42" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="426.73,307.14 430.43,310.84 426.73,314.54 423.03,310.84" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="439.95,325.40 443.65,329.10 439.95,332.80 436.25,329.10" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="451.41,330.24 455.11,333.94 451.41,337.64 447.71,333.94" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="470.55,337.06 474.25,340.76 470.55,344.46 466.85,340.76" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="505.32,336.62 509.02,340.32 505.32,344.02 501.62,340.32" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="530.00,339.04 533.70,342.74 530.00,346.44 526.30,342.74" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<text x="520" y="150" text-anchor="end" font-size="13" font-weight="700" fill="#444444">curves coincide (Δ = 0)</text>
+<text x="77" y="240.0" text-anchor="middle" font-size="15" transform="rotate(-90 77 240.0)">fraction phylogenetically informative</text>
+<text x="332.5" y="400" text-anchor="middle" font-size="15">target branch length</text>
+<text x="832.5" y="112" text-anchor="middle" font-size="17" font-weight="700">16-taxon internal branch</text>
+<rect x="635" y="130" width="395" height="220" fill="white" stroke="#444" stroke-width="1.1"/>
+<line x1="635" x2="1030" y1="350.00" y2="350.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="295.00" y2="295.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="240.00" y2="240.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="185.00" y2="185.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="130.00" y2="130.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635.00" x2="635.00" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="635.00" y="372" text-anchor="middle" font-size="14">0.1</text>
+<line x1="773.05" x2="773.05" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="773.05" y="372" text-anchor="middle" font-size="14">0.5</text>
+<line x1="832.50" x2="832.50" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="832.50" y="372" text-anchor="middle" font-size="14">1</text>
+<line x1="911.09" x2="911.09" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="911.09" y="372" text-anchor="middle" font-size="14">2.5</text>
+<line x1="970.55" x2="970.55" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="970.55" y="372" text-anchor="middle" font-size="14">5</text>
+<line x1="1030.00" x2="1030.00" y1="130" y2="350" stroke="#eeeeee" stroke-width="1"/>
+<text x="1030.00" y="372" text-anchor="middle" font-size="14">10</text>
+<path d="M 635.00 130.00 L 694.45 130.00 L 729.23 130.00 L 753.91 130.00 L 773.05 130.00 L 813.36 130.88 L 832.50 142.54 L 867.28 239.78 L 891.95 305.34 L 911.09 325.80 L 926.73 334.60 L 939.95 335.92 L 951.41 338.12 L 970.55 340.32 L 1005.32 339.88 L 1030.00 338.34" fill="none" stroke="#0A3FBA" stroke-width="4.6" stroke-dasharray="8,5"/>
+<circle cx="635.00" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="694.45" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="729.23" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="753.91" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="773.05" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="813.36" cy="130.88" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="832.50" cy="142.54" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="867.28" cy="239.78" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="891.95" cy="305.34" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="911.09" cy="325.80" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="926.73" cy="334.60" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="939.95" cy="335.92" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="951.41" cy="338.12" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="970.55" cy="340.32" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1005.32" cy="339.88" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1030.00" cy="338.34" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 635.00 130.00 L 694.45 130.00 L 729.23 130.00 L 753.91 130.00 L 773.05 130.00 L 813.36 130.00 L 832.50 130.00 L 867.28 130.00 L 891.95 163.66 L 911.09 273.00 L 926.73 321.18 L 939.95 335.70 L 951.41 340.10 L 970.55 342.96 L 1005.32 345.16 L 1030.00 343.84" fill="none" stroke="#0A3FBA" stroke-width="4.6"/>
+<circle cx="635.00" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="694.45" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="729.23" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="753.91" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="773.05" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="813.36" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="832.50" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="867.28" cy="130.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="891.95" cy="163.66" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="911.09" cy="273.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="926.73" cy="321.18" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="939.95" cy="335.70" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="951.41" cy="340.10" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="970.55" cy="342.96" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1005.32" cy="345.16" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1030.00" cy="343.84" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 635.00 130.00 L 694.45 130.00 L 729.23 130.00 L 753.91 130.00 L 773.05 130.00 L 813.36 130.88 L 832.50 142.54 L 867.28 239.78 L 891.95 305.34 L 911.09 325.80 L 926.73 334.60 L 939.95 335.92 L 951.41 338.12 L 970.55 340.32 L 1005.32 339.88 L 1030.00 338.34" fill="none" stroke="#E69504" stroke-width="2.4" stroke-dasharray="8,5"/>
+<polygon points="635.00,126.30 638.70,130.00 635.00,133.70 631.30,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="694.45,126.30 698.15,130.00 694.45,133.70 690.75,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="729.23,126.30 732.93,130.00 729.23,133.70 725.53,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="753.91,126.30 757.61,130.00 753.91,133.70 750.21,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="773.05,126.30 776.75,130.00 773.05,133.70 769.35,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="813.36,127.18 817.06,130.88 813.36,134.58 809.66,130.88" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="832.50,138.84 836.20,142.54 832.50,146.24 828.80,142.54" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="867.28,236.08 870.98,239.78 867.28,243.48 863.58,239.78" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="891.95,301.64 895.65,305.34 891.95,309.04 888.25,305.34" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="911.09,322.10 914.79,325.80 911.09,329.50 907.39,325.80" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="926.73,330.90 930.43,334.60 926.73,338.30 923.03,334.60" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="939.95,332.22 943.65,335.92 939.95,339.62 936.25,335.92" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="951.41,334.42 955.11,338.12 951.41,341.82 947.71,338.12" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="970.55,336.62 974.25,340.32 970.55,344.02 966.85,340.32" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1005.32,336.18 1009.02,339.88 1005.32,343.58 1001.62,339.88" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1030.00,334.64 1033.70,338.34 1030.00,342.04 1026.30,338.34" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<path d="M 635.00 130.00 L 694.45 130.00 L 729.23 130.00 L 753.91 130.00 L 773.05 130.00 L 813.36 130.00 L 832.50 130.00 L 867.28 130.00 L 891.95 163.66 L 911.09 273.00 L 926.73 321.18 L 939.95 335.70 L 951.41 340.10 L 970.55 342.96 L 1005.32 345.16 L 1030.00 343.84" fill="none" stroke="#E69504" stroke-width="2.4"/>
+<polygon points="635.00,126.30 638.70,130.00 635.00,133.70 631.30,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="694.45,126.30 698.15,130.00 694.45,133.70 690.75,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="729.23,126.30 732.93,130.00 729.23,133.70 725.53,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="753.91,126.30 757.61,130.00 753.91,133.70 750.21,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="773.05,126.30 776.75,130.00 773.05,133.70 769.35,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="813.36,126.30 817.06,130.00 813.36,133.70 809.66,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="832.50,126.30 836.20,130.00 832.50,133.70 828.80,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="867.28,126.30 870.98,130.00 867.28,133.70 863.58,130.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="891.95,159.96 895.65,163.66 891.95,167.36 888.25,163.66" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="911.09,269.30 914.79,273.00 911.09,276.70 907.39,273.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="926.73,317.48 930.43,321.18 926.73,324.88 923.03,321.18" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="939.95,332.00 943.65,335.70 939.95,339.40 936.25,335.70" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="951.41,336.40 955.11,340.10 951.41,343.80 947.71,340.10" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="970.55,339.26 974.25,342.96 970.55,346.66 966.85,342.96" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1005.32,341.46 1009.02,345.16 1005.32,348.86 1001.62,345.16" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1030.00,340.14 1033.70,343.84 1030.00,347.54 1026.30,343.84" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<text x="1020" y="150" text-anchor="end" font-size="13" font-weight="700" fill="#444444">curves coincide (Δ = 0)</text>
+<text x="832.5" y="400" text-anchor="middle" font-size="15">target branch length</text>
+<text x="30" y="630.0" text-anchor="middle" font-size="21" font-weight="700" transform="rotate(-90 30 630.0)">GTR+F+G4</text>
+<text x="332.5" y="502" text-anchor="middle" font-size="17" font-weight="700">five-taxon external branch</text>
+<rect x="135" y="520" width="395" height="220" fill="white" stroke="#444" stroke-width="1.1"/>
+<line x1="135" x2="530" y1="740.00" y2="740.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="745.00" text-anchor="end" font-size="14">0</text>
+<line x1="135" x2="530" y1="685.00" y2="685.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="690.00" text-anchor="end" font-size="14">0.25</text>
+<line x1="135" x2="530" y1="630.00" y2="630.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="635.00" text-anchor="end" font-size="14">0.5</text>
+<line x1="135" x2="530" y1="575.00" y2="575.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="580.00" text-anchor="end" font-size="14">0.75</text>
+<line x1="135" x2="530" y1="520.00" y2="520.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="525.00" text-anchor="end" font-size="14">1</text>
+<line x1="135.00" x2="135.00" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="135.00" y="762" text-anchor="middle" font-size="14">4</text>
+<line x1="280.78" x2="280.78" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="280.78" y="762" text-anchor="middle" font-size="14">6</text>
+<line x1="384.22" x2="384.22" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="384.22" y="762" text-anchor="middle" font-size="14">8</text>
+<line x1="464.45" x2="464.45" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="464.45" y="762" text-anchor="middle" font-size="14">10</text>
+<line x1="530.00" x2="530.00" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="530.00" y="762" text-anchor="middle" font-size="14">12</text>
+<path d="M 135.00 529.68 L 215.23 538.48 L 280.78 554.32 L 336.21 566.64 L 384.22 575.44 L 426.57 589.52 L 464.45 603.82 L 530.00 610.42" fill="none" stroke="#0A3FBA" stroke-width="4.6" stroke-dasharray="8,5"/>
+<circle cx="135.00" cy="529.68" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="215.23" cy="538.48" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="280.78" cy="554.32" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="336.21" cy="566.64" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="384.22" cy="575.44" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="426.57" cy="589.52" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="464.45" cy="603.82" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="530.00" cy="610.42" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 135.00 520.00 L 215.23 520.00 L 280.78 520.00 L 336.21 520.00 L 384.22 520.00 L 426.57 520.00 L 464.45 520.00 L 530.00 520.00" fill="none" stroke="#0A3FBA" stroke-width="4.6"/>
+<circle cx="135.00" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="215.23" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="280.78" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="336.21" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="384.22" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="426.57" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="464.45" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="530.00" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 135.00 520.00 L 215.23 520.44 L 280.78 520.66 L 336.21 522.42 L 384.22 523.52 L 426.57 527.26 L 464.45 530.34 L 530.00 538.04" fill="none" stroke="#E69504" stroke-width="2.4" stroke-dasharray="8,5"/>
+<polygon points="135.00,516.30 138.70,520.00 135.00,523.70 131.30,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="215.23,516.74 218.93,520.44 215.23,524.14 211.53,520.44" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="280.78,516.96 284.48,520.66 280.78,524.36 277.08,520.66" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="336.21,518.72 339.91,522.42 336.21,526.12 332.51,522.42" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="384.22,519.82 387.92,523.52 384.22,527.22 380.52,523.52" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="426.57,523.56 430.27,527.26 426.57,530.96 422.87,527.26" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="464.45,526.64 468.15,530.34 464.45,534.04 460.75,530.34" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="530.00,534.34 533.70,538.04 530.00,541.74 526.30,538.04" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<path d="M 135.00 520.00 L 215.23 520.00 L 280.78 520.00 L 336.21 520.00 L 384.22 520.00 L 426.57 520.00 L 464.45 520.00 L 530.00 520.00" fill="none" stroke="#E69504" stroke-width="2.4"/>
+<polygon points="135.00,516.30 138.70,520.00 135.00,523.70 131.30,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="215.23,516.30 218.93,520.00 215.23,523.70 211.53,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="280.78,516.30 284.48,520.00 280.78,523.70 277.08,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="336.21,516.30 339.91,520.00 336.21,523.70 332.51,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="384.22,516.30 387.92,520.00 384.22,523.70 380.52,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="426.57,516.30 430.27,520.00 426.57,523.70 422.87,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="464.45,516.30 468.15,520.00 464.45,523.70 460.75,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="530.00,516.30 533.70,520.00 530.00,523.70 526.30,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<text x="520" y="540" text-anchor="end" font-size="13" font-weight="700" fill="#444444">max Δ = 0.334</text>
+<text x="77" y="630.0" text-anchor="middle" font-size="15" transform="rotate(-90 77 630.0)">fraction phylogenetically informative</text>
+<text x="332.5" y="790" text-anchor="middle" font-size="15">target branch length</text>
+<text x="832.5" y="502" text-anchor="middle" font-size="17" font-weight="700">16-taxon internal branch</text>
+<rect x="635" y="520" width="395" height="220" fill="white" stroke="#444" stroke-width="1.1"/>
+<line x1="635" x2="1030" y1="740.00" y2="740.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="685.00" y2="685.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="630.00" y2="630.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="575.00" y2="575.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="520.00" y2="520.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635.00" x2="635.00" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="635.00" y="762" text-anchor="middle" font-size="14">4</text>
+<line x1="780.78" x2="780.78" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="780.78" y="762" text-anchor="middle" font-size="14">6</text>
+<line x1="884.22" x2="884.22" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="884.22" y="762" text-anchor="middle" font-size="14">8</text>
+<line x1="964.45" x2="964.45" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="964.45" y="762" text-anchor="middle" font-size="14">10</text>
+<line x1="1030.00" x2="1030.00" y1="520" y2="740" stroke="#eeeeee" stroke-width="1"/>
+<text x="1030.00" y="762" text-anchor="middle" font-size="14">12</text>
+<path d="M 635.00 556.96 L 715.23 581.38 L 780.78 602.50 L 836.21 618.12 L 884.22 640.12 L 926.57 651.34 L 964.45 662.56 L 1030.00 680.82" fill="none" stroke="#0A3FBA" stroke-width="4.6" stroke-dasharray="8,5"/>
+<circle cx="635.00" cy="556.96" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="715.23" cy="581.38" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="780.78" cy="602.50" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="836.21" cy="618.12" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="884.22" cy="640.12" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="926.57" cy="651.34" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="964.45" cy="662.56" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1030.00" cy="680.82" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 635.00 520.00 L 715.23 520.00 L 780.78 520.00 L 836.21 520.00 L 884.22 520.00 L 926.57 520.00 L 964.45 520.00 L 1030.00 520.00" fill="none" stroke="#0A3FBA" stroke-width="4.6"/>
+<circle cx="635.00" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="715.23" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="780.78" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="836.21" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="884.22" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="926.57" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="964.45" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1030.00" cy="520.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 635.00 520.22 L 715.23 523.30 L 780.78 525.94 L 836.21 526.82 L 884.22 534.30 L 926.57 545.30 L 964.45 548.38 L 1030.00 563.78" fill="none" stroke="#E69504" stroke-width="2.4" stroke-dasharray="8,5"/>
+<polygon points="635.00,516.52 638.70,520.22 635.00,523.92 631.30,520.22" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="715.23,519.60 718.93,523.30 715.23,527.00 711.53,523.30" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="780.78,522.24 784.48,525.94 780.78,529.64 777.08,525.94" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="836.21,523.12 839.91,526.82 836.21,530.52 832.51,526.82" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="884.22,530.60 887.92,534.30 884.22,538.00 880.52,534.30" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="926.57,541.60 930.27,545.30 926.57,549.00 922.87,545.30" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="964.45,544.68 968.15,548.38 964.45,552.08 960.75,548.38" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1030.00,560.08 1033.70,563.78 1030.00,567.48 1026.30,563.78" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<path d="M 635.00 520.00 L 715.23 520.00 L 780.78 520.00 L 836.21 520.00 L 884.22 520.00 L 926.57 520.00 L 964.45 520.00 L 1030.00 520.00" fill="none" stroke="#E69504" stroke-width="2.4"/>
+<polygon points="635.00,516.30 638.70,520.00 635.00,523.70 631.30,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="715.23,516.30 718.93,520.00 715.23,523.70 711.53,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="780.78,516.30 784.48,520.00 780.78,523.70 777.08,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="836.21,516.30 839.91,520.00 836.21,523.70 832.51,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="884.22,516.30 887.92,520.00 884.22,523.70 880.52,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="926.57,516.30 930.27,520.00 926.57,523.70 922.87,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="964.45,516.30 968.15,520.00 964.45,523.70 960.75,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1030.00,516.30 1033.70,520.00 1030.00,523.70 1026.30,520.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<text x="1020" y="540" text-anchor="end" font-size="13" font-weight="700" fill="#444444">max Δ = 0.532</text>
+<text x="832.5" y="790" text-anchor="middle" font-size="15">target branch length</text>
+<text x="30" y="1020.0" text-anchor="middle" font-size="21" font-weight="700" transform="rotate(-90 30 1020.0)">LG+G4</text>
+<text x="332.5" y="892" text-anchor="middle" font-size="17" font-weight="700">five-taxon external branch</text>
+<rect x="135" y="910" width="395" height="220" fill="white" stroke="#444" stroke-width="1.1"/>
+<line x1="135" x2="530" y1="1130.00" y2="1130.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="1135.00" text-anchor="end" font-size="14">0</text>
+<line x1="135" x2="530" y1="1075.00" y2="1075.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="1080.00" text-anchor="end" font-size="14">0.25</text>
+<line x1="135" x2="530" y1="1020.00" y2="1020.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="1025.00" text-anchor="end" font-size="14">0.5</text>
+<line x1="135" x2="530" y1="965.00" y2="965.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="970.00" text-anchor="end" font-size="14">0.75</text>
+<line x1="135" x2="530" y1="910.00" y2="910.00" stroke="#e6e6e6" stroke-width="1"/>
+<text x="125" y="915.00" text-anchor="end" font-size="14">1</text>
+<line x1="135.00" x2="135.00" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="135.00" y="1152" text-anchor="middle" font-size="14">4</text>
+<line x1="280.78" x2="280.78" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="280.78" y="1152" text-anchor="middle" font-size="14">6</text>
+<line x1="384.22" x2="384.22" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="384.22" y="1152" text-anchor="middle" font-size="14">8</text>
+<line x1="464.45" x2="464.45" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="464.45" y="1152" text-anchor="middle" font-size="14">10</text>
+<line x1="530.00" x2="530.00" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="530.00" y="1152" text-anchor="middle" font-size="14">12</text>
+<path d="M 135.00 910.00 L 215.23 910.00 L 280.78 911.10 L 336.21 911.76 L 384.22 912.86 L 426.57 915.06 L 464.45 917.70 L 530.00 930.02" fill="none" stroke="#0A3FBA" stroke-width="4.6" stroke-dasharray="8,5"/>
+<circle cx="135.00" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="215.23" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="280.78" cy="911.10" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="336.21" cy="911.76" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="384.22" cy="912.86" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="426.57" cy="915.06" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="464.45" cy="917.70" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="530.00" cy="930.02" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 135.00 910.00 L 215.23 910.00 L 280.78 910.00 L 336.21 910.00 L 384.22 910.00 L 426.57 910.00 L 464.45 910.00 L 530.00 910.00" fill="none" stroke="#0A3FBA" stroke-width="4.6"/>
+<circle cx="135.00" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="215.23" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="280.78" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="336.21" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="384.22" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="426.57" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="464.45" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="530.00" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 135.00 910.00 L 215.23 910.00 L 280.78 910.00 L 336.21 910.00 L 384.22 910.00 L 426.57 910.00 L 464.45 910.00 L 530.00 910.00" fill="none" stroke="#E69504" stroke-width="2.4" stroke-dasharray="8,5"/>
+<polygon points="135.00,906.30 138.70,910.00 135.00,913.70 131.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="215.23,906.30 218.93,910.00 215.23,913.70 211.53,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="280.78,906.30 284.48,910.00 280.78,913.70 277.08,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="336.21,906.30 339.91,910.00 336.21,913.70 332.51,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="384.22,906.30 387.92,910.00 384.22,913.70 380.52,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="426.57,906.30 430.27,910.00 426.57,913.70 422.87,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="464.45,906.30 468.15,910.00 464.45,913.70 460.75,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="530.00,906.30 533.70,910.00 530.00,913.70 526.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<path d="M 135.00 910.00 L 215.23 910.00 L 280.78 910.00 L 336.21 910.00 L 384.22 910.00 L 426.57 910.00 L 464.45 910.00 L 530.00 910.00" fill="none" stroke="#E69504" stroke-width="2.4"/>
+<polygon points="135.00,906.30 138.70,910.00 135.00,913.70 131.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="215.23,906.30 218.93,910.00 215.23,913.70 211.53,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="280.78,906.30 284.48,910.00 280.78,913.70 277.08,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="336.21,906.30 339.91,910.00 336.21,913.70 332.51,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="384.22,906.30 387.92,910.00 384.22,913.70 380.52,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="426.57,906.30 430.27,910.00 426.57,913.70 422.87,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="464.45,906.30 468.15,910.00 464.45,913.70 460.75,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="530.00,906.30 533.70,910.00 530.00,913.70 526.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<text x="520" y="930" text-anchor="end" font-size="13" font-weight="700" fill="#444444">max Δ = 0.091</text>
+<text x="77" y="1020.0" text-anchor="middle" font-size="15" transform="rotate(-90 77 1020.0)">fraction phylogenetically informative</text>
+<text x="332.5" y="1180" text-anchor="middle" font-size="15">target branch length</text>
+<text x="832.5" y="892" text-anchor="middle" font-size="17" font-weight="700">16-taxon internal branch</text>
+<rect x="635" y="910" width="395" height="220" fill="white" stroke="#444" stroke-width="1.1"/>
+<line x1="635" x2="1030" y1="1130.00" y2="1130.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="1075.00" y2="1075.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="1020.00" y2="1020.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="965.00" y2="965.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635" x2="1030" y1="910.00" y2="910.00" stroke="#e6e6e6" stroke-width="1"/>
+<line x1="635.00" x2="635.00" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="635.00" y="1152" text-anchor="middle" font-size="14">4</text>
+<line x1="780.78" x2="780.78" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="780.78" y="1152" text-anchor="middle" font-size="14">6</text>
+<line x1="884.22" x2="884.22" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="884.22" y="1152" text-anchor="middle" font-size="14">8</text>
+<line x1="964.45" x2="964.45" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="964.45" y="1152" text-anchor="middle" font-size="14">10</text>
+<line x1="1030.00" x2="1030.00" y1="910" y2="1130" stroke="#eeeeee" stroke-width="1"/>
+<text x="1030.00" y="1152" text-anchor="middle" font-size="14">12</text>
+<path d="M 635.00 911.32 L 715.23 911.32 L 780.78 917.26 L 836.21 920.34 L 884.22 929.58 L 926.57 937.94 L 964.45 952.02 L 1030.00 968.96" fill="none" stroke="#0A3FBA" stroke-width="4.6" stroke-dasharray="8,5"/>
+<circle cx="635.00" cy="911.32" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="715.23" cy="911.32" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="780.78" cy="917.26" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="836.21" cy="920.34" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="884.22" cy="929.58" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="926.57" cy="937.94" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="964.45" cy="952.02" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1030.00" cy="968.96" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 635.00 910.00 L 715.23 910.00 L 780.78 910.00 L 836.21 910.00 L 884.22 910.00 L 926.57 910.00 L 964.45 910.00 L 1030.00 910.00" fill="none" stroke="#0A3FBA" stroke-width="4.6"/>
+<circle cx="635.00" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="715.23" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="780.78" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="836.21" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="884.22" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="926.57" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="964.45" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<circle cx="1030.00" cy="910.00" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2.0"/>
+<path d="M 635.00 910.00 L 715.23 910.00 L 780.78 910.00 L 836.21 910.00 L 884.22 910.00 L 926.57 910.00 L 964.45 910.00 L 1030.00 910.00" fill="none" stroke="#E69504" stroke-width="2.4" stroke-dasharray="8,5"/>
+<polygon points="635.00,906.30 638.70,910.00 635.00,913.70 631.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="715.23,906.30 718.93,910.00 715.23,913.70 711.53,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="780.78,906.30 784.48,910.00 780.78,913.70 777.08,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="836.21,906.30 839.91,910.00 836.21,913.70 832.51,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="884.22,906.30 887.92,910.00 884.22,913.70 880.52,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="926.57,906.30 930.27,910.00 926.57,913.70 922.87,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="964.45,906.30 968.15,910.00 964.45,913.70 960.75,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1030.00,906.30 1033.70,910.00 1030.00,913.70 1026.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<path d="M 635.00 910.00 L 715.23 910.00 L 780.78 910.00 L 836.21 910.00 L 884.22 910.00 L 926.57 910.00 L 964.45 910.00 L 1030.00 910.00" fill="none" stroke="#E69504" stroke-width="2.4"/>
+<polygon points="635.00,906.30 638.70,910.00 635.00,913.70 631.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="715.23,906.30 718.93,910.00 715.23,913.70 711.53,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="780.78,906.30 784.48,910.00 780.78,913.70 777.08,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="836.21,906.30 839.91,910.00 836.21,913.70 832.51,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="884.22,906.30 887.92,910.00 884.22,913.70 880.52,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="926.57,906.30 930.27,910.00 926.57,913.70 922.87,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="964.45,906.30 968.15,910.00 964.45,913.70 960.75,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<polygon points="1030.00,906.30 1033.70,910.00 1030.00,913.70 1026.30,910.00" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<text x="1020" y="930" text-anchor="end" font-size="13" font-weight="700" fill="#444444">max Δ = 0.268</text>
+<text x="832.5" y="1180" text-anchor="middle" font-size="15">target branch length</text>
+<text x="1160" y="140" font-size="17" font-weight="700">Formula</text>
+<line x1="1160" x2="1202" y1="168" y2="168" stroke="#0A3FBA" stroke-width="4.6"/>
+<circle cx="1181" cy="168" r="4.1" fill="white" stroke="#0A3FBA" stroke-width="2"/>
+<text x="1214" y="173" font-size="15">Published SatuTe</text>
+<line x1="1160" x2="1202" y1="196" y2="196" stroke="#E69504" stroke-width="2.4"/>
+<polygon points="1181,192 1185,196 1181,200 1177,196" fill="white" stroke="#E69504" stroke-width="1.8"/>
+<text x="1214" y="201" font-size="15">Eigenvalue-weighted SatuTe</text>
+<text x="1160" y="240" font-size="17" font-weight="700">Alignment length</text>
+<line x1="1160" x2="1202" y1="268" y2="268" stroke="#222222" stroke-width="2.8" stroke-dasharray="8,5"/>
+<text x="1214" y="273" font-size="15">100 sites</text>
+<line x1="1160" x2="1202" y1="296" y2="296" stroke="#222222" stroke-width="2.8"/>
+<text x="1214" y="301" font-size="15">1000 sites</text>
+<text x="135" y="1250" font-size="14" fill="#555555">Only the common 100- and 1,000-site grids are shown. Curves use taxon-pair Bonferroni.</text>
+</svg>

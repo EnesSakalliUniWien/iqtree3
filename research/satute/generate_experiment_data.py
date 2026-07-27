@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate every managed SatuTe experiment dataset through one entry point."""
+"""Internal data-generation adapter invoked by the ``./satute`` interface."""
 
 from __future__ import annotations
 
