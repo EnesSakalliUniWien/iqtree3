@@ -3,11 +3,20 @@
   "id": "005_biological_windows",
   "question": "How do weighted statistics change biological sliding-window calls?",
   "status": "reviewed-example",
+  "execution": "manual",
   "driver": "analyze_dataset.py",
-  "workflow": "workflow.py",
   "consumers": [
     "manuscript"
   ],
+  "studies": [
+    {
+      "id": "biological_windows",
+      "question": "How do weighted statistics change calls in explicitly supplied biological windows?",
+      "outcome": "application",
+      "scale": "manual"
+    }
+  ],
+  "default_study": "biological_windows",
   "config": {
     "schema_version": 1,
     "window_size": 36,

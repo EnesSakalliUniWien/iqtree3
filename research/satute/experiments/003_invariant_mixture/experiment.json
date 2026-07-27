@@ -10,6 +10,15 @@
     "manuscript",
     "docs"
   ],
+  "studies": [
+    {
+      "id": "invariant_mixture_power",
+      "question": "Does the corrected invariant-mixture null control false positives and improve boundary power?",
+      "outcome": "power",
+      "scale": "local"
+    }
+  ],
+  "default_study": "invariant_mixture_power",
   "config": {
     "schema_version": 1,
     "seed": 20260711,

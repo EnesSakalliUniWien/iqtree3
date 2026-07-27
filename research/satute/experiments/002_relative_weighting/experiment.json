@@ -8,6 +8,39 @@
   "consumers": [
     "manuscript"
   ],
+  "studies": [
+    {
+      "id": "gtr_power",
+      "question": "How does relative weighting change power under matched GTR, GTR+G4, and GTR+I+G4 models?",
+      "outcome": "power",
+      "scale": "cluster"
+    },
+    {
+      "id": "protein_power",
+      "question": "How does relative weighting change power under matched empirical protein models with G4?",
+      "outcome": "power",
+      "scale": "cluster"
+    },
+    {
+      "id": "misspecification_power",
+      "question": "How robust is power when GTR data are evaluated under GTR, JC, K2P, or F81?",
+      "outcome": "power",
+      "scale": "cluster"
+    },
+    {
+      "id": "fdr_exact_null",
+      "question": "Does each decision rule control false positives on held-out exact-null replicates?",
+      "outcome": "calibration",
+      "scale": "cluster"
+    },
+    {
+      "id": "fdr_mixed_null",
+      "question": "What FDR and power does each rule attain in the prespecified mixed-null design?",
+      "outcome": "power",
+      "scale": "cluster"
+    }
+  ],
+  "default_study": "gtr_power",
   "config": {
     "schema_version": 2,
     "paired": true,
@@ -54,23 +87,35 @@
         10,
         12
       ],
-      "scenario_set": "fig2",
       "simulator": "alisim",
-      "matched_model_pairs": [
-        "GTR_PF06346:GTR_PF06346",
-        "GTR_PF06346_G4:GTR_PF06346_G4",
-        "GTR_PF06346_I_G4:GTR_PF06346_I_G4",
-        "LG_G4:LG_G4",
-        "WAG_G4:WAG_G4",
-        "JTT_G4:JTT_G4",
-        "Q.PFAM_G4:Q.PFAM_G4"
-      ],
-      "misspecification_model_pairs": [
-        "GTR_PF06346:GTR_PF06346",
-        "GTR_PF06346:JC",
-        "GTR_PF06346:K2P",
-        "GTR_PF06346:F81"
-      ]
+      "studies": {
+        "gtr_power": {
+          "scenario_set": "fig2",
+          "model_pairs": [
+            "GTR_PF06346:GTR_PF06346",
+            "GTR_PF06346_G4:GTR_PF06346_G4",
+            "GTR_PF06346_I_G4:GTR_PF06346_I_G4"
+          ]
+        },
+        "protein_power": {
+          "scenario_set": "fig2",
+          "model_pairs": [
+            "LG_G4:LG_G4",
+            "WAG_G4:WAG_G4",
+            "JTT_G4:JTT_G4",
+            "Q.PFAM_G4:Q.PFAM_G4"
+          ]
+        },
+        "misspecification_power": {
+          "scenario_set": "misspecification",
+          "model_pairs": [
+            "GTR_PF06346:GTR_PF06346",
+            "GTR_PF06346:JC",
+            "GTR_PF06346:K2P",
+            "GTR_PF06346:F81"
+          ]
+        }
+      }
     },
     "fdr_calibration_design": {
       "separate_from_publication_curves": true,

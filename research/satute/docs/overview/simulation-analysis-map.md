@@ -9,16 +9,16 @@ generative experiment.
 Use the main interface to display the current map or execution plan:
 
 ```bash
-python generate_experiment_data.py --map
-python generate_experiment_data.py --profile full --plan
-python generate_experiment_data.py --figures --plan
+./satute data --map
+./satute data --profile full --plan
+./satute publication-figures --plan
 ```
 
 ## End-to-end lineage
 
 ```mermaid
 flowchart LR
-    G["generate_experiment_data.py"] --> V["Native rate-category gate"]
+    G["./satute"] --> V["Native rate-category gate"]
     V --> E1["001 historical simulation"]
     V --> E2["002 relative-weighting simulations"]
     V --> E3["003 exact multinomial simulations"]
@@ -92,9 +92,9 @@ it analyzes real, explicitly supplied alignments.
 
 ## Execution adapters
 
-| Environment | Role | Entry points |
+| Environment | Role | Interface or adapter |
 |---|---|---|
-| Local | Complete sequential generation, selective reruns, smoke plans | `generate_experiment_data.py`, colocated `workflow.py` files |
+| Local | Complete sequential generation, selective reruns, smoke plans | `./satute`; colocated `workflow.py` files are internal adapters |
 | LiSC | Publication GTR/protein/misspecification arrays | `tools/cluster/lisc/submit_publication_suite.sh`, `submit_full_head_to_head.slurm`, `run_full_head_to_head_shard.sh` |
 | LiSC | Exact-null and mixed-null calibration arrays/postprocessing | `submit_fdr_calibration_suite.sh`, `run_fdr_calibration_shard.sh`, `submit_fdr_postprocess_suite.sh`, `postprocess_fdr_calibration.slurm` |
 | AWS | Earlier Seq-Gen shard execution and merge/plot adapter | `tools/cluster/aws/run_full_head_to_head_shard.sh`, `combine_verify_plot_full.sh` |

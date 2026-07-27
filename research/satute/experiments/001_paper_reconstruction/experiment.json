@@ -9,6 +9,15 @@
     "docs",
     "manuscript"
   ],
+  "studies": [
+    {
+      "id": "historical_power_reconstruction",
+      "question": "Can the original SatuTe simulation power curves be reconstructed?",
+      "outcome": "baseline",
+      "scale": "local"
+    }
+  ],
+  "default_study": "historical_power_reconstruction",
   "config": {
     "schema_version": 1,
     "output": "artifacts/local/paper-reconstruction"

@@ -5,14 +5,19 @@ The experiment suite uses one external seam:
 validate, list, and run experiments through this interface. Manifest JSON is an
 implementation detail: discovery converts it into immutable `Experiment`
 values, validates all owned and project-relative paths, and returns defensive
-configuration copies only for release provenance.
+configuration copies to workflows and release provenance.
 
-Each numbered experiment directory supplies one workflow adapter at the
-internal seam. The adapter owns profile-specific orchestration and delegates
-scientific work to that experiment's drivers. The catalog loads only the
-adapter's `run(context, *, profile, figures)` callable, so module-loading details
-and command construction remain inside the implementation. This gives five
-real adapters behind one interface.
+Managed experiment directories supply workflow adapters at the internal seam.
+An adapter owns profile-specific orchestration, reads its validated colocated
+configuration, and delegates scientific work to that experiment's drivers. The
+catalog loads only the adapter's
+`run(context, *, profile, figures, study)` callable, so module-loading details
+and command construction remain inside the implementation. Named studies make
+distinct power and calibration designs visible without splitting one
+scientific question across several top-level modules. Experiments that require
+dataset-specific inputs declare
+`execution: manual` and document direct driver commands instead of supplying a
+workflow that cannot run.
 
 ## Ownership
 
@@ -30,13 +35,13 @@ real adapters behind one interface.
 ## Dependency direction
 
 ```text
-Make / maintenance CLI
+./satute
         |
         v
 ExperimentCatalog
         |
         v
-experiment workflow.py  --->  experiment driver / renderer
+named study ---> experiment workflow.py ---> experiment driver / renderer
         |                              |
         +------------------------------+
                        |
@@ -51,8 +56,12 @@ belongs in `tools`.
 ## Interface invariants
 
 - Experiment identifiers match their directory names.
-- Driver and workflow paths remain inside the owning experiment module.
-- Output and release paths remain inside the SatuTe research project.
+- Driver and managed-workflow paths remain inside the owning experiment module.
+- Every numbered experiment has a colocated manifest and README.
+- Study identifiers are unique and every default study exists.
+- Output paths are dedicated children of `artifacts/local/` or
+  `artifacts/cluster/`; release paths are dedicated children of
+  `artifacts/releases/`.
 - Output directories are unique across discovered experiments.
 - Consumers are unique non-empty names.
 - Configuration schema versions are positive integers.
@@ -63,8 +72,9 @@ not parse manifests independently.
 ## Adding an experiment
 
 1. Create `experiments/NNN_descriptive_name/`.
-2. Add a valid `experiment.json`, `workflow.py`, driver, and README.
+2. Add a valid `experiment.json` with at least one named study, a driver,
+   README, and either a managed `workflow.py` or `execution: manual`.
 3. Keep the driver CLI independently usable with `--help`.
 4. Add behavioral tests under the matching `tests/` category.
-5. Run `make audit`; discovery is automatic and no central registry edit is
+5. Run `./satute check audit`; discovery is automatic and no central registry edit is
    required.
