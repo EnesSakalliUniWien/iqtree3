@@ -8,6 +8,7 @@ publication cell contains 1,000 paired replicates.
 ## Built paper and overview curves
 
 - [Built manuscript](manuscript/manuscript.pdf)
+- [Supplementary Information](manuscript/supplementary-information.pdf)
 - [Exploratory power-curve summary](manuscript/figures/figure_power_curve_summary.pdf)
 - [Dense invariant-mixture power analysis](manuscript/figures/figure_weighted_invariant_full.pdf)
 - [Tracked publication figure subset](manuscript/figures/publication-suite/README.md)
@@ -67,6 +68,20 @@ adjusted-p-value tie block.
 - [Operating summary table](artifacts/cluster/lisc/fdr-calibration-reps5000-2000-corrected-ties/figures/fdr_operating_summary.tsv)
 - [Paired-difference summary table](artifacts/cluster/lisc/fdr-calibration-reps5000-2000-corrected-ties/figures/fdr_paired_difference_summary.tsv)
 - [Corrected held-out calibration table](artifacts/cluster/lisc/fdr-exact-null-reps5000-a932abf97b2-20260715-postprocessed-corrected-ties/heldout_null_calibration.tsv)
+
+## Independent HCV coding-genome example
+
+Ten accession-versioned HCV references spanning genotypes 1--7 were aligned
+through their polyproteins and back-translated. On the genotype 1, 2 and 3
+subtype-pair branches, dominant SatuTe classified 11/252, 34/252 and 33/252
+third-position windows as saturated, compared with 1/507, 4/507 and 5/507
+positions-1+2 windows. Eigenvalue weighting reduced the third-position counts
+to 6, 24 and 27. Whole-gene and whole-partition tests remained informative.
+
+- [Immutable HCV release](artifacts/releases/biological/hcv-codon-windows-20260717/README.md)
+- [Codon-position window curves](artifacts/releases/biological/hcv-codon-windows-20260717/results/hcv_codon_position_window_curves.pdf)
+- [Saturated-window comparison](artifacts/releases/biological/hcv-codon-windows-20260717/results/hcv_codon_position_saturated_windows.pdf)
+- [Validated window summary](artifacts/releases/biological/hcv-codon-windows-20260717/results/hcv_window_summary.tsv)
 
 ## Figure QA
 
