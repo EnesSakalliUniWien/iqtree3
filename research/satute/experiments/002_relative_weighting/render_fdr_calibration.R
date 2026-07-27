@@ -8,8 +8,8 @@ suppressPackageStartupMessages({
 
 FORMULAS <- c("dominant", "eigenvalue_weighted")
 FORMULA_LABELS <- c(
-  dominant = "Published dominant coefficient",
-  eigenvalue_weighted = "Eigenvalue-weighted coefficient"
+  dominant = "Published SatuTe statistic",
+  eigenvalue_weighted = "Eigenvalue-weighted SatuTe statistic"
 )
 RULES <- c("unadjusted", "taxon_bonferroni", "by_fdr")
 RULE_LABELS <- c(
@@ -334,7 +334,7 @@ operating_plot <- function(rows, title, difference = FALSE) {
     labs(
       title = title,
       subtitle = if (difference) {
-        "Eigenvalue-weighted minus dominant; 95% paired bootstrap intervals"
+        "Eigenvalue-weighted minus published SatuTe; 95% paired bootstrap intervals"
       } else {
         "Prespecified 50:50 target-null/target-alternative mixture; 95% intervals"
       },
@@ -431,7 +431,7 @@ static_3d <- function(rows, title, pdf_path, difference = FALSE) {
           pch = SITE_SHAPES[[as.character(site_value)]], cex = 0.78, bg = "white",
           xlim = c(4, 8), ylim = c(2, 3), zlim = z_range,
           xlab = "Branch length", ylab = "log10 sites",
-          zlab = if (difference) "Weighted − dominant" else as.character(unique(trace$metric_label)),
+          zlab = if (difference) "Eigenvalue-weighted − published SatuTe" else as.character(unique(trace$metric_label)),
           theta = 42, phi = 23, d = 2.35, expand = 0.8,
           bty = "u", ticktype = "detailed", nticks = 4,
           col.panel = "#FAFAFA", col.grid = "#DDDDDD", col.axis = "#555555",
@@ -489,7 +489,7 @@ interactive_3d <- function(rows, title, html_path, difference = FALSE) {
       trace <- selected[selected$nsites == site_value, , drop = FALSE]
       trace <- trace[order(trace$branch_length), , drop = FALSE]
       hover <- paste0(
-        "<b>", if (difference) "Weighted − dominant" else as.character(trace$metric_label), "</b>",
+        "<b>", if (difference) "Eigenvalue-weighted − published SatuTe" else as.character(trace$metric_label), "</b>",
         "<br>Branch length: ", trace$branch_length,
         "<br>Alignment length: ", format(trace$nsites, big.mark = ","),
         "<br>Estimate: ", sprintf("%+.4f", trace$estimate),
@@ -532,7 +532,7 @@ interactive_3d <- function(rows, title, html_path, difference = FALSE) {
       xaxis = list(title = "Target branch length", showspikes = FALSE),
       yaxis = list(title = "Alignment length (sites)", type = "log", showspikes = FALSE),
       zaxis = list(
-        title = if (difference) "Weighted − dominant" else as.character(unique(rows$metric_label)),
+        title = if (difference) "Eigenvalue-weighted − published SatuTe" else as.character(unique(rows$metric_label)),
         range = z_range, zeroline = TRUE, zerolinecolor = "#444444", showspikes = FALSE
       ),
       aspectmode = "manual", aspectratio = list(x = 1.4, y = 1.0, z = 0.9),
@@ -754,7 +754,7 @@ for (model in c("JC", "GTR_PF06346")) {
   for (metric in c("empirical_fdr", "power")) {
     metric_rows <- difference[difference$metric == metric, , drop = FALSE]
     metric_name <- if (metric == "empirical_fdr") "Empirical FDR" else "Power"
-    title <- paste0("Paired weighted − dominant ", metric_name, " under ", model_label)
+    title <- paste0("Paired eigenvalue-weighted − published-SatuTe ", metric_name, " under ", model_label)
     stem <- paste0("figure_paired_difference_", metric, "_3d_model_", safe_name(model))
     static_3d(
       metric_rows, title, file.path(outdir, paste0(stem, ".pdf")), difference = TRUE

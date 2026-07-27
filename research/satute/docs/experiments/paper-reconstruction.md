@@ -95,8 +95,7 @@ published and enhanced tests.
 Smoke-test command:
 
 ```bash
-${PYTHON_BIN:-python3} \
-  research/satute/experiments/002_relative_weighting/run.py \
+research/satute/satute developer paper-head-to-head -- \
   --iqtree ./build/iqtree3 \
   --outdir /tmp/iqtree-satute-head-to-head \
   --reps 1 \
@@ -112,8 +111,7 @@ ${PYTHON_BIN:-python3} \
 Paper-faithful command shape:
 
 ```bash
-${PYTHON_BIN:-python3} \
-  research/satute/experiments/002_relative_weighting/run.py \
+research/satute/satute developer paper-head-to-head -- \
   --iqtree ./build/iqtree3 \
   --seqgen /path/to/seq-gen \
   --simulator seq-gen \
@@ -147,8 +145,7 @@ model in the Fig. 2 reproduction.
 The corresponding supplementary command shape is:
 
 ```bash
-${PYTHON_BIN:-python3} \
-  research/satute/experiments/002_relative_weighting/run.py \
+research/satute/satute developer paper-head-to-head -- \
   --iqtree ./build/iqtree3 \
   --seqgen /path/to/seq-gen \
   --simulator seq-gen \
@@ -167,8 +164,7 @@ calculation, but they are not part of the published simulation reproduction.
 Use exact model pairs for this extension:
 
 ```bash
-${PYTHON_BIN:-python3} \
-  research/satute/experiments/002_relative_weighting/run.py \
+research/satute/satute developer paper-head-to-head -- \
   --iqtree ./build/iqtree3 \
   --seqgen /path/to/seq-gen \
   --simulator seq-gen \

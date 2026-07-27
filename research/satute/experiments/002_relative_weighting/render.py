@@ -57,8 +57,8 @@ TREE_CASES_ALL = [
     ("sixteen_internal", "b) 16-taxon internal branch"),
 ]
 FORMULAS = [
-    ("dominant", "published dominant coefficient"),
-    ("eigenvalue_weighted", "eigenvalue-weighted coefficient"),
+    ("dominant", "published SatuTe statistic"),
+    ("eigenvalue_weighted", "eigenvalue-weighted SatuTe statistic"),
 ]
 SITE_STYLES = {
     "100": "6,4",
@@ -256,7 +256,7 @@ def panel(svg, rows, formula, tree_case, title, left, top, width, height, scenar
     if show_x_label:
         svg.append(f'<text x="{left + width / 2:.1f}" y="{top + height + 38}" text-anchor="middle" font-size="11">branch length AB, log scale</text>')
     if show_y_label:
-        svg.append(f'<text x="{left - 42}" y="{top + height / 2:.1f}" text-anchor="middle" font-size="11" transform="rotate(-90 {left - 42} {top + height / 2:.1f})">fraction informative</text>')
+        svg.append(f'<text x="{left - 42}" y="{top + height / 2:.1f}" text-anchor="middle" font-size="11" transform="rotate(-90 {left - 42} {top + height / 2:.1f})">fraction phylogenetically informative</text>')
 
 
 def legend(svg, x, y, scenarios):
@@ -285,7 +285,7 @@ def write_baseline_figure(rows, output, problems, tree_cases, simulation_model, 
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="470" viewBox="0 0 {width} 470">',
         f'<rect width="{width}" height="470" fill="#ffffff"/>',
-        f'<text x="{width / 2:.1f}" y="28" text-anchor="middle" font-size="19" font-weight="700">SatuTe simulation: dominant statistic (sim {model_label(simulation_model)}, eval {model_label(evaluation_model)})</text>',
+        f'<text x="{width / 2:.1f}" y="28" text-anchor="middle" font-size="19" font-weight="700">SatuTe simulation: published statistic (sim {model_label(simulation_model)}, eval {model_label(evaluation_model)})</text>',
     ]
     for index, (tree_case, tree_label) in enumerate(tree_cases):
         panel(svg, rows, "dominant", tree_case, tree_label, panel_lefts[index], 78, panel_width, 250, scenarios)

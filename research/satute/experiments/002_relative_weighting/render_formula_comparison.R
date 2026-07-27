@@ -8,8 +8,8 @@ suppressPackageStartupMessages({
 
 FORMULA_LEVELS <- c("dominant", "eigenvalue_weighted")
 FORMULA_LABELS <- c(
-  dominant = "Published dominant coefficient",
-  eigenvalue_weighted = "Eigenvalue-weighted coefficient"
+  dominant = "Published SatuTe statistic",
+  eigenvalue_weighted = "Eigenvalue-weighted SatuTe statistic"
 )
 FORMULA_COLORS <- c(
   dominant = "#0072B2",
@@ -121,15 +121,25 @@ evaluation_arg <- args[["evaluation-model"]]
 expected_reps <- if (is.null(args[["expected-reps"]])) NA_integer_ else as.integer(args[["expected-reps"]])
 bootstrap_reps <- if (is.null(args[["bootstrap-reps"]])) 5000L else as.integer(args[["bootstrap-reps"]])
 decision_rule <- if (is.null(args[["decision-rule"]])) "unadjusted" else args[["decision-rule"]]
+scenario_arg <- args[["scenario"]]
 decision_columns <- list(
   unadjusted = "decision_unadjusted",
   taxon_bonferroni = "decision_taxon_bonf",
   by_fdr = "decision_fdr"
 )
+decision_labels <- c(
+  unadjusted = "unadjusted",
+  taxon_bonferroni = "taxon-pair Bonferroni",
+  by_fdr = "Benjamini–Yekutieli FDR"
+)
 if (!decision_rule %in% names(decision_columns)) {
   stop("--decision-rule must be one of: ", paste(names(decision_columns), collapse = ", "))
 }
+if (decision_rule == "taxon_bonferroni" && !identical(scenario_arg, "ml_tree")) {
+  stop("taxon_bonferroni is scientifically applicable only with --scenario ml_tree")
+}
 decision_column <- decision_columns[[decision_rule]]
+decision_label <- unname(decision_labels[[decision_rule]])
 
 if (!file.exists(summary_path)) stop("Summary file does not exist: ", summary_path)
 if (!file.exists(detail_path)) stop("Detail file does not exist: ", detail_path)
@@ -170,16 +180,16 @@ detail <- detail[
     detail$formula %in% FORMULA_LEVELS,
   , drop = FALSE
 ]
+if (!is.null(scenario_arg)) {
+  detail <- detail[detail$scenario == scenario_arg, , drop = FALSE]
+}
 if (!nrow(detail)) stop("No detail rows remain after model/formula filtering")
 if (!setequal(unique(detail$formula), FORMULA_LEVELS)) {
   stop("The comparison requires exactly dominant and eigenvalue_weighted detail rows")
 }
 
-# Recompute every rule-specific summary from the schema-v2 detail table.  Some
-# historical shard summaries contain taxon-Bonferroni rows only for the ML-tree
-# scenario even though the detail table contains complete decisions for all
-# three scenarios.  Using detail here keeps the 2D/3D method panels and the
-# paired panels on the same complete, verified grid.
+# Recompute the requested, scientifically valid scenario/rule summary from the
+# schema-v2 detail table so method and paired panels use the same replicate set.
 summary_keys <- c(
   "tree_case", "simulation_model", "evaluation_model", "nsites",
   "branch_length", "scenario", "formula"
@@ -270,7 +280,7 @@ for (formula_name in FORMULA_LEVELS) {
     scale_linetype_manual(values = site_styles) +
     labs(
       title = paste0(method_label, ": sim ", sim_label, ", eval ", eval_label),
-      subtitle = paste0("Decision rule: ", decision_rule, "; measured informative fraction with 95% Wilson intervals"),
+      subtitle = paste0("Decision rule: ", decision_label, "; measured informative fraction with 95% Wilson intervals"),
       x = "Target branch length (log scale)", y = "Fraction classified informative",
       linetype = "Alignment length"
     ) + common_theme
@@ -368,7 +378,7 @@ difference_plot <- ggplot(
   scale_linetype_manual(values = site_styles) +
   labs(
     title = paste0("Paired formula difference: sim ", sim_label, ", eval ", eval_label),
-    subtitle = paste0("Decision rule: ", decision_rule, "; eigenvalue-weighted minus dominant; 95% paired bootstrap intervals"),
+    subtitle = paste0("Decision rule: ", decision_label, "; eigenvalue-weighted minus published SatuTe; 95% paired bootstrap intervals"),
     x = "Target branch length (log scale)", y = "Difference in informative fraction",
     color = "Alignment length", linetype = "Alignment length"
   ) + common_theme
@@ -395,13 +405,13 @@ build_3d <- function(data, title, z_column, z_title, z_range, line_color, html_p
       z <- trace[[z_column]]
       if (difference) {
         hover <- paste0(
-          "<b>Eigenvalue-weighted − dominant</b>",
+          "<b>Eigenvalue-weighted − published SatuTe</b>",
           "<br>Branch length: ", format(trace$branch_length, trim = TRUE),
           "<br>Alignment length: ", format(site_value, big.mark = ","),
           "<br>Difference: ", sprintf("%+.3f", z),
           "<br>95% paired CI: [", sprintf("%+.3f", trace$ci_low), ", ", sprintf("%+.3f", trace$ci_high), "]",
           "<br>Weighted only: ", trace$weighted_only_informative,
-          "<br>Dominant only: ", trace$dominant_only_informative,
+          "<br>Published SatuTe only: ", trace$dominant_only_informative,
           "<br>Evaluated pairs: ", trace$evaluated_pairs
         )
       } else {
@@ -591,24 +601,24 @@ for (formula_name in FORMULA_LEVELS) {
   build_3d(
     method_rows,
     static_title,
-    "fraction_informative", "Fraction informative", c(0, 1), FORMULA_COLORS[[formula_name]],
+    "fraction_informative", "Fraction phylogenetically informative", c(0, 1), FORMULA_COLORS[[formula_name]],
     file.path(outdir, paste0("figure_", formula_name, "_3d_", suffix, ".html"))
   )
   build_static_3d(
     method_rows, static_title,
-    "fraction_informative", "Fraction informative", c(0, 1), FORMULA_COLORS[[formula_name]],
+    "fraction_informative", "Fraction phylogenetically informative", c(0, 1), FORMULA_COLORS[[formula_name]],
     file.path(outdir, paste0("figure_", formula_name, "_3d_", suffix, ".pdf"))
   )
 }
-static_difference_title <- paste0("Paired formula difference (", decision_rule, "): sim ", sim_label, ", eval ", eval_label)
+static_difference_title <- paste0("Paired formula difference (", decision_label, "): sim ", sim_label, ", eval ", eval_label)
 build_3d(
   paired_summary,
   static_difference_title,
-  "delta_fraction_informative", "Weighted − dominant", c(-delta_limit, delta_limit), "#6A3D9A",
+  "delta_fraction_informative", "Eigenvalue-weighted − published SatuTe", c(-delta_limit, delta_limit), "#6A3D9A",
   file.path(outdir, paste0("figure_paired_difference_3d_", suffix, ".html")), difference = TRUE
 )
 build_static_3d(
   paired_summary, static_difference_title,
-  "delta_fraction_informative", "Weighted − dominant", c(-delta_limit, delta_limit), "#6A3D9A",
+  "delta_fraction_informative", "Eigenvalue-weighted − published SatuTe", c(-delta_limit, delta_limit), "#6A3D9A",
   file.path(outdir, paste0("figure_paired_difference_3d_", suffix, ".pdf")), difference = TRUE
 )

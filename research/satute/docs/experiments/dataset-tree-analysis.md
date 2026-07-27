@@ -12,7 +12,7 @@
 Example:
 
 ```bash
-python3 research/satute/experiments/005_biological_windows/analyze_dataset.py \
+research/satute/satute developer biological-analysis -- \
   example/example.phy \
   --iqtree ./build/iqtree3 \
   --outdir /tmp/iqtree-satute-dataset-analysis \
@@ -26,7 +26,7 @@ python3 research/satute/experiments/005_biological_windows/analyze_dataset.py \
 For exploratory runs without branch-support resampling:
 
 ```bash
-python3 research/satute/experiments/005_biological_windows/analyze_dataset.py \
+research/satute/satute developer biological-analysis -- \
   /path/to/alignment.fa \
   --iqtree ./build/iqtree3 \
   --outdir /tmp/iqtree-satute-dataset-analysis \

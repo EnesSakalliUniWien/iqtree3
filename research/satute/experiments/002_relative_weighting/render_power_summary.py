@@ -3,49 +3,48 @@
 import argparse
 import csv
 import math
-import subprocess
+import sys
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 
 ROOT = Path(__file__).resolve().parents[2]
-OUTDIR = ROOT / "artifacts" / "releases" / "generated-figures"
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
+
+from satute_analysis.publication_figures import (  # noqa: E402
+    CROSS_MODEL_CONTRACT,
+    stable_case_summary,
+    stable_figure_root,
+)
+from satute_analysis.benchmark_contracts import applicable_decision_rules  # noqa: E402
+from tools.figures.export import export_svg_pdf  # noqa: E402
+
+OUTDIR = stable_figure_root(CROSS_MODEL_CONTRACT.id)
 
 DATASETS = [
     {
         "label": "JC",
-        "path": ROOT / "artifacts" / "cluster" / "lisc" / "paper-fig2-jc-reps1000" / "merged" / "head_to_head_summary.tsv",
+        "path": stable_case_summary("jc_JC"),
         "simulation_model": "JC",
         "evaluation_model": "JC",
-        "site_lengths": ["100", "1000", "10000"],
+        "site_lengths": [str(value) for value in CROSS_MODEL_CONTRACT.site_lengths],
         "branch_ticks": [0.1, 0.5, 1.0, 2.5, 5.0, 10.0],
     },
     {
         "label": "GTR+F+G4",
-        "path": ROOT
-        / "artifacts"
-        / "cluster"
-        / "lisc"
-        / "manuscript-ratehet-boundary-all-controls-reps1000"
-        / "merged"
-        / "head_to_head_summary.tsv",
-        "simulation_model": "GTR_TOL_16S_G4",
-        "evaluation_model": "GTR_TOL_16S_G4",
-        "site_lengths": ["100", "250", "1000"],
+        "path": stable_case_summary("gtr_GTR_PF06346_G4"),
+        "simulation_model": "GTR{0.6676,3.7807,4.2833,0.5354,0.8718,1.0}+F{0.125,0.436,0.191,0.245}+G4{0.5}",
+        "evaluation_model": "GTR{0.6676,3.7807,4.2833,0.5354,0.8718,1.0}+F{0.125,0.436,0.191,0.245}+G4{0.5}",
+        "site_lengths": [str(value) for value in CROSS_MODEL_CONTRACT.site_lengths],
         "branch_ticks": [4, 6, 8, 10, 12],
     },
     {
         "label": "LG+G4",
-        "path": ROOT
-        / "artifacts"
-        / "cluster"
-        / "lisc"
-        / "manuscript-ratehet-boundary-all-controls-reps1000"
-        / "merged"
-        / "head_to_head_summary.tsv",
-        "simulation_model": "LG_TOL_G4",
-        "evaluation_model": "LG_TOL_G4",
-        "site_lengths": ["100", "250", "1000"],
+        "path": stable_case_summary("protein_LG_G4"),
+        "simulation_model": "LG+G4{0.5}",
+        "evaluation_model": "LG+G4{0.5}",
+        "site_lengths": [str(value) for value in CROSS_MODEL_CONTRACT.site_lengths],
         "branch_ticks": [4, 6, 8, 10, 12],
     },
 ]
@@ -56,8 +55,8 @@ TREE_CASES = [
 ]
 
 FORMULAS = [
-    ("dominant", "published SatuTe", "#0A3FBA"),
-    ("eigenvalue_weighted", "eigenvalue-weighted", "#E69504"),
+    ("dominant", "Published SatuTe", "#0A3FBA", "circle"),
+    ("eigenvalue_weighted", "Eigenvalue-weighted SatuTe", "#E69504", "diamond"),
 ]
 
 DECISION_RULE_LABELS = {
@@ -105,14 +104,14 @@ def path_data(points):
     return " ".join(parts)
 
 
-def grouped(rows, dataset, tree_case):
+def grouped(rows, dataset, tree_case, scenario):
     values = {}
     for row in rows:
         if row["simulation_model"] != dataset["simulation_model"]:
             continue
         if row["evaluation_model"] != dataset["evaluation_model"]:
             continue
-        if row["scenario"] != "true_tree_fixed_lengths":
+        if row["scenario"] != scenario:
             continue
         if row["tree_case"] != tree_case:
             continue
@@ -130,11 +129,26 @@ def grouped(rows, dataset, tree_case):
     return values
 
 
-def draw_panel(svg, rows, dataset, tree_case, title, left, top, width, height, show_y, show_x):
-    data = grouped(rows, dataset, tree_case)
+def draw_panel(
+    svg,
+    rows,
+    dataset,
+    tree_case,
+    title,
+    left,
+    top,
+    width,
+    height,
+    show_y,
+    show_x,
+    scenario,
+):
+    data = grouped(rows, dataset, tree_case, scenario)
     all_branch_lengths = sorted({branch for series in data.values() for branch in series})
     if not all_branch_lengths:
-        raise SystemExit(f"No true-tree fixed-length rows for {dataset['label']}/{tree_case}")
+        raise SystemExit(
+            f"No {scenario} rows for {dataset['label']}/{tree_case}"
+        )
     xmin, xmax = min(all_branch_lengths), max(all_branch_lengths)
     if xmin == xmax:
         center = math.log10(xmin)
@@ -157,7 +171,7 @@ def draw_panel(svg, rows, dataset, tree_case, title, left, top, width, height, s
         if show_x:
             svg.append(f'<text x="{x:.2f}" y="{top + height + 22}" text-anchor="middle" font-size="14">{tick:g}</text>')
 
-    for formula, _label, color in FORMULAS:
+    for formula, _label, color, marker in FORMULAS:
         for nsites in dataset["site_lengths"]:
             series = data.get((formula, nsites), {})
             points = [(sx(branch, xmin, xmax, left, width), sy(series[branch], top, height)) for branch in all_branch_lengths if branch in series]
@@ -165,23 +179,69 @@ def draw_panel(svg, rows, dataset, tree_case, title, left, top, width, height, s
                 continue
             dash = SITE_DASH.get(nsites, "")
             dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
-            svg.append(f'<path d="{path_data(points)}" fill="none" stroke="{color}" stroke-width="2.6"{dash_attr}/>')
+            stroke_width = 4.6 if formula == "dominant" else 2.4
+            svg.append(
+                f'<path d="{path_data(points)}" fill="none" stroke="{color}" '
+                f'stroke-width="{stroke_width}"{dash_attr}/>'
+            )
             for x, y in points:
-                svg.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="3.1" fill="{color}" stroke="white" stroke-width="1"/>')
+                if marker == "circle":
+                    svg.append(
+                        f'<circle cx="{x:.2f}" cy="{y:.2f}" r="4.1" fill="white" '
+                        f'stroke="{color}" stroke-width="2.0"/>'
+                    )
+                else:
+                    size = 3.7
+                    svg.append(
+                        f'<polygon points="{x:.2f},{y-size:.2f} {x+size:.2f},{y:.2f} '
+                        f'{x:.2f},{y+size:.2f} {x-size:.2f},{y:.2f}" fill="white" '
+                        f'stroke="{color}" stroke-width="1.8"/>'
+                    )
+
+    deltas = []
+    for nsites in dataset["site_lengths"]:
+        published = data.get(("dominant", nsites), {})
+        weighted = data.get(("eigenvalue_weighted", nsites), {})
+        for branch in set(published) & set(weighted):
+            deltas.append(weighted[branch] - published[branch])
+    maximum_delta = max(deltas) if deltas else float("nan")
+    annotation = (
+        "curves coincide (Δ = 0)"
+        if math.isclose(maximum_delta, 0.0, abs_tol=1e-12)
+        else f"max Δ = {maximum_delta:.3f}"
+    )
+    svg.append(
+        f'<text x="{left + width - 10}" y="{top + 20}" text-anchor="end" '
+        f'font-size="13" font-weight="700" fill="#444444">{annotation}</text>'
+    )
 
     if show_y:
         x = left - 58
         y = top + height / 2
-        svg.append(f'<text x="{x}" y="{y:.1f}" text-anchor="middle" font-size="15" transform="rotate(-90 {x} {y:.1f})">fraction informative</text>')
+        svg.append(f'<text x="{x}" y="{y:.1f}" text-anchor="middle" font-size="15" transform="rotate(-90 {x} {y:.1f})">fraction phylogenetically informative</text>')
     if show_x:
         svg.append(f'<text x="{left + width / 2:.1f}" y="{top + height + 50}" text-anchor="middle" font-size="15">target branch length</text>')
 
 
 def legend(svg, x, y, site_lengths):
     svg.append(f'<text x="{x}" y="{y}" font-size="17" font-weight="700">Formula</text>')
-    for i, (_formula, label, color) in enumerate(FORMULAS):
+    for i, (_formula, label, color, marker) in enumerate(FORMULAS):
         yy = y + 28 + i * 28
-        svg.append(f'<line x1="{x}" x2="{x + 42}" y1="{yy}" y2="{yy}" stroke="{color}" stroke-width="3.2"/>')
+        width = 4.6 if marker == "circle" else 2.4
+        svg.append(
+            f'<line x1="{x}" x2="{x + 42}" y1="{yy}" y2="{yy}" '
+            f'stroke="{color}" stroke-width="{width}"/>'
+        )
+        if marker == "circle":
+            svg.append(
+                f'<circle cx="{x + 21}" cy="{yy}" r="4.1" fill="white" '
+                f'stroke="{color}" stroke-width="2"/>'
+            )
+        else:
+            svg.append(
+                f'<polygon points="{x+21},{yy-4} {x+25},{yy} {x+21},{yy+4} '
+                f'{x+17},{yy}" fill="white" stroke="{color}" stroke-width="1.8"/>'
+            )
         svg.append(f'<text x="{x + 54}" y="{yy + 5}" font-size="15">{escape(label)}</text>')
 
     y2 = y + 100
@@ -192,6 +252,98 @@ def legend(svg, x, y, site_lengths):
         dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
         svg.append(f'<line x1="{x}" x2="{x + 42}" y1="{yy}" y2="{yy}" stroke="#222222" stroke-width="2.8"{dash_attr}/>')
         svg.append(f'<text x="{x + 54}" y="{yy + 5}" font-size="15">{nsites} sites</text>')
+
+
+def write_recalculation_tables(
+    datasets, rows_by_path, scenario, decision_rule, output_dir
+):
+    selected_rows = []
+    claim_rows = []
+    for dataset in datasets:
+        rows = [
+            row
+            for row in rows_by_path[dataset["path"]]
+            if row["simulation_model"] == dataset["simulation_model"]
+            and row["evaluation_model"] == dataset["evaluation_model"]
+            and row["scenario"] == scenario
+            and row["decision_rule"] == decision_rule
+            and row["nsites"] in dataset["site_lengths"]
+            and row["tree_case"] in {value for value, _label in TREE_CASES}
+        ]
+        for row in rows:
+            selected_rows.append({"model_label": dataset["label"], **row})
+        by_cell = {}
+        for row in rows:
+            key = (row["tree_case"], row["nsites"], row["branch_length"])
+            by_cell.setdefault(key, {})[row["formula"]] = float(
+                row["fraction_informative"]
+            )
+        for tree_case, _tree_label in TREE_CASES:
+            candidates = []
+            for (cell_tree, nsites, branch_length), formulas in by_cell.items():
+                if cell_tree != tree_case or set(formulas) != {
+                    "dominant",
+                    "eigenvalue_weighted",
+                }:
+                    continue
+                candidates.append(
+                    (
+                        formulas["eigenvalue_weighted"] - formulas["dominant"],
+                        int(nsites),
+                        float(branch_length),
+                        formulas["dominant"],
+                        formulas["eigenvalue_weighted"],
+                    )
+                )
+            if not candidates:
+                raise SystemExit(
+                    f"No paired Figure 6 cells for {dataset['label']}/{tree_case}"
+                )
+            delta, nsites, branch_length, published, weighted = max(candidates)
+            claim_rows.append(
+                {
+                    "model": dataset["label"],
+                    "tree_case": tree_case,
+                    "scenario": scenario,
+                    "decision_rule": decision_rule,
+                    "nsites": nsites,
+                    "branch_length": branch_length,
+                    "published_fraction": published,
+                    "eigenvalue_weighted_fraction": weighted,
+                    "delta_fraction": delta,
+                }
+            )
+
+    data_fields = [
+        "model_label",
+        "tree_case",
+        "simulation_model",
+        "evaluation_model",
+        "nsites",
+        "branch_length",
+        "scenario",
+        "decision_rule",
+        "formula",
+        "evaluated",
+        "informative",
+        "missing_split",
+        "fraction_informative",
+    ]
+    with (output_dir / "figure_power_curve_summary_data.tsv").open(
+        "w", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.DictWriter(handle, fieldnames=data_fields, delimiter="\t")
+        writer.writeheader()
+        writer.writerows(
+            {field: row[field] for field in data_fields} for row in selected_rows
+        )
+    claim_fields = list(claim_rows[0])
+    with (output_dir / "figure_power_curve_summary_claims.tsv").open(
+        "w", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.DictWriter(handle, fieldnames=claim_fields, delimiter="\t")
+        writer.writeheader()
+        writer.writerows(claim_rows)
 
 
 def main():
@@ -214,8 +366,13 @@ def main():
     parser.add_argument(
         "--decision-rule",
         choices=tuple(DECISION_RULE_LABELS),
-        default="unadjusted",
+        default=CROSS_MODEL_CONTRACT.decision_rule,
         help="Decision contract to render; schema-v2 summaries contain all rules.",
+    )
+    parser.add_argument(
+        "--scenario",
+        choices=("true_tree_fixed_lengths", "true_topology_ml_lengths", "ml_tree"),
+        default=CROSS_MODEL_CONTRACT.scenario,
     )
     parser.add_argument("--expected-reps", type=int, default=1000)
     parser.add_argument(
@@ -224,6 +381,11 @@ def main():
         help="Allow development-only summaries with incomplete replicate cells.",
     )
     args = parser.parse_args()
+    allowed_rules = {rule.name for rule in applicable_decision_rules(args.scenario)}
+    if args.decision_rule not in allowed_rules:
+        raise SystemExit(
+            f"{args.decision_rule} is not applicable to scenario {args.scenario}"
+        )
     datasets = [dict(dataset) for dataset in DATASETS]
     datasets[0]["path"] = args.jc_summary
     datasets[1]["path"] = args.gtr_summary
@@ -232,8 +394,10 @@ def main():
     datasets[1]["evaluation_model"] = args.gtr_evaluation_model
     datasets[2]["simulation_model"] = args.lg_simulation_model
     datasets[2]["evaluation_model"] = args.lg_evaluation_model
-    out_svg = args.output_dir / "figure_power_curve_summary.svg"
-    out_pdf = args.output_dir / "figure_power_curve_summary.pdf"
+    figure_dir = args.output_dir / "figures"
+    data_dir = args.output_dir / "data"
+    out_svg = figure_dir / "figure_power_curve_summary.svg"
+    out_pdf = figure_dir / "figure_power_curve_summary.pdf"
 
     rows_by_path = {}
     for dataset in datasets:
@@ -262,12 +426,7 @@ def main():
                 "Use --allow-incomplete only for development plots.\n" + sample
             )
 
-    site_lengths = {
-        dataset["label"]: sorted(
-            {row["nsites"] for row in rows_by_path[dataset["path"]]}
-        )
-        for dataset in datasets
-    }
+    site_lengths = {dataset["label"]: dataset["site_lengths"] for dataset in datasets}
     tree_case_sets = [
         {row["tree_case"] for row in rows_by_path[dataset["path"]]}
         for dataset in datasets
@@ -282,7 +441,8 @@ def main():
     if not tree_cases:
         raise SystemExit("No tree case is present in every selected summary")
 
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    figure_dir.mkdir(parents=True, exist_ok=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
     width, height = 1480, 1300
     panel_w, panel_h = 395, 220
     x0, y0 = 135, 130
@@ -291,8 +451,8 @@ def main():
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="#ffffff"/>',
-        f'<text x="{width / 2:.1f}" y="46" text-anchor="middle" font-size="30" font-weight="700">Full-alignment simulation curves</text>',
-        f'<text x="{width / 2:.1f}" y="78" text-anchor="middle" font-size="17" fill="#333333">True-tree fixed-length scenario; {args.expected_reps:,} replicates per point; {DECISION_RULE_LABELS[args.decision_rule]}</text>',
+        f'<text x="{width / 2:.1f}" y="46" text-anchor="middle" font-size="30" font-weight="700">Cross-model SatuTe power under inferred-tree testing</text>',
+        f'<text x="{width / 2:.1f}" y="78" text-anchor="middle" font-size="17" fill="#333333">ML-tree scenario; {args.expected_reps:,} paired replicates per point; {DECISION_RULE_LABELS[args.decision_rule]}</text>',
     ]
 
     for row_idx, dataset in enumerate(datasets):
@@ -313,14 +473,29 @@ def main():
                 panel_h,
                 show_y=(col_idx == 0),
                 show_x=True,
+                scenario=args.scenario,
             )
 
-    legend(svg, 1160, 140, sorted({site for values in site_lengths.values() for site in values}, key=int))
-    svg.append(f'<text x="135" y="1250" font-size="14" fill="#555555">Decision rule: {escape(DECISION_RULE_LABELS[args.decision_rule])}. Curves show observed grid cells only.</text>')
+    common_site_lengths = sorted(
+        {site for values in site_lengths.values() for site in values}, key=int
+    )
+    legend(svg, 1160, 140, common_site_lengths)
+    svg.append(
+        f'<text x="135" y="1250" font-size="14" fill="#555555">'
+        f'Only the common 100- and 1,000-site grids are shown. '
+        f'Curves use {escape(DECISION_RULE_LABELS[args.decision_rule])}.</text>'
+    )
     svg.append("</svg>")
 
     out_svg.write_text("\n".join(svg) + "\n", encoding="utf-8")
-    subprocess.run(["rsvg-convert", "-f", "pdf", "-o", str(out_pdf), str(out_svg)], check=True)
+    export_svg_pdf(out_svg, out_pdf)
+    write_recalculation_tables(
+        datasets,
+        rows_by_path,
+        args.scenario,
+        args.decision_rule,
+        data_dir,
+    )
     print(out_svg)
     print(out_pdf)
 

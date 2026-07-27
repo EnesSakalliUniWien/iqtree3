@@ -549,19 +549,19 @@ The dense figure is exported as a vector
 
 The full manuscript run is reproduced with:
 
-    python3 research/satute/experiments/003_invariant_mixture/run.py \
+    research/satute/satute developer invariant-simulation -- \
       --null-reps 20000 \
       --alternative-reps 20000 \
       --outdir research/satute/artifacts/local/weighted-invariant-full \
       --figure-prefix research/satute/artifacts/releases/generated-figures/figure_weighted_invariant_full_overview \
       --png-scale 3
 
-    python3 research/satute/experiments/003_invariant_mixture/render_full.py --png-scale 3
+    research/satute/satute developer invariant-full-figure -- --png-scale 3
 
 ## Reproduction
 
 ```bash
-python3 research/satute/experiments/004_saturation_diagnostics/run.py \
+research/satute/satute developer saturation-simulation -- \
   --iqtree ./build/iqtree3 \
   --sites 1000 \
   --reps 100 \
@@ -572,20 +572,20 @@ python3 research/satute/experiments/004_saturation_diagnostics/run.py \
 The invariant-mixture grid is reproduced with:
 
 ```bash
-python3 research/satute/experiments/003_invariant_mixture/run.py
+research/satute/satute developer invariant-simulation
 ```
 
 The higher-precision shift figure is reproduced with:
 
 ```bash
-python3 research/satute/experiments/003_invariant_mixture/run.py \
+research/satute/satute developer invariant-simulation -- \
   --branch-lengths 20,50,10000 \
   --null-reps 20000 \
   --alternative-reps 20000 \
   --outdir research/satute/artifacts/local/weighted-invariant-shift \
   --figure-prefix research/satute/artifacts/releases/generated-figures/figure_weighted_invariant_shift_overview
 
-python3 research/satute/experiments/003_invariant_mixture/render_shift.py
+research/satute/satute developer invariant-shift-figure
 ```
 
 The detailed and summarized data are written below
@@ -600,5 +600,5 @@ The null-scaling summary and figure are generated with
 The exact verifier requires NumPy:
 
 ```bash
-${PYTHON_BIN:-python3} research/satute/tests/exact/test_saturation_null.py
+research/satute/satute developer saturation-null-check
 ```

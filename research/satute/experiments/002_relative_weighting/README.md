@@ -10,6 +10,12 @@ eigenvalue weighting under nucleotide and protein settings.
 - Manifest and run configuration: `experiment.json`
 - Common workflow adapter: `workflow.py`
 
+The module exposes five named studies through the common data generator:
+`gtr_power`, `protein_power`, `misspecification_power`, `fdr_exact_null`, and
+`fdr_mixed_null`. From the research workspace, run all managed studies with
+`./satute data --profile full`, or select one with
+`./satute data --profile full --only 002_relative_weighting/<study>`.
+
 The production detail schema is versioned and keeps the three native decision
 contracts side by side: `decision_unadjusted`, `decision_taxon_bonf`, and
 `decision_fdr`. The normalized summary adds a `decision_rule` dimension, so a
@@ -118,6 +124,26 @@ the same `--decision-rule` flag. It refuses incomplete replicate cells unless
 `--allow-incomplete` is explicitly supplied, and it derives the observed site,
 branch and tree-case grid instead of silently filling missing cells from the
 legacy Fig. 2 defaults.
+
+The single supported entry point for rebuilding the complete publication power
+atlas and integrated manuscript Figures 5--6 is:
+
+```bash
+./satute publication-figures
+```
+
+This command links each immutable merged table into a stable
+`artifacts/publication/power/<case>/data/` path, renders each case into its own
+directory, then creates the two integrated figures under
+`artifacts/publication/figures/<figure>/` with separate `data/` and `figures/`
+subdirectories. Figure 5 uses unadjusted decisions for fixed true-tree
+scenarios and taxon-pair Bonferroni only for the inferred-ML-tree scenario.
+Figure 6 uses the inferred-ML-tree scenario with taxon-pair Bonferroni
+throughout. Run the reproducible semantic and artwork audit with:
+
+```bash
+./satute check publication-figures
+```
 
 For regenerated rate-heterogeneous curves, pass separate summaries and exact
 model strings with `--gtr-summary`, `--lg-summary`,
