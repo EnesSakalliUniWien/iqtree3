@@ -7,7 +7,13 @@ name = "satute-analysis"
 version = "0.1.0"
 description = "Reproducible analysis utilities for the SatuTe IQ-TREE integration"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24"]
+dependencies = [
+  "numpy==2.3.5",
+  "scipy==1.18.0",
+  "matplotlib==3.11.0",
+  "pandas==2.2.3",
+  "CairoSVG==2.9.0",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

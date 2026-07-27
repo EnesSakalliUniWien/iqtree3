@@ -38,4 +38,5 @@ refined likelihood identity and null centering.
 - Compact experiment smoke profiles 001--004: passing.
 - Manuscript build: passing.
 
-Run `make status` for filesystem and Git state and `make check` for validation.
+Run `./satute status` for filesystem and Git state and `./satute check` for
+validation.

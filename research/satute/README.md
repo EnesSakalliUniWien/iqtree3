@@ -17,21 +17,33 @@ Production code remains in [`../../tree/satute.cpp`](../../tree/satute.cpp).
 
 ## Commands
 
-Run from this directory:
+Run from this directory through the sole workspace interface:
 
 ```bash
-make status
-make smoke
-make check
-make experiment EXP=003_invariant_mixture
-make figures EXP=003_invariant_mixture
-make manuscript
-make audit
+./satute bootstrap
+./satute doctor
+./satute status
+./satute data --profile smoke
+./satute experiment 003_invariant_mixture
+./satute experiment 003_invariant_mixture --profile full --figures
+./satute cluster plan
+./satute manuscript
+./satute check audit
 ```
 
-`make smoke` runs compact native-backed profiles for experiments 001--004.
+`./satute data --profile smoke` runs compact native-backed profiles for
+experiments 001--004. The launcher always uses the single project environment
+at `.venv`; internal Python scripts and Make targets are implementation
+adapters, not additional supported interfaces.
 Experiment 005 intentionally requires explicit biological alignment inputs.
 Use `PROFILE=full` only for a deliberate full rerun.
+
+The versioned expanded recalculation contract is
+`campaigns/2026_expanded_recalculation.json`. Inspect it with
+`./satute cluster plan`; submit its cluster-owned runs from a clean,
+source-matched LiSC checkout with `./satute cluster submit`. The plan preserves
+the original JC grid as a named baseline and appends longer branches without
+changing the reconstructed original-paper comparison.
 
 Experiment runs write to `artifacts/local/` by default and should leave Git
 clean. Reviewed summaries and final figures are promoted explicitly to
