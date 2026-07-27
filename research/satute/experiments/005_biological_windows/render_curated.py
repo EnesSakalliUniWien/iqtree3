@@ -8,13 +8,17 @@ import csv
 import html
 import math
 import shutil
-import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+from tools.figures.export import export_svg_pdf, export_svg_png  # noqa: E402
+
 DEFAULT_RUN_DIR = (
     REPO_ROOT
     / "artifacts"
@@ -27,8 +31,8 @@ BRANCH_ORDER = ("eukaryota", "yeast")
 FORMULA_ORDER = ("original_satute", "dominant", "eigenvalue_weighted")
 LABELS = {
     "original_satute": "published SatuTe",
-    "dominant": "dominant",
-    "eigenvalue_weighted": "eigenvalue-weighted",
+    "dominant": "published SatuTe",
+    "eigenvalue_weighted": "eigenvalue-weighted SatuTe",
 }
 COLORS = {
     "original_satute": "#222222",
@@ -171,23 +175,8 @@ def convert_svg(svg: str, out_base: Path, width: int) -> None:
         handle.write(svg)
         svg_path = Path(handle.name)
     try:
-        subprocess.run(
-            [converter, "-f", "pdf", "-o", str(out_base.with_suffix(".pdf")), str(svg_path)],
-            check=True,
-        )
-        subprocess.run(
-            [
-                converter,
-                "-f",
-                "png",
-                "-w",
-                str(width),
-                "-o",
-                str(out_base.with_suffix(".png")),
-                str(svg_path),
-            ],
-            check=True,
-        )
+        export_svg_pdf(svg_path, out_base.with_suffix(".pdf"))
+        export_svg_png(svg_path, out_base.with_suffix(".png"), width=width)
     finally:
         svg_path.unlink(missing_ok=True)
 

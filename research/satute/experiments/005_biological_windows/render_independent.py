@@ -63,11 +63,13 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def resolve_path(path_text: str) -> Path:
+def resolve_path(path_text: str, run_dir: Path) -> Path:
     path = Path(path_text)
-    if path.is_absolute():
-        return path
-    for candidate in (REPO_ROOT / path, Path.cwd() / path):
+    candidates = [path] if path.is_absolute() else [REPO_ROOT / path, Path.cwd() / path]
+    if run_dir.name in path.parts:
+        marker = path.parts.index(run_dir.name)
+        candidates.append(run_dir.joinpath(*path.parts[marker + 1 :]))
+    for candidate in candidates:
         if candidate.exists():
             return candidate
     raise FileNotFoundError(path_text)
@@ -112,7 +114,7 @@ def plot_curves(rows: list[dict[str, str]], run_dir: Path) -> None:
     for row, top in zip(rows, panel_tops, strict=True):
         windows = int(row["windows"])
         series_values = [
-            read_window_scores(resolve_path(row[csv_key]), windows)
+            read_window_scores(resolve_path(row[csv_key], run_dir), windows)
             for _, _, _, csv_key, _, _ in SERIES
         ]
         y_min = min(-1.2, *(min(values) - 0.4 for values in series_values))

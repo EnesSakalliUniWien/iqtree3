@@ -1,0 +1,3 @@
+dataset	formula	branches	informative	saturated	bonferroni_informative	bonferroni_saturated	median_satZ	median_satP	high_support_branches	high_support_saturated	low_support_branches	low_support_saturated	log_likelihood	aic	bic
+hcv_polyprotein_codon	dominant	17	17	0	17	0	77.28035495	0.0	0	0	0	0	-73006.3434	146064.6868	146249.8971
+hcv_polyprotein_codon	eigenvalue_weighted	17	17	0	17	0	124.3230015	0.0	0	0	0	0	-73006.3434	146064.6868	146249.8971

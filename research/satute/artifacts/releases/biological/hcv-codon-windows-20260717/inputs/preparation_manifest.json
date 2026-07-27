@@ -1,0 +1,210 @@
+{
+  "source": "NCBI Nucleotide GenBank flat files fetched by accession",
+  "source_genbank": "/tmp/hcv_references.gb",
+  "source_genbank_sha256": "4e9256522f5b86fccd462794204f8f4a6dd54d27e7daba0f2042ff5a053ea0b4",
+  "coordinate_reference": "NC_004102.1 (H77) mat_peptide features",
+  "accessions": [
+    {
+      "accession": "NC_004102.1",
+      "label": "HCV_1a_H77",
+      "subtype": "1a",
+      "cds_start": 342,
+      "cds_end": 9377,
+      "polyprotein_residues": 3011
+    },
+    {
+      "accession": "AJ238799.1",
+      "label": "HCV_1b_Con1",
+      "subtype": "1b",
+      "cds_start": 342,
+      "cds_end": 9374,
+      "polyprotein_residues": 3010
+    },
+    {
+      "accession": "AB047639.1",
+      "label": "HCV_2a_JFH1",
+      "subtype": "2a",
+      "cds_start": 341,
+      "cds_end": 9442,
+      "polyprotein_residues": 3033
+    },
+    {
+      "accession": "D10988.1",
+      "label": "HCV_2b_HCJ8",
+      "subtype": "2b",
+      "cds_start": 342,
+      "cds_end": 9443,
+      "polyprotein_residues": 3033
+    },
+    {
+      "accession": "D17763.1",
+      "label": "HCV_3a_NZL1",
+      "subtype": "3a",
+      "cds_start": 340,
+      "cds_end": 9405,
+      "polyprotein_residues": 3021
+    },
+    {
+      "accession": "D49374.1",
+      "label": "HCV_3b_TrKj",
+      "subtype": "3b",
+      "cds_start": 340,
+      "cds_end": 9411,
+      "polyprotein_residues": 3023
+    },
+    {
+      "accession": "Y11604.1",
+      "label": "HCV_4a_ED43",
+      "subtype": "4a",
+      "cds_start": 280,
+      "cds_end": 9306,
+      "polyprotein_residues": 3008
+    },
+    {
+      "accession": "AF064490.1",
+      "label": "HCV_5a_SA13",
+      "subtype": "5a",
+      "cds_start": 247,
+      "cds_end": 9291,
+      "polyprotein_residues": 3014
+    },
+    {
+      "accession": "Y12083.1",
+      "label": "HCV_6a_EUHK2",
+      "subtype": "6a",
+      "cds_start": 284,
+      "cds_end": 9340,
+      "polyprotein_residues": 3018
+    },
+    {
+      "accession": "EF108306.2",
+      "label": "HCV_7a_QC69",
+      "subtype": "7a",
+      "cds_start": 340,
+      "cds_end": 9381,
+      "polyprotein_residues": 3013
+    }
+  ],
+  "mafft_command": [
+    "mafft",
+    "--auto",
+    "--reorder",
+    "/tmp/hcv-example/hcv_polyprotein_unaligned.fasta"
+  ],
+  "polyprotein_amino_acid_alignment": "hcv_polyprotein_aa.fasta",
+  "polyprotein_codon_alignment": "hcv_polyprotein_codon.fasta",
+  "polyprotein_codon_sites": 9168,
+  "polyprotein_codon_positions_1_2_alignment": "hcv_polyprotein_pos12.fasta",
+  "polyprotein_codon_position_3_alignment": "hcv_polyprotein_pos3.fasta",
+  "regions": {
+    "core": {
+      "h77_residues": 191,
+      "amino_acid_alignment": "hcv_core_aa.fasta",
+      "codon_alignment": "hcv_core_codon.fasta",
+      "codon_sites": 573,
+      "codon_positions_1_2_alignment": "hcv_core_pos12.fasta",
+      "codon_positions_1_2_sites": 382,
+      "codon_position_3_alignment": "hcv_core_pos3.fasta",
+      "codon_position_3_sites": 191
+    },
+    "e1": {
+      "h77_residues": 192,
+      "amino_acid_alignment": "hcv_e1_aa.fasta",
+      "codon_alignment": "hcv_e1_codon.fasta",
+      "codon_sites": 576,
+      "codon_positions_1_2_alignment": "hcv_e1_pos12.fasta",
+      "codon_positions_1_2_sites": 384,
+      "codon_position_3_alignment": "hcv_e1_pos3.fasta",
+      "codon_position_3_sites": 192
+    },
+    "e2": {
+      "h77_residues": 363,
+      "amino_acid_alignment": "hcv_e2_aa.fasta",
+      "codon_alignment": "hcv_e2_codon.fasta",
+      "codon_sites": 1089,
+      "codon_positions_1_2_alignment": "hcv_e2_pos12.fasta",
+      "codon_positions_1_2_sites": 726,
+      "codon_position_3_alignment": "hcv_e2_pos3.fasta",
+      "codon_position_3_sites": 363
+    },
+    "p7": {
+      "h77_residues": 63,
+      "amino_acid_alignment": "hcv_p7_aa.fasta",
+      "codon_alignment": "hcv_p7_codon.fasta",
+      "codon_sites": 189,
+      "codon_positions_1_2_alignment": "hcv_p7_pos12.fasta",
+      "codon_positions_1_2_sites": 126,
+      "codon_position_3_alignment": "hcv_p7_pos3.fasta",
+      "codon_position_3_sites": 63
+    },
+    "ns2": {
+      "h77_residues": 217,
+      "amino_acid_alignment": "hcv_ns2_aa.fasta",
+      "codon_alignment": "hcv_ns2_codon.fasta",
+      "codon_sites": 651,
+      "codon_positions_1_2_alignment": "hcv_ns2_pos12.fasta",
+      "codon_positions_1_2_sites": 434,
+      "codon_position_3_alignment": "hcv_ns2_pos3.fasta",
+      "codon_position_3_sites": 217
+    },
+    "ns3": {
+      "h77_residues": 631,
+      "amino_acid_alignment": "hcv_ns3_aa.fasta",
+      "codon_alignment": "hcv_ns3_codon.fasta",
+      "codon_sites": 1893,
+      "codon_positions_1_2_alignment": "hcv_ns3_pos12.fasta",
+      "codon_positions_1_2_sites": 1262,
+      "codon_position_3_alignment": "hcv_ns3_pos3.fasta",
+      "codon_position_3_sites": 631
+    },
+    "ns4a": {
+      "h77_residues": 54,
+      "amino_acid_alignment": "hcv_ns4a_aa.fasta",
+      "codon_alignment": "hcv_ns4a_codon.fasta",
+      "codon_sites": 162,
+      "codon_positions_1_2_alignment": "hcv_ns4a_pos12.fasta",
+      "codon_positions_1_2_sites": 108,
+      "codon_position_3_alignment": "hcv_ns4a_pos3.fasta",
+      "codon_position_3_sites": 54
+    },
+    "ns4b": {
+      "h77_residues": 261,
+      "amino_acid_alignment": "hcv_ns4b_aa.fasta",
+      "codon_alignment": "hcv_ns4b_codon.fasta",
+      "codon_sites": 783,
+      "codon_positions_1_2_alignment": "hcv_ns4b_pos12.fasta",
+      "codon_positions_1_2_sites": 522,
+      "codon_position_3_alignment": "hcv_ns4b_pos3.fasta",
+      "codon_position_3_sites": 261
+    },
+    "ns5a": {
+      "h77_residues": 448,
+      "amino_acid_alignment": "hcv_ns5a_aa.fasta",
+      "codon_alignment": "hcv_ns5a_codon.fasta",
+      "codon_sites": 1344,
+      "codon_positions_1_2_alignment": "hcv_ns5a_pos12.fasta",
+      "codon_positions_1_2_sites": 896,
+      "codon_position_3_alignment": "hcv_ns5a_pos3.fasta",
+      "codon_position_3_sites": 448
+    },
+    "ns5b": {
+      "h77_residues": 591,
+      "amino_acid_alignment": "hcv_ns5b_aa.fasta",
+      "codon_alignment": "hcv_ns5b_codon.fasta",
+      "codon_sites": 1773,
+      "codon_positions_1_2_alignment": "hcv_ns5b_pos12.fasta",
+      "codon_positions_1_2_sites": 1182,
+      "codon_position_3_alignment": "hcv_ns5b_pos3.fasta",
+      "codon_position_3_sites": 591
+    }
+  },
+  "windows": {
+    "size_sites": 36,
+    "step_sites": 12,
+    "manifest": "window_manifest.tsv",
+    "counts": {
+      "pos12": 507,
+      "pos3": 252
+    }
+  }
+}

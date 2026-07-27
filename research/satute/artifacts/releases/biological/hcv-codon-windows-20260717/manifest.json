@@ -1,0 +1,19 @@
+{
+  "release": "hcv-codon-windows-20260717",
+  "retrieval_date": "2026-07-17",
+  "source": "NCBI Nucleotide accession-versioned GenBank records",
+  "model": "GTR+F+G4",
+  "topology_policy": "inferred once from the full codon alignment and fixed for all windows",
+  "window_size_sites": 36,
+  "window_step_sites": 12,
+  "alpha": 0.01,
+  "target_branches": ["genotype 1", "genotype 2", "genotype 3"],
+  "formulas": ["dominant", "eigenvalue_weighted"],
+  "expected_windows": {"pos12": 507, "pos3": 252},
+  "expected_detail_rows": 4554,
+  "validated_detail_rows": 4554,
+  "source_genbank_sha256": "4e9256522f5b86fccd462794204f8f4a6dd54d27e7daba0f2042ff5a053ea0b4",
+  "tree_sha256": "b7e922562eb980fbcc1e7a1c5aab848bc03981e62c73103f25a606e2942ff900",
+  "detail_sha256": "528856d1595e2cf0386f46a4df8bea94ec18d4d027f6887188d7b23f15357978",
+  "summary_sha256": "2b70d456d21cbbd2668f8583db4f39a5ae6544060d6fc943be5103bf77580e67"
+}
