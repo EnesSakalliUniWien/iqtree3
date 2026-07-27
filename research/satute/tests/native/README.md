@@ -167,7 +167,7 @@ modes.
 Run the reusable Python reference directly with:
 
 ```bash
-python3 research/satute/tests/native/satute_reference.py \
+research/satute/satute developer reference -- \
   --alignment /path/to/alignment.fa \
   --tree /path/to/tree-or-sat.tree \
   --model 'GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}' \
@@ -179,7 +179,7 @@ When native `.sat.stat` output is available, an exact IQ-TREE branch can also be
 selected by ID:
 
 ```bash
-python3 research/satute/tests/native/satute_reference.py \
+research/satute/satute developer reference -- \
   --alignment /path/to/alignment.fa \
   --tree /path/to/tree-or-sat.tree \
   --model 'GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}+G4{0.5}' \
@@ -212,7 +212,7 @@ Benjamini-Yekutieli families for `dominant` and `eigenvalue_weighted`.
 Run with `--all-branches` to make those families tree-wide:
 
 ```bash
-python3 research/satute/tests/native/satute_reference.py \
+research/satute/satute developer reference -- \
   --alignment /path/to/alignment.fa \
   --tree /path/to/unrooted-tree.nwk \
   --model 'GTR{1,2,1,1,2,1}+F{0.30,0.20,0.20,0.30}' \

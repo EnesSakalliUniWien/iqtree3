@@ -6,10 +6,14 @@ import csv
 import math
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from tools.figures.export import export_svg_pdf  # noqa: E402
 
 
 METHOD_STYLE = {
@@ -486,10 +490,7 @@ def render(summary, paired, output_prefix, png_scale):
             ],
             check=True,
         )
-        subprocess.run(
-            [rsvg, "-f", "pdf", "-o", str(output_prefix.with_suffix(".pdf")), str(svg_path)],
-            check=True,
-        )
+        export_svg_pdf(svg_path, output_prefix.with_suffix(".pdf"))
 
 
 def main():

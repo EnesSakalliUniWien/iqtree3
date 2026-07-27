@@ -66,10 +66,10 @@ unless IQ-TREE combines it with a discrete rate model that provides
 
 ## Reproducible Command
 
-Set `PYTHON_BIN` if the default `python3` does not have NumPy:
+Run the low-level comparison through the canonical workspace environment:
 
 ```bash
-"${PYTHON_BIN:-python3}" research/satute/tests/native/compare_formulas.py \
+research/satute/satute developer formula-comparison -- \
   --iqtree ./build/iqtree3 \
   --outdir /tmp/iqtree-satute-formula-compare
 ```

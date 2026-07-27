@@ -15,12 +15,8 @@ if [ ! -x "$IQTREE" ]; then
     exit 2
 fi
 
-PYTHON_WITH_NUMPY=${PYTHON_BIN:-$(command -v python3 || true)}
-
-if [ -z "${PYTHON_WITH_NUMPY:-}" ]; then
-    echo "Cannot find python3 for formula comparison" >&2
-    exit 2
-fi
+: "${PYTHON_BIN:?Invoke this adapter through ./satute check all}"
+PYTHON_WITH_NUMPY=$PYTHON_BIN
 
 if ! "$PYTHON_WITH_NUMPY" - <<'PY'
 import numpy

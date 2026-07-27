@@ -40,7 +40,10 @@ def five_taxon_tree(branch_length):
 def sixteen_taxon_tree(branch_length, subtree_length):
     a_side = eight_taxon_subtree("A", subtree_length)
     b_side = eight_taxon_subtree("B", subtree_length)
-    return f"({a_side}:{branch_length:.6g},{b_side}:0.0);\n"
+    # Newick has no root marker, so represent the internal target edge with a
+    # degree-three top-level node. A two-child top level is interpreted as a
+    # rooted tree and is rejected by SatuTe.
+    return f"({a_side[1:-1]},{b_side}:{branch_length:.6g});\n"
 
 
 def parse_sat_stat(path):

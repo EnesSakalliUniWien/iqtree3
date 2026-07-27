@@ -1,7 +1,8 @@
 """Smoke, full-run, and rendering adapter for paper reconstruction."""
 
 
-def run(context, *, profile, figures):
+def run(context, *, profile, figures, study):
+    del study
     output = context.output_dir(profile)
     if figures:
         context.run_python(

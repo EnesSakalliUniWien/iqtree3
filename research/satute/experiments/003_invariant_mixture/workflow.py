@@ -1,8 +1,14 @@
 """Smoke, full-run, and rendering adapter for invariant mixtures."""
 
 
-def run(context, *, profile, figures):
+def _csv(values):
+    return ",".join(str(value) for value in values)
+
+
+def run(context, *, profile, figures, study):
+    del study
     output = context.output_dir(profile)
+    configuration = context.experiment.configuration
     if figures:
         context.run_python(
             "render_full.py",
@@ -11,7 +17,7 @@ def run(context, *, profile, figures):
             "--output-prefix",
             output / "figures/full-analysis",
             "--png-scale",
-            3,
+            configuration["png_scale"],
         )
         return
 
@@ -21,7 +27,7 @@ def run(context, *, profile, figures):
         "--figure-prefix",
         output / "figures/overview",
         "--png-scale",
-        3,
+        configuration["png_scale"],
     ]
     if profile == "smoke":
         arguments.extend(
@@ -37,7 +43,20 @@ def run(context, *, profile, figures):
             )
         )
     else:
-        arguments.extend(("--null-reps", 20000, "--alternative-reps", 20000))
+        arguments.extend(
+            (
+                "--site-lengths",
+                _csv(configuration["site_lengths"]),
+                "--branch-lengths",
+                _csv(configuration["branch_lengths"]),
+                "--null-reps",
+                configuration["null_replicates"],
+                "--alternative-reps",
+                configuration["alternative_replicates"],
+                "--seed",
+                configuration["seed"],
+            )
+        )
     context.run_python("run.py", *arguments)
 
 

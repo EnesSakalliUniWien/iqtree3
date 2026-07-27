@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run and plot focused diagnostics for the three native SatuTe formulas.
+"""Run and plot focused diagnostics for the production SatuTe formulas.
 
 The experiment fixes the model and tree so that movement in satC, satSE, satZ,
 and the decision rate can be attributed to the statistic rather than parameter
@@ -30,12 +30,10 @@ DEFAULT_BRANCHES = "0.1,0.5,1,2,5,10,20,30,50,75,100,150,200,500,10000"
 FORMULAS = (
     "dominant",
     "eigenvalue_weighted",
-    "mixture_likelihood_weighted",
 )
 FORMULA_STYLE = {
     "dominant": ("Dominant", "#0A3FBA", "", "circle"),
     "eigenvalue_weighted": ("Relative eigenvalue-weighted", "#E69504", "9,5", "square"),
-    "mixture_likelihood_weighted": ("Soft likelihood mixture", "#B6497D", "2,4", "triangle"),
 }
 DETAIL_FIELDS = (
     "branch_length",
@@ -306,7 +304,7 @@ def analyze_batch_replicate(task):
             dominant_weight_error = max(dominant_weight_error, *(abs(value - 1.0) for value in weights))
     metadata = {
         "categories": categories,
-        "eigenvalues": parse_numbers(pooled["mixture_likelihood_weighted"]["Eigenvalues"]),
+        "eigenvalues": parse_numbers(pooled["eigenvalue_weighted"]["Eigenvalues"]),
         "relative_weight_error": relative_weight_error,
         "dominant_weight_error": dominant_weight_error,
     }

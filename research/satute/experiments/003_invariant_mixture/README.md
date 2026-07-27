@@ -13,12 +13,12 @@ paired exact-pattern multinomial alignments.
 Smoke test:
 
 ```bash
-make -C ../.. smoke
+../../satute data --profile smoke
 ```
 
 Full run:
 
 ```bash
-make -C ../.. experiment EXP=003_invariant_mixture PROFILE=full
-make -C ../.. figures EXP=003_invariant_mixture
+../../satute experiment 003_invariant_mixture --profile full
+../../satute experiment 003_invariant_mixture --profile full --figures
 ```

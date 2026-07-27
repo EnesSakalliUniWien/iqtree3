@@ -1,8 +1,10 @@
 """Smoke, full-run, and rendering adapter for saturation diagnostics."""
 
 
-def run(context, *, profile, figures):
+def run(context, *, profile, figures, study):
+    del study
     output = context.output_dir(profile)
+    configuration = context.experiment.configuration
     arguments = [
         "--iqtree",
         context.iqtree,
@@ -28,6 +30,17 @@ def run(context, *, profile, figures):
                 10,
                 "--workers",
                 2,
+            )
+        )
+    else:
+        arguments.extend(
+            (
+                "--sites",
+                configuration["sites"],
+                "--reps",
+                configuration["alternative_replicates"],
+                "--null-reps",
+                configuration["null_replicates"],
             )
         )
     if figures:

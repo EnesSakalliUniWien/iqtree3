@@ -4,18 +4,13 @@ set -euo pipefail
 
 IQTREE=${1:-build/iqtree3}
 OUTDIR=${2:-/tmp/iqtree-satute-sim-smoke}
-PYTHON_BIN=${PYTHON_BIN:-$(command -v python3 || true)}
+: "${PYTHON_BIN:?Invoke this adapter through ./satute check all}"
 
 if [ ! -x "$IQTREE" ]; then
     echo "Cannot execute IQ-TREE binary: $IQTREE" >&2
     echo "Usage: $0 [path/to/iqtree3] [output-dir]" >&2
     exit 2
 fi
-if [ -z "${PYTHON_BIN:-}" ]; then
-    echo "Cannot find python3 for SatuTe FDR verification" >&2
-    exit 2
-fi
-
 rm -rf "$OUTDIR"
 mkdir -p "$OUTDIR"
 
