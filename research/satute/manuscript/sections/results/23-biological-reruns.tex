@@ -1,32 +1,32 @@
 % !TEX root = ../../main.tex
-\subsection*{Biological sliding-window rerun}
+\subsection*{The Tree-of-Life examples expose alignment-specific loss of signal}
 
-The biological examples use the Tree-of-Life panels from the original SatuTe paper. The protein analysis uses the ribosomal-protein 2D tree, and the nucleotide analysis uses the 16S rRNA 3D tree. In both trees, the highlighted internal split is the branch leading to Eukaryota. The yeast branch is an external branch within the Eukaryota subtree and is the second focal branch in the sliding-window analyses.
+Finally, we examined whether the controlled gains translated into interpretable local diagnoses in biological alignments. We revisited two datasets used for deep Tree-of-Life inference \cite{hug2016}: 2,596 amino-acid sites from 16 ribosomal proteins across 3,083 taxa, supporting a two-domain (2D) tree; and 1,947 16S rRNA sites across 1,871 taxa, supporting a three-domain (3D) tree. Branch lengths were re-estimated under LG+G4 and GTR+G4, respectively. We tested the internal branch leading to Eukaryota and an external yeast branch (Supplementary Fig. S2).
 
-\begin{figure}[!p]
-  \vspace*{-2.2cm}
-  \centering
-  \makebox[\textwidth][c]{\includegraphics[width=1.06\textwidth]{figures/figure_tree_of_life_reference.pdf}}
-  \caption{\textbf{Tree-of-Life references for the biological reruns.} \textbf{a,} Ribosomal-protein 2D tree. \textbf{b,} 16S rRNA 3D tree. Branch colors and translucent hulls identify Bacteria, Archaea and Eukaryota. The highlighted internal segment marks the branch leading to Eukaryota, and the black marker identifies the yeast branch used as the external-branch reference.}
-\end{figure}
+In the protein 2D tree, all 6,163 branches were informative in each of four rate categories. In the fastest rRNA category (rate 2.73), 107 of 3,739 branches were saturated; 13 were internal, including the Eukaryota branch.
 
-The curated biological rerun applies the same comparison to the 16S rRNA Tree-of-Life dataset shown in the 3D tree panel. The dataset has \(1{,}947\) alignment sites, a fitted GTR+F+G4 model, four rate categories and 36-site sliding windows. The comparison includes the published SatuTe rerun, a native SatuTe recomputation using \(C_{\partial 1}\), and a native eigenvalue-weighted recomputation. Differences between the published and native SatuTe curves reflect differences in implementation and input files. The formula comparison is therefore the native SatuTe recomputation versus the native eigenvalue-weighted recomputation.
+Sliding windows localized this contrast (Fig.~\ref{fig-biological-windows}). Published SatuTe classified 822 of 1,912 rRNA windows (43.0\%) as saturated for the Eukaryota branch, compared with 138 of 2,561 protein windows (5.4\%). Protein losses were short and often coincided with boundaries in the concatenation. rRNA losses were enriched in hypervariable regions V1--V9 \cite{baker2004}; conserved regions C1 and C4--C9 retained signal, whereas C2 and C3 were nearly saturated. Gappy intervals at positions 240--301 and 789--956 contributed little information.
 
-For the branch leading to Eukaryota, the published SatuTe rerun marks \(822\) of \(1{,}912\) windows as saturated. The native SatuTe recomputation marks \(895\) windows, whereas the native eigenvalue-weighted recomputation marks \(699\) windows. For the yeast branch, the corresponding counts are \(70\), \(83\) and \(29\) saturated windows. The published-to-native difference is not used as a formula-effect estimate.
-
-A second biological rerun uses an independent implementation that does not read SatuTe component files or SatuTe result trees. It recomputes the sliding-window scores from the IQ-TREE treefile, model report, site-probability output and original alignments for both Tree-of-Life examples \cite{minh2020iqtree}. The z-score curves show the same branch order and window size as the published sliding-window analysis. Because this rerun contrasts published outputs with an independent recomputation, the curves are not used as the primary formula-effect estimate.
+Eigenvalue weighting reduced, but did not erase, the pattern. Native recomputations of the published and eigenvalue-weighted SatuTe statistics classified 895 and 699 rRNA windows as saturated for Eukaryota, and 83 and 29 for yeast. In proteins, the published SatuTe analysis and native eigenvalue-weighted recomputation yielded 138 and 5 saturated windows for Eukaryota, and 54 and 8 for yeast. Because these cross-implementation comparisons also differ in input handling, paired simulations provide the controlled formula-effect estimate.
 
 \begin{figure}[p]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/published_vs_eigenvalue_weighted_curves.pdf}
-  \caption{\textbf{Published SatuTe and independent eigenvalue-weighted sliding-window curves in the Tree-of-Life examples.} Curves show 36-site window \(Z\)-scores for the branch leading to Eukaryota and for the yeast branch in the ribosomal-protein 2D tree and the 16S rRNA 3D tree. The dashed line marks \(z_\alpha\).}
+  \includegraphics[width=0.66\textwidth]{figures/published_vs_eigenvalue_weighted_curves.pdf}
+  \includegraphics[width=0.66\textwidth]{figures/published_vs_eigenvalue_weighted_saturated_windows.pdf}
+  \caption{\textbf{Branch-specific signal across Tree-of-Life alignments.} \textbf{a,} Thirty-six-site window \(z\)-scores for Eukaryota and yeast branches in protein 2D and rRNA 3D trees; the dashed line is the decision threshold. \textbf{b,} Fractions and counts of saturated windows. Eigenvalue weighting changes threshold crossings most for the rRNA Eukaryota branch but preserves the protein--rRNA contrast.}
+  \makeatletter\cref@old@label{fig-biological-windows}\makeatother
 \end{figure}
 
-In the protein 2D tree, the branch leading to Eukaryota has \(2{,}561\) windows. The saturated-window counts are \(138\) in the published SatuTe rerun and \(5\) in the native eigenvalue-weighted recomputation. The yeast branch also has \(2{,}561\) windows, with counts \(54\) and \(8\). In the 16S rRNA 3D tree, the branch leading to Eukaryota has \(1{,}912\) windows, with counts \(822\) and \(699\). The yeast branch has \(1{,}912\) windows, with counts \(70\) and \(29\). These counts summarize the threshold crossings in the sliding-window curves.
+All 16 ribosomal proteins produced significant scores under both 2D and rearranged 3D placements of Eukaryota; L15, L22 and S10 favored the rearranged placement. Six of nine rRNA regions had larger scores under the 3D placement. The two distributions of score differences were not significantly different (Kolmogorov--Smirnov \(p=0.072\)). These results localize signal for candidate placements rather than select a true topology (Supplementary Tables S4 and S5).
 
-\begin{figure}[htbp]
+An independent hepatitis C virus (HCV) reference panel provided a coding-genome example spanning seven recognized genotypes \cite{smith2014}. Every complete gene and codon-position partition retained signal, but 36-site \(z\)-score curves exposed localized losses (Fig.~\ref{fig-hcv-windows}). Across genotype 1, 2 and 3 branches, published SatuTe classified 1/507, 4/507 and 5/507 positions-1+2 windows as saturated, compared with 11/252, 34/252 and 33/252 third-position windows. Eigenvalue weighting reduced the corresponding third-position counts to 6, 24 and 27 (Supplementary Table S6). This contrast is informative because a gene-level screen would retain every locus, whereas the curves expose third-position and interval-specific signal loss hidden by aggregation. It motivates partition-specific model checks or masking rather than wholesale removal of otherwise informative genes.
+
+\begin{figure}[p]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/published_vs_eigenvalue_weighted_saturated_windows.pdf}
-  \caption{\textbf{Published SatuTe and independent eigenvalue-weighted sliding-window calls in the Tree-of-Life examples.} Bars show the fraction of windows classified as saturated for the branch leading to Eukaryota and for the yeast branch. Numbers above bars give saturated-window counts.}
+  \includegraphics[width=0.92\textwidth]{figures/hcv_codon_position_window_curves.pdf}
+  \includegraphics[width=0.80\textwidth]{figures/hcv_codon_position_saturated_windows.pdf}
+  \caption{\textbf{Codon-position localization in an HCV reference panel.} \textbf{a,} Published and eigenvalue-weighted SatuTe \(z\)-scores along the H77 polyprotein coordinate for fixed-topology 36-site windows. The dashed line is the descriptive \(\alpha=0.01\) threshold. \textbf{b,} Fractions of saturated windows. Losses concentrate in the synonymous-enriched third-position partition; eigenvalue weighting reduces, but does not remove, a pattern that whole-gene tests conceal.}
+  \makeatletter\cref@old@label{fig-hcv-windows}\makeatother
 \end{figure}
-\clearpage
+
+Together, the reference analyses reproduce the scale at which the simulation gains occur. Weighting changes conclusions near a local detection boundary, but does not convert broadly saturated rRNA regions into uniformly informative data or alter the contrast between codon partitions. The practical result is therefore not a general increase in significance: it is a more sensitive branch-specific test whose gains remain tied to identifiable alignment regions.

@@ -1,123 +1,54 @@
 % !TEX root = ../../main.tex
-\subsection*{Publication-scale GTR simulations and multiple-testing controls}
+\subsection*{Publication-scale nucleotide power curves}
 
-We repeated the corrected head-to-head experiment on the publication grid (1,000
-replicates per cell; 100, 250, and 1,000 sites; branch lengths 4--12; five-taxon
-external and 16-taxon internal targets) using the fixed GTR+F, GTR+F+G4 and
-GTR+F+I+G4 specifications.  Each replicate records the dominant and
-eigenvalue-weighted statistics, branch-level audit, decision-rule audit, and
-timing information.  The merged GTR grid contains 864,000 detail rows and
-2,016 summary rows, with 1,000 replicates in every evaluated cell; the native
-calculation invariant has zero JC-collapse mismatches.
+We next tested whether the additional spectral directions improved detection under models that distinguish among them. Fixed GTR+F, GTR+F+G4 and GTR+F+I+G4 models were evaluated in 1,000 paired replicates per cell, with 100, 250 or 1,000 sites; focal lengths 4--12; and five-taxon external or 16-taxon internal targets. The merged grid contains 864,000 detail rows and 2,016 summaries, with complete replicate identifiers and no JC-collapse mismatch.
 
-Under the unadjusted rule, the largest paired increase in the informative-call
-fraction was 0.241 (95\% bootstrap interval 0.215--0.269; exact McNemar
-$p=5.7\times10^{-73}$) for GTR+F+G4 at 100 sites and branch length 12 on the
-16-taxon target in the true-topology/ML-length scenario.  With taxon-level
-Bonferroni correction the largest increase was 0.576 (95\% interval
-0.546--0.607; $p=8.1\times10^{-174}$), and with the Benjamini--Yekutieli rule
-it was 0.414 (95\% interval 0.384--0.446; $p=4.7\times10^{-125}$).  These are
-paired replicate comparisons, so the intervals and tests quantify the change
-in calls rather than treating the two formulas as independent samples.
-
-The independent dominant, eigenvalue-weighted, and paired-difference plots are
-shown for the matched GTR case in Fig.~\ref{fig-gtr-matched-2d}; the fixed
-GTR+G4 and GTR+I+G4 paired curves are included in the supplementary figure
-set.  The corresponding vector 3D views preserve the site, branch-length, and
-tree-case dimensions without rasterising the surface (supplementary figures).
-
-We then evaluated the same simulated GTR+F alignments under JC, K2P, and F81
-to quantify model misspecification.  The corrected misspecification grid
-contains 960,000 detail rows and 2,208 summaries, with 1,000 replicates in
-every available cell.  The largest unadjusted paired increase was 0.131
-(95\% interval 0.107--0.157; $p=2.4\times10^{-24}$) for GTR evaluated by K2P
-at 100 sites and branch length 8 on the 16-taxon ML tree.  Under taxon
-Bonferroni the largest increase was 0.206 (0.176--0.236; $p=5.3\times10^{-39}$),
-and under BY it was 0.209 (0.180--0.240; $p=1.1\times10^{-38}$).  The JC,
-K2P, and F81 comparisons are shown independently in the supplementary 2D and
-3D figure sets.
-
-The matched protein suite extends the same 1,000-replicate design to fixed
-LG+G4, WAG+G4, JTT+G4 and Q.pfam+G4 models. Across the 1,728
-model--rule--grid cells, the weighted-minus-dominant informative-call
-difference was positive in 831 cells and zero in 897; it was negative in none.
-The largest unadjusted increases were 0.030 for LG (95\% interval
-0.020--0.041), 0.075 for WAG (0.059--0.092), 0.479 for JTT
-(0.447--0.510), and 0.041 for Q.pfam (0.029--0.054). Under taxon Bonferroni,
-the corresponding maxima were 0.327 (0.298--0.356), 0.469
-(0.438--0.499), 0.555 (0.524--0.587), and 0.354 (0.325--0.384). Under
-Benjamini--Yekutieli they were 0.094 (0.076--0.113), 0.165
-(0.142--0.188), 0.514 (0.483--0.545), and 0.118 (0.099--0.138). As in the
-nucleotide grid, the largest differences occurred at 100 sites and long
-target branches. Figure~\ref{fig-protein-bonferroni} shows the four
-model-specific taxon-Bonferroni surfaces; the unadjusted and
-Benjamini--Yekutieli views and all interactive 3D panels are supplied with the
-complete figure bundle.
+Both GTR+F+G4 statistics lost power as the focal branch length increased, and longer alignments shifted the transition rightward (Fig.~\ref{fig-gtr-g4-power}). Eigenvalue weighting produced the largest shift at 100 sites, where published SatuTe left the high-power regime while the eigenvalue-weighted SatuTe statistic still detected coherence. Supplementary Figs. S3--S5 provide paired differences and the corresponding GTR+F and GTR+F+I+G4 curves.
 
 \begin{figure}[p]
   \centering
-  \includegraphics[width=0.32\textwidth]{figures/publication-suite/figure_gtr_misspec_JC_paired_difference_2d.pdf}
-  \includegraphics[width=0.32\textwidth]{figures/publication-suite/figure_gtr_misspec_K2P_paired_difference_2d.pdf}
-  \includegraphics[width=0.32\textwidth]{figures/publication-suite/figure_gtr_misspec_F81_paired_difference_2d.pdf}
-  \caption{\textbf{GTR model-misspecification comparisons.} Paired differences
-  between the eigenvalue-weighted and dominant formulas when the same GTR+F
-  simulations are evaluated by JC, K2P, and F81.}
-  \makeatletter\cref@old@label{fig-gtr-misspec}\makeatother
+  \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_G4_dominant.pdf}
+  \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_G4_weighted.pdf}
+  \caption{\textbf{Matched GTR+F+G4 power.} \textbf{a,} Published SatuTe statistic. \textbf{b,} Eigenvalue-weighted SatuTe statistic. Points show fractions of phylogenetically informative alignments among 1,000 paired replicates under taxon Bonferroni; curves are stratified by tree and analysis scenario, and line styles encode alignment length. Eigenvalue weighting preserves power further into the long-branch regime, especially at 100 sites.}
+  \makeatletter\cref@old@label{fig-gtr-g4-power}\makeatother
 \end{figure}
+
+The largest GTR+F+G4 increase was 0.241 unadjusted (95\% bootstrap interval, 0.215--0.269), 0.414 under Benjamini--Yekutieli (BY; 0.384--0.446) and 0.532 under taxon-pair Bonferroni in the inferred-ML-tree analysis (0.501--0.562). All occurred at 100 sites on the 16-taxon target. Exact McNemar \(P\) values were \(5.7\times10^{-73}\), \(4.7\times10^{-125}\) and \(1.4\times10^{-160}\), respectively. Taxon-pair Bonferroni is not defined for either fixed-topology analysis and was therefore not applied to those scenarios.
+
+\subsection*{Model misspecification changes absolute operating characteristics}
+
+We next simulated GTR+F but evaluated the same alignments under GTR, JC, K2P or F81. Across 960,000 detail rows, JC and K2P were more liberal than correctly specified GTR, whereas F81, which retains base composition, was substantially closer (Fig.~\ref{fig-gtr-misspec-absolute}). Thus a small paired formula difference under a misspecified model does not imply correct absolute calibration.
 
 \begin{figure}[p]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/publication-suite/figure_gtr_matched_paired_difference_2d.pdf}
-  \caption{\textbf{Matched GTR paired difference.} Difference in informative-call
-  fraction between the eigenvalue-weighted and published dominant formulas on
-  the corrected 1,000-replicate grid. Curves are stratified by tree and
-  analysis scenario; line styles encode alignment length.}
-  \makeatletter\cref@old@label{fig-gtr-matched-2d}\makeatother
+  \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/figure_model_misspecification.pdf}
+  \caption{\textbf{Model misspecification changes absolute rejection rates.} GTR+F simulations evaluated with JC (\textbf{a,b}), K2P (\textbf{c,d}) or F81 (\textbf{e,f}) on the five-taxon external target (\textbf{a,c,e}) and 16-taxon internal target (\textbf{b,d,f}). Each panel overlays the correctly specified GTR+F true-tree reference, misspecified true-tree and true-topology/ML-length analyses using unadjusted tests, and the misspecified inferred-ML-tree analysis using taxon-pair Bonferroni. Line style denotes alignment length. JC and K2P produce high spurious rejection at long branches, and this distortion increases rather than disappears with alignment length; F81 is much closer to the correctly specified reference. The gray band marks 0--5\%.}
+  \makeatletter\cref@old@label{fig-gtr-misspec-absolute}\makeatother
 \end{figure}
+
+Within misspecified analyses, the largest weighted gains were 0.131 unadjusted, 0.206 under taxon Bonferroni and 0.209 under BY. JC remained an exact formula-control because its non-stationary eigenvalues are equal. Supplementary Figs. S10--S12 show JC, K2P and F81 paired differences and weighted curves.
+
+\subsection*{Matched protein power varies strongly among models}
+
+The matched protein suite used fixed LG+G4, WAG+G4, JTT+G4 and Q.pfam+G4 models. Eigenvalue-weighted-minus-published-SatuTe differences were never negative among the applicable scenario--rule cells. In the inferred-ML-tree analysis, maximum taxon-pair-Bonferroni gains were 0.268 for LG, 0.410 for WAG, 0.546 for JTT and 0.304 for Q.pfam. The consolidated inferred-tree comparison shows the exact JC control beside the GTR+F+G4 and LG+G4 separation (Fig.~\ref{fig-cross-model-power}); complete published-SatuTe, eigenvalue-weighted-SatuTe and paired-difference curves show the matrix-specific transitions (Supplementary Figs. S6--S9).
 
 \begin{figure}[p]
   \centering
-  \includegraphics[width=0.49\textwidth]{figures/publication-suite/figure_protein_LG_G4_taxon_bonf_paired_difference_2d.pdf}
-  \includegraphics[width=0.49\textwidth]{figures/publication-suite/figure_protein_WAG_G4_taxon_bonf_paired_difference_2d.pdf}
-  \includegraphics[width=0.49\textwidth]{figures/publication-suite/figure_protein_JTT_G4_taxon_bonf_paired_difference_2d.pdf}
-  \includegraphics[width=0.49\textwidth]{figures/publication-suite/figure_protein_Q_PFAM_G4_taxon_bonf_paired_difference_2d.pdf}
-  \caption{\textbf{Matched protein results under taxon Bonferroni.} Paired
-  weighted-minus-dominant differences for fixed LG+G4, WAG+G4, JTT+G4 and
-  Q.pfam+G4 models. Every panel uses the same 1,000 paired replicates per
-  evaluated cell and reports bootstrap 95\% intervals.}
-  \makeatletter\cref@old@label{fig-protein-bonferroni}\makeatother
+  \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/figure_power_curve_summary.pdf}
+  \caption{\textbf{Eigenvalue weighting extends the detectable-signal range under nucleotide and protein models.} Fractions of phylogenetically informative alignments for the published and eigenvalue-weighted SatuTe statistics in the inferred-ML-tree scenario under taxon-pair Bonferroni, with 1,000 paired replicates per point. Columns show the five-taxon external and 16-taxon internal targets; line style distinguishes the common 100- and 1,000-site grids. Under JC, equal non-stationary eigenvalues make the formulas coincide exactly. GTR+F+G4 shows the largest separation, whereas the LG+G4 gain is smaller and concentrated at the long-branch boundary, particularly for 100-site alignments.}
+  \makeatletter\cref@old@label{fig-cross-model-power}\makeatother
 \end{figure}
 
-The FDR calibration suite is independent of the publication curves.  It uses
-5,000 exact-null replicates (2,500 training and 2,500 held out) and 2,000
-50:50 mixed-null replicates.  It reports unadjusted, taxon-Bonferroni, and
-Benjamini--Yekutieli empirical FDR, power, held-out-null calibration, and
-paired differences. In the GTR mixed-null design, power ranged from 0.929 to
-0.989 across formulas, rules, tree cases, site counts and branch lengths,
-whereas empirical FDR ranged from zero to 0.00386. Formula-paired power
-differences were between \(-0.000071\) and 0.000571, and paired empirical-FDR
-differences were between \(-0.000071\) and 0.000143. Thus the truth-labelled
-experiment verifies high alternative detection and low false-discovery rates
-for both formulas; the larger formula effects in the publication curves arise
-at the saturation decision boundary rather than from global miscalibration.
+\subsection*{Independent truth-labelled calibration}
 
-Training-derived exact-null thresholds were evaluated on 2,500 independent
-held-out nulls per cell. Across all 96 cells, held-out rejection ranged from
-0.0108 to 0.0644. Unadjusted and Benjamini--Yekutieli GTR cells ranged from
-0.0432 to 0.0596, while the discrete 16-taxon taxon-Bonferroni cells were
-conservative because only complete adjusted-\(p\)-value tie blocks are
-attainable. The calibration figures are generated independently in 2D and
-vector 3D formats; the weighted GTR operating characteristics and held-out
-calibration are shown in Fig.~\ref{fig-fdr-gtr}.
+Independent calibration used 5,000 exact-null replicates per cell, split equally between threshold training and held-out evaluation, plus 2,000 50:50 mixed-null replicates. In the GTR mixed-null design, power ranged from 0.929 to 0.989 and empirical FDR from zero to 0.00386. Formula-paired differences were at most 0.000571 for power and 0.000143 for FDR, confirming that the larger publication-grid effects are localized to the saturation boundary (Fig.~\ref{fig-fdr-calibration}).
 
 \begin{figure}[p]
   \centering
-  \includegraphics[width=0.48\textwidth]{figures/publication-suite/figure_fdr_weighted_power_2d_gtr.pdf}
-  \includegraphics[width=0.48\textwidth]{figures/publication-suite/figure_fdr_weighted_null_calibration_2d_gtr.pdf}
-  \caption{\textbf{Truth-labelled GTR calibration.} \textbf{Left,} empirical
-  FDR and power of the eigenvalue-weighted formula in the prespecified 50:50
-  mixed-null design. \textbf{Right,} native and training-derived exact-null
-  rejection on 2,500 held-out replicates per cell. Columns show the
-  unadjusted, taxon-Bonferroni and Benjamini--Yekutieli rules.}
-  \makeatletter\cref@old@label{fig-fdr-gtr}\makeatother
+  \includegraphics[width=0.68\textwidth]{figures/publication-suite/figure_fdr_weighted_power_2d_gtr.pdf}\\[-0.5em]
+  \includegraphics[width=0.68\textwidth]{figures/publication-suite/figure_fdr_weighted_null_calibration_2d_gtr.pdf}
+  \caption{\textbf{Independent truth-labelled calibration preserves error control.} \textbf{a,} Empirical FDR and power of the weighted statistic in a prespecified 50:50 target-null/target-alternative GTR mixture. \textbf{b,} Native and independently trained thresholds evaluated on 2,500 held-out exact-null replicates per cell. Columns show unadjusted, taxon-Bonferroni and Benjamini--Yekutieli rules; intervals are 95\% confidence intervals.}
+  \makeatletter\cref@old@label{fig-fdr-calibration}\makeatother
 \end{figure}
+
+Across 96 cells, held-out rejection ranged from 0.0108 to 0.0644; unadjusted and BY GTR cells ranged from 0.0432 to 0.0596. Sixteen-taxon Bonferroni cells were conservative because only complete tied blocks of discrete adjusted \(P\) values were attainable.

@@ -1,47 +1,21 @@
 % !TEX root = ../../main.tex
-\subsection*{Exploratory power curves and the publication suite}
+\subsection*{JC reconstruction recovers the original SatuTe behavior}
 
-The legacy simulation curves below are retained as an exploratory overview of the
-JC and Tree-of-Life rate-heterogeneous settings. They are not the source of the
-primary publication claims: those claims use the corrected 1,000-replicate
-publication grid, fixed GTR+F/G4/+I+G4 specifications, explicit model-
-misspecification comparisons, and independent truth-labelled calibration
-reported in Section~24. Under JC, the published and weighted curves coincide,
-providing the expected zero-difference control. The publication-scale GTR
-effects and their paired uncertainty intervals are reported from the verified
-schema-v2 tables in Section~24.
+The exact JC collapse provides a no-change control for the extension. We therefore retained the original SatuTe simulation design: five- and 16-taxon trees, 100--10,000 sites, focal lengths 0.1--10 and 1,000 JC replicates per point. Four analyses separate branch-length estimation from topology selection: true tree and lengths; true tree with maximum-likelihood (ML) lengths; an ML tree and lengths; and the same inferred-tree analysis with taxon-pair Bonferroni correction.
 
 \begin{figure}[p]
   \centering
-  \makebox[\textwidth][c]{\includegraphics[width=1.08\textwidth]{figures/figure_power_curve_summary.pdf}}
-  \caption{\textbf{Exploratory full-alignment simulation curves.} Curves show
-  the fraction of replicates called phylogenetically informative in the
-  true-tree fixed-length scenario. These legacy curves provide context for the
-  corrected publication-scale analyses in Section~24; under JC, the published
-  SatuTe and eigenvalue-weighted curves overlap.}
+  \includegraphics[width=0.98\textwidth,height=0.82\textheight,keepaspectratio]{figures/figure_jc_baseline_power.pdf}
+  \caption{\textbf{Direct comparison with the original SatuTe simulation design.} The current implementation repeats the original paper's JC grid for five-taxon external and 16-taxon internal targets. Colors distinguish the true-tree reference, maximum-likelihood branch-length estimation, reuse of the alignment for topology selection and testing, and taxon-pair Bonferroni correction. Line styles show 100, 1,000 and 10,000 sites; every point contains 1,000 replicates. The unrooted tree schematics are rendered from \texttt{ape} phylogenies with \texttt{ggtree}.}
+  \makeatletter\cref@old@label{fig-jc-baseline}\makeatother
 \end{figure}
 
-The earlier 1,000-replicate curves give the qualitative pattern that motivates
-the corrected suite: larger separations occur for short alignments and long
-branches, while decisions converge as alignment length increases. Because the
-legacy grid used a different cell definition and model set, its cell-wise
-percentages are not pooled with the publication estimates; the complete
-publication-scale estimates, intervals, and McNemar tests are given in
-Section~24.
+With the true tree and lengths, the fraction of phylogenetically informative alignments fell from near one to the 5\% null level as the focal branch lengthened; longer alignments retained signal further (Fig.~\ref{fig-jc-baseline}). ML length estimation on the true topology closely followed this reference. Selecting and testing a topology on the same alignment was liberal at long branches, reaching approximately 15\% for the external and 50\% for the internal target. Taxon-pair Bonferroni correction largely restored the reference curve, but became conservative for subtrees with nearly indistinguishable sequences.
 
-\subsection*{Decision changes are localized}
+For 100-site 16-taxon alignments, correct topology recovery fell from 63.2\% at focal length 0.1 to 4.5\% at length 1 and nearly zero beyond length 3. Yet bootstrap support for the split reached 100\% by length 0.8 and stayed there while Bonferroni SatuTe calls fell to the 3.5--4.6\% null range (Supplementary Tables S2 and S3). This establishes that high split support does not imply recoverable history across the split.
 
-The branch-neighborhood analysis likewise remains an exploratory localization
-check. It tests whether changes are concentrated on the focal branch rather
-than its neighbours; the corrected branch-audit tables in the publication
-suite provide the authoritative branch-level evidence and are used for the
-paper's claims.
+JC is the prespecified formula control: its three non-stationary directions have equal eigenvalues, so weighted and published SatuTe curves coincide exactly. Models with distinct eigenvalues separate chiefly for short alignments at the long-branch detection boundary.
 
-\begin{figure}[p]
-  \centering
-  \includegraphics[width=0.98\textwidth]{figures/figure_branch_localization_compact.pdf}
-  \caption{\textbf{Exploratory branch-neighborhood localization.} Bars show
-  the change in informative-call fraction from eigenvalue weighting in the
-  legacy rate-heterogeneous grid. The corrected branch-audit tables in
-  Section~24 are the authoritative publication-scale analysis.}
-\end{figure}
+\subsection*{Decision changes are concentrated on the focal branch}
+
+Before extending the comparison beyond JC, we tested whether weighting created a nonspecific tree-wide score shift. At branch length 12 and 100 sites, focal-branch increases were 14.5--22.0 percentage points under GTR+G4 and 38.1--39.1 points under LG+G4, whereas adjacent branches changed by essentially zero (Supplementary Fig. S1). Thus the added signal was localized to the deliberately lengthened branch.

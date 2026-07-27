@@ -37,7 +37,7 @@ The baseline simulations remain necessary controls for the extension. They estab
 \begin{figure}[p]
   \centering
   \includegraphics[width=0.98\textwidth]{figures/figure_branch_localization_compact.pdf}
-  \caption{\textbf{Branch-neighbourhood localization.} Weighted-minus-dominant changes in informative-call fraction for the tested branch and adjacent branches. The change is concentrated on the deliberately lengthened focal branch.}
+  \caption{\textbf{Branch-neighbourhood localization.} Eigenvalue-weighted-minus-published-SatuTe changes in the fraction of phylogenetically informative alignments for the tested branch and adjacent branches. The change is concentrated on the deliberately lengthened focal branch.}
 \end{figure}
 
 \begin{figure}[p]
@@ -48,16 +48,10 @@ The baseline simulations remain necessary controls for the extension. They estab
 
 \begin{figure}[p]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/figure_jc_baseline_power.pdf}
-  \caption{\textbf{Direct comparison with the original SatuTe simulation design.} The current implementation repeats the original paper's JC grid for five-taxon external and 16-taxon internal targets. Colors distinguish the true-tree reference, maximum-likelihood branch-length estimation, reuse of the alignment for topology selection and testing, and taxon-pair Bonferroni correction. Line styles show 100, 1,000 and 10,000 sites; every point contains 1,000 replicates.}
-\end{figure}
-
-\begin{figure}[p]
-  \centering
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/jc_JC_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/jc_JC_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/jc_JC_difference.pdf}
-  \caption{\textbf{JC power in the common comparison layout.} Dominant (top left), eigenvalue-weighted (top right) and paired difference (bottom) under taxon Bonferroni. The two formulas are identical under JC, so the paired difference is exactly zero in all 288 design cells.}
+  \caption{\textbf{JC power in the common comparison layout.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. The two statistics are identical under JC, so the paired difference is exactly zero in all 288 design cells.}
 \end{figure}
 
 \subsection*{Topology-selection and bootstrap controls}
@@ -118,7 +112,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_difference.pdf}
-  \caption{\textbf{Matched GTR+F power.} Dominant (top left), eigenvalue-weighted (top right) and paired difference (bottom) under taxon Bonferroni. Differences are small and mixed in this homogeneous-rate control.}
+  \caption{\textbf{Matched GTR+F power.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. Differences are small and mixed in this homogeneous-rate control.}
   \makeatletter\cref@old@label{fig-supp-gtr-power-a}\makeatother
 \end{figure}
 
@@ -127,7 +121,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_G4_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_G4_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_G4_difference.pdf}
-  \caption{\textbf{Matched GTR+F+G4 power.} Dominant (top left), eigenvalue-weighted (top right) and paired difference (bottom) under taxon Bonferroni. The weighted formula is never worse across the evaluated cells and yields gains of up to 57.6 percentage points.}
+  \caption{\textbf{Matched GTR+F+G4 power.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. The eigenvalue-weighted statistic is never worse across the evaluated cells and yields gains of up to 57.6 percentage points.}
   \makeatletter\cref@old@label{fig-supp-gtr-power-b}\makeatother
 \end{figure}
 
@@ -136,7 +130,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_I_G4_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_I_G4_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/gtr_GTR_PF06346_I_G4_difference.pdf}
-  \caption{\textbf{Matched GTR+F+I+G4 power.} Dominant (top left), eigenvalue-weighted (top right) and paired difference (bottom) under taxon Bonferroni. The invariant category is handled by the corrected mixture null; weighting is never worse across the evaluated cells and gains up to 51.1 percentage points.}
+  \caption{\textbf{Matched GTR+F+I+G4 power.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. The invariant category is handled by the corrected mixture null; eigenvalue weighting is never worse across the evaluated cells and gains up to 51.1 percentage points.}
   \makeatletter\cref@old@label{fig-supp-gtr-power-c}\makeatother
 \end{figure}
 
@@ -145,7 +139,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_LG_G4_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_LG_G4_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/protein_LG_G4_difference.pdf}
-  \caption{\textbf{Matched LG+G4 power.} Dominant (top left), weighted (top right) and weighted-minus-dominant difference (bottom) under taxon Bonferroni. Weighting is never worse across the evaluated cells and gains up to 32.7 percentage points.}
+  \caption{\textbf{Matched LG+G4 power.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. Eigenvalue weighting is never worse across the evaluated cells and gains up to 32.7 percentage points.}
   \makeatletter\cref@old@label{fig-supp-protein-lg}\makeatother
 \end{figure}
 
@@ -154,7 +148,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_WAG_G4_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_WAG_G4_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/protein_WAG_G4_difference.pdf}
-  \caption{\textbf{Matched WAG+G4 power.} Dominant (top left), weighted (top right) and weighted-minus-dominant difference (bottom) under taxon Bonferroni. Weighting is never worse across the evaluated cells and gains up to 46.9 percentage points.}
+  \caption{\textbf{Matched WAG+G4 power.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. Eigenvalue weighting is never worse across the evaluated cells and gains up to 46.9 percentage points.}
   \makeatletter\cref@old@label{fig-supp-protein-wag}\makeatother
 \end{figure}
 
@@ -163,7 +157,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_JTT_G4_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_JTT_G4_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/protein_JTT_G4_difference.pdf}
-  \caption{\textbf{Matched JTT+G4 power.} Dominant (top left), weighted (top right) and weighted-minus-dominant difference (bottom) under taxon Bonferroni. Weighting is never worse across the evaluated cells and gains up to 55.5 percentage points.}
+  \caption{\textbf{Matched JTT+G4 power.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. Eigenvalue weighting is never worse across the evaluated cells and gains up to 55.5 percentage points.}
   \makeatletter\cref@old@label{fig-supp-protein-jtt}\makeatother
 \end{figure}
 
@@ -172,7 +166,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_Q_PFAM_G4_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/protein_Q_PFAM_G4_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/protein_Q_PFAM_G4_difference.pdf}
-  \caption{\textbf{Matched Q.pfam+G4 power.} Dominant (top left), weighted (top right) and weighted-minus-dominant difference (bottom) under taxon Bonferroni. Weighting is never worse across the evaluated cells and gains up to 35.4 percentage points.}
+  \caption{\textbf{Matched Q.pfam+G4 power.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. Eigenvalue weighting is never worse across the evaluated cells and gains up to 35.4 percentage points.}
   \makeatletter\cref@old@label{fig-supp-protein-qpfam}\makeatother
 \end{figure}
 
@@ -181,7 +175,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/misspec_JC_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/misspec_JC_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/misspec_JC_difference.pdf}
-  \caption{\textbf{GTR data evaluated by JC.} Dominant (top left), eigenvalue-weighted (top right) and paired difference (bottom) under taxon Bonferroni. The two formulas coincide under the JC evaluation model.}
+  \caption{\textbf{GTR data evaluated by JC.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. The two statistics coincide under the JC evaluation model.}
   \makeatletter\cref@old@label{fig-supp-misspec-jc}\makeatother
 \end{figure}
 
@@ -190,7 +184,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/misspec_K2P_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/misspec_K2P_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/misspec_K2P_difference.pdf}
-  \caption{\textbf{GTR data evaluated by K2P.} Dominant (top left), eigenvalue-weighted (top right) and paired difference (bottom) under taxon Bonferroni. Most cells favour weighting, although a minority show small negative differences.}
+  \caption{\textbf{GTR data evaluated by K2P.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. Most cells favour eigenvalue weighting, although a minority show small negative differences.}
   \makeatletter\cref@old@label{fig-supp-misspec-k2p}\makeatother
 \end{figure}
 
@@ -199,7 +193,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/misspec_F81_dominant.pdf}
   \includegraphics[width=0.49\textwidth]{figures/publication-suite/power/misspec_F81_weighted.pdf}
   \includegraphics[width=0.72\textwidth]{figures/publication-suite/power/misspec_F81_difference.pdf}
-  \caption{\textbf{GTR data evaluated by F81.} Dominant (top left), eigenvalue-weighted (top right) and paired difference (bottom) under taxon Bonferroni. The two formulas coincide under this evaluation model.}
+  \caption{\textbf{GTR data evaluated by F81.} Published SatuTe (top left), eigenvalue-weighted SatuTe (top right) and their paired difference (bottom) under taxon Bonferroni. The two statistics coincide under this evaluation model.}
   \makeatletter\cref@old@label{fig-supp-misspec-f81}\makeatother
 \end{figure}
 
@@ -253,7 +247,7 @@ The baseline simulations remain necessary controls for the extension. They estab
   \small
   \begin{tabular}{llrrrr}
     \toprule
-    Partition & Branch & Windows & Dominant & Weighted & Weighted fraction \\
+    Partition & Branch & Windows & \shortstack{Published\\SatuTe} & \shortstack{Eigenvalue-\\weighted} & Weighted fraction \\
     \midrule
     Positions 1+2 & Genotype 1 & 507 & 1 & 1 & 0.2\% \\
      & Genotype 2 & 507 & 4 & 1 & 0.2\% \\
@@ -264,16 +258,8 @@ The baseline simulations remain necessary controls for the extension. They estab
      & Genotype 3 & 252 & 33 & 27 & 10.7\% \\
     \bottomrule
   \end{tabular}
-  \caption{\textbf{HCV saturated-window counts.} Counts use \(Z<z_{0.01}\) for three subtype-pair branches. Positions 1+2 and position 3 contain equal 36-site windows but span different genomic widths.}
+  \caption{\textbf{HCV saturated-window counts.} Counts use \(z<z_{0.01}\) for three subtype-pair branches. Positions 1+2 and position 3 contain equal 36-site windows but span different genomic widths.}
   \makeatletter\cref@old@label{tab-supp-hcv-windows}\makeatother
 \end{table}
-
-\begin{figure}[p]
-  \centering
-  \includegraphics[width=0.48\textwidth]{figures/publication-suite/figure_fdr_weighted_power_2d_gtr.pdf}
-  \includegraphics[width=0.48\textwidth]{figures/publication-suite/figure_fdr_weighted_null_calibration_2d_gtr.pdf}
-  \caption{\textbf{Truth-labelled GTR calibration.} \textbf{a,} Empirical FDR and power of the weighted formula in a prespecified 50:50 mixed-null design. \textbf{b,} Native and training-derived rejection on 2,500 held-out exact nulls per cell. Columns show unadjusted, taxon-Bonferroni and BY rules.}
-  \makeatletter\cref@old@label{fig-supp-fdr-gtr}\makeatother
-\end{figure}
 
 \clearpage

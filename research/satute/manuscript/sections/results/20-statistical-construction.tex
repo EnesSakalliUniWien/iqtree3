@@ -1,5 +1,5 @@
 % !TEX root = ../../main.tex
-\subsection*{A weighted coefficient keeps the SatuTe test}
+\subsection*{Persistence weighting extends SatuTe without changing its decision}
 
 The spectral decomposition used by SatuTe gives
 \begin{equation}
@@ -8,7 +8,7 @@ The spectral decomposition used by SatuTe gives
 1+\sum_{i=1}^{d} C_{\partial i}\exp(\lambda_i t).
 \label{eq-central}
 \end{equation}
-Here \(d\) is the number of non-stationary eigenvalues: \(d=3\) for DNA and \(d=19\) for an amino-acid model. The coefficient \(C_{\partial i}\) measures agreement between the two subtrees in spectral direction \(h_i\). The factor \(\exp(\lambda_i t)\) measures how much of that direction remains after evolution across branch \(AB\). Because all non-stationary eigenvalues are negative, components with more negative \(\lambda_i\) decay faster.
+In \cref{eq-central}, \(d\) is the number of non-stationary eigenvalues: \(d=3\) for DNA and \(d=19\) for an amino-acid model. The coefficient \(C_{\partial i}\) measures agreement between the two subtrees in spectral direction \(h_i\). The factor \(\exp(\lambda_i t)\) measures how much of that direction remains after evolution across branch \(AB\). Because all non-stationary eigenvalues are negative, components with more negative \(\lambda_i\) decay faster.
 
 We define the eigenvalue-weighted coherence for pattern \(\partial\) as
 \begin{equation}
@@ -50,7 +50,7 @@ J_{s0}
 \sum_a \pi_a L_{A,s0}(a)L_{B,s0}(a),
 \label{eq-invariant-joint}
 \end{equation}
-not the product \(A_{s0}B_{s0}\). The correct mixture null is
+rather than the product \(A_{s0}B_{s0}\). Retaining the joint term in \cref{eq-invariant-joint}, the correct mixture null is
 \begin{equation}
 p_\infty(s)
 =
@@ -71,7 +71,7 @@ u_s(t)
 }{p_\infty(s)}.
 \label{eq-soft-mixture-score}
 \end{equation}
-The invariant component enters only the denominator and contributes no finite-versus-infinite-branch signal. This gives the exact identity
+The invariant component enters only the denominator of \cref{eq-soft-mixture-score} and contributes no finite-versus-infinite-branch signal. This gives the exact identity
 \begin{equation}
 \frac{p_t(s)}{p_\infty(s)}=1+u_s(t).
 \label{eq-soft-mixture-identity}
@@ -91,4 +91,4 @@ C_{\partial}^{\lambda}(t)
 C_{\partial 1},
 \label{eq-jc-collapse}
 \end{equation}
-which is the multiplicity-three expression used by SatuTe. Thus the weighted statistic does not change the JC statistic. If the substitution model does not distinguish among non-stationary directions, the weighted statistic does not introduce that distinction.
+The collapse in \cref{eq-jc-collapse} is the multiplicity-three expression used by SatuTe. Thus the weighted statistic does not change the JC statistic. If the substitution model does not distinguish among non-stationary directions, the weighted statistic does not introduce that distinction.
