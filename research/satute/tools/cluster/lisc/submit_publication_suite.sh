@@ -6,6 +6,7 @@ usage() {
 Usage: submit_publication_suite.sh DESIGN [--dry-run] [sbatch options...]
 
 DESIGN is one of:
+  jc        Original-paper JC reconstruction plus an optional branch extension
   gtr       Matched GTR, fixed GTR+G4, and fixed GTR+I+G4
   protein   Matched LG, WAG, JTT, and Q.PFAM with fixed G4 shape
   misspec   GTR data evaluated by GTR, JC, K2P, and F81
@@ -53,6 +54,11 @@ export RESUME_SHARDS="${RESUME_SHARDS:-1}"
 export ARCHIVE_RUNS="${ARCHIVE_RUNS:-1}"
 
 case "${DESIGN}" in
+  jc)
+    export MODEL_PAIRS="JC:JC"
+    export SCENARIO_SET=fig2
+    export RUN_NAME="${RUN_NAME:-paper-jc-reps${REPS}-${SOURCE_ID}-${RUN_DATE}}"
+    ;;
   gtr)
     export MODEL_PAIRS="GTR_PF06346:GTR_PF06346,GTR_PF06346_G4:GTR_PF06346_G4,GTR_PF06346_I_G4:GTR_PF06346_I_G4"
     export SCENARIO_SET=fig2

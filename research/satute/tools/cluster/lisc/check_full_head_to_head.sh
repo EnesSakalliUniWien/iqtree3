@@ -51,7 +51,7 @@ if [[ "${archive_count}" -gt 0 ]]; then
   if [[ -n "${sample_archive}" ]]; then
     command -v zstd >/dev/null 2>&1 || { echo "ERROR: zstd is required to validate archives" >&2; exit 1; }
     zstd -t "${sample_archive}"
-    tar -I zstd -tf "${sample_archive}" >/dev/null
+    zstd -q -dc "${sample_archive}" | tar -tf - >/dev/null
     checksum_file="${sample_archive}.sha256"
     (cd "$(dirname "${sample_archive}")" && sha256sum -c "$(basename "${checksum_file}")")
   fi

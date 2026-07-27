@@ -89,7 +89,7 @@ if [[ "${#representative_archives[@]}" -ne "${representative_count}" ]]; then
 fi
 for archive in "${representative_archives[@]}"; do
   zstd -q -t "${archive}"
-  tar -I zstd -tf "${archive}" >/dev/null
+  zstd -q -dc "${archive}" | tar -tf - >/dev/null
 done
 
 PYTHONPATH="${PROJECT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}" "${PYTHON_BIN}" \

@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "id": "2026_expanded_recalculation",
+  "description": "Full manuscript recalculation with the original-paper grids preserved, a long-branch extension, and publication-grade Monte Carlo precision.",
+  "precision_contract": {
+    "main_power_replicates_per_cell": 10000,
+    "main_power_worst_case_95_percent_half_width": 0.0098,
+    "paired_difference_basis": "Observed pilot discordance; approximately 0.01 to 0.015 absolute 95% half-width at 10,000 paired replicates.",
+    "exact_null_training_replicates": 10000,
+    "exact_null_holdout_replicates": 10000,
+    "null_rejection_95_percent_half_width_at_0.05": 0.0043,
+    "corrected_invariant_null_replicates": 20000,
+    "corrected_invariant_alternative_replicates": 20000
+  },
+  "resource_estimate": {
+    "basis": "Linear scaling of the completed 1,000-replicate LiSC timing and artifact footprints; long-branch runtimes may differ.",
+    "cluster_cpu_hours": 17200,
+    "cluster_scratch_gib": 260,
+    "required_pre_submission_checks": ["LiSC quota", "free bytes", "free inodes", "source-matched IQ-TREE binary"]
+  },
+  "source_policy": {
+    "require_clean_tracked_tree": true,
+    "require_source_matched_iqtree": true
+  },
+  "cluster": {
+    "account": "menche",
+    "work_dir": "/lisc/data/scratch/menche/sakalli/iq-tree-satute/full-head-to-head",
+    "shard_count": 1000
+  },
+  "runs": [
+    {
+      "id": "jc_power",
+      "experiment": "001_paper_reconstruction",
+      "study": "historical_power_reconstruction",
+      "execution": "cluster",
+      "submitter": "publication",
+      "design": "jc",
+      "replicates_per_cell": 10000,
+      "tree_cases": ["five_external", "sixteen_internal"],
+      "site_lengths": [100, 1000, 10000],
+      "baseline_branch_lengths": [0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 7.5, 10],
+      "extension_branch_lengths": [12, 16, 20, 30, 50],
+      "model_pairs": ["JC:JC"],
+      "slurm": {"array_limit": 32, "time": "12:00:00", "memory": "1G"}
+    },
+    {
+      "id": "gtr_power",
+      "experiment": "002_relative_weighting",
+      "study": "gtr_power",
+      "execution": "cluster",
+      "submitter": "publication",
+      "design": "gtr",
+      "replicates_per_cell": 10000,
+      "tree_cases": ["five_external", "sixteen_internal"],
+      "site_lengths": [100, 250, 1000],
+      "baseline_branch_lengths": [4, 5, 6, 7, 8, 9, 10, 12],
+      "extension_branch_lengths": [16, 20, 30, 50],
+      "model_pairs": [
+        "GTR_PF06346:GTR_PF06346",
+        "GTR_PF06346_G4:GTR_PF06346_G4",
+        "GTR_PF06346_I_G4:GTR_PF06346_I_G4"
+      ],
+      "slurm": {"array_limit": 32, "time": "12:00:00", "memory": "1G"}
+    },
+    {
+      "id": "protein_power",
+      "experiment": "002_relative_weighting",
+      "study": "protein_power",
+      "execution": "cluster",
+      "submitter": "publication",
+      "design": "protein",
+      "replicates_per_cell": 10000,
+      "tree_cases": ["five_external", "sixteen_internal"],
+      "site_lengths": [100, 250, 1000],
+      "baseline_branch_lengths": [4, 5, 6, 7, 8, 9, 10, 12],
+      "extension_branch_lengths": [16, 20, 30, 50],
+      "model_pairs": ["LG_G4:LG_G4", "WAG_G4:WAG_G4", "JTT_G4:JTT_G4", "Q.PFAM_G4:Q.PFAM_G4"],
+      "slurm": {"array_limit": 32, "time": "48:00:00", "memory": "2G"}
+    },
+    {
+      "id": "misspecification_power",
+      "experiment": "002_relative_weighting",
+      "study": "misspecification_power",
+      "execution": "cluster",
+      "submitter": "publication",
+      "design": "misspec",
+      "replicates_per_cell": 10000,
+      "tree_cases": ["five_external", "sixteen_internal"],
+      "site_lengths": [100, 250, 1000],
+      "baseline_branch_lengths": [4, 5, 6, 7, 8, 9, 10, 12],
+      "extension_branch_lengths": [16, 20, 30, 50],
+      "model_pairs": ["GTR_PF06346:GTR_PF06346", "GTR_PF06346:JC", "GTR_PF06346:K2P", "GTR_PF06346:F81"],
+      "slurm": {"array_limit": 32, "time": "12:00:00", "memory": "1G"}
+    },
+    {
+      "id": "fdr_exact_null",
+      "experiment": "002_relative_weighting",
+      "study": "fdr_exact_null",
+      "execution": "cluster",
+      "submitter": "fdr",
+      "design": "exact",
+      "replicates_per_cell": 20000,
+      "training_replicates": 10000,
+      "tree_cases": ["five_external", "sixteen_internal"],
+      "site_lengths": [100, 250, 1000],
+      "baseline_branch_lengths": [4, 8],
+      "extension_branch_lengths": [12, 20, 50],
+      "models": ["JC", "GTR_PF06346"],
+      "slurm": {"array_limit": 64, "time": "04:00:00", "memory": "2G"}
+    },
+    {
+      "id": "fdr_mixed_null",
+      "experiment": "002_relative_weighting",
+      "study": "fdr_mixed_null",
+      "execution": "cluster",
+      "submitter": "fdr",
+      "design": "null-mixed",
+      "replicates_per_cell": 10000,
+      "training_replicates": 0,
+      "tree_cases": ["five_external", "sixteen_internal"],
+      "site_lengths": [100, 250, 1000],
+      "baseline_branch_lengths": [4, 8],
+      "extension_branch_lengths": [12, 20, 50],
+      "models": ["JC", "GTR_PF06346"],
+      "slurm": {"array_limit": 64, "time": "04:00:00", "memory": "2G"}
+    },
+    {
+      "id": "corrected_invariant_mixture",
+      "experiment": "003_invariant_mixture",
+      "study": "invariant_mixture_power",
+      "execution": "local",
+      "command": ["./satute", "experiment", "003_invariant_mixture", "--profile", "full"],
+      "postprocess_command": ["./satute", "developer", "invariant-full-figure", "--", "--input-dir", "artifacts/local/campaigns/2026_expanded_recalculation/corrected_invariant_mixture", "--output-prefix", "artifacts/local/campaigns/2026_expanded_recalculation/corrected_invariant_mixture/figures/full-analysis", "--png-scale", "3"],
+      "replicates_per_cell": 40000,
+      "replicate_note": "Actual refined invariant-mixture correction: 20,000 null plus 20,000 alternative paired exact-pattern simulations. This is the independent corrected likelihood implementation; native IQ-TREE currently reports assigned-category pooling and must not be described as this correction.",
+      "implementation": "independent_exact_pattern_reference",
+      "native_iqtree_equivalent": false,
+      "tree_cases": ["five_external"],
+      "site_lengths": [100, 500, 1000, 5000, 10000],
+      "baseline_branch_lengths": [0.5, 1, 2, 3, 4, 5, 7.5, 10],
+      "extension_branch_lengths": [12.5, 15, 17.5, 20, 22.5, 25, 30, 35, 40, 45, 50, 60, 75, 100, 150, 200, 500, 1000, 10000],
+      "models": ["+I+G4", "+I+R4"]
+    },
+    {
+      "id": "saturation_diagnostics",
+      "experiment": "004_saturation_diagnostics",
+      "study": "saturation_diagnostics",
+      "execution": "local",
+      "command": ["./satute", "experiment", "004_saturation_diagnostics", "--profile", "full"],
+      "replicates_per_cell": 1000,
+      "null_replicates": 5000,
+      "tree_cases": ["five_external"],
+      "site_lengths": [1000],
+      "baseline_branch_lengths": [0.1, 0.5, 1, 2, 5, 10],
+      "extension_branch_lengths": [20, 30, 50, 75, 100, 150, 200, 500, 10000],
+      "models": ["GTR+G4"]
+    },
+    {
+      "id": "biological_windows",
+      "experiment": "005_biological_windows",
+      "study": "biological_windows",
+      "execution": "manual",
+      "replicate_note": "Deterministic analysis of pinned biological inputs; replicate count is not applicable."
+    }
+  ]
+}

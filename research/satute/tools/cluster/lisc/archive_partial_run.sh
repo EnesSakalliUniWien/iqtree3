@@ -39,7 +39,8 @@ while IFS= read -r -d '' runs_dir; do
   checksum="${archive}.sha256"
   tmp_archive="${TMP_BASE}/.${RUN_NAME}_${shard_name}_${SLURM_JOB_ID:-manual}.tar.zst.tmp"
 
-  if [[ -s "${archive}" ]] && zstd -q -t "${archive}" && tar -I zstd -tf "${archive}" >/dev/null 2>&1; then
+  if [[ -s "${archive}" ]] && zstd -q -t "${archive}" \
+    && zstd -q -dc "${archive}" | tar -tf - >/dev/null 2>&1; then
     rm -rf "${runs_dir}"
     skipped=$((skipped + 1))
     removed=$((removed + 1))
@@ -49,13 +50,15 @@ while IFS= read -r -d '' runs_dir; do
 
   rm -f "${tmp_archive}" "${archive}.tmp"
   echo "Archiving ${shard_name}"
-  if ! tar -C "${shard_dir}" -I "zstd -T${ZSTD_THREADS} -${ZSTD_LEVEL} -q" -cf "${tmp_archive}" runs; then
+  if ! tar -C "${shard_dir}" -cf - runs \
+    | zstd -T"${ZSTD_THREADS}" -"${ZSTD_LEVEL}" -q -o "${tmp_archive}"; then
     echo "Failed to create temporary archive for ${shard_name}" >&2
     rm -f "${tmp_archive}"
     failed=$((failed + 1))
     continue
   fi
-  if ! zstd -q -t "${tmp_archive}" || ! tar -I zstd -tf "${tmp_archive}" >/dev/null; then
+  if ! zstd -q -t "${tmp_archive}" \
+    || ! zstd -q -dc "${tmp_archive}" | tar -tf - >/dev/null; then
     echo "Temporary archive failed validation for ${shard_name}" >&2
     rm -f "${tmp_archive}"
     failed=$((failed + 1))
@@ -69,7 +72,8 @@ while IFS= read -r -d '' runs_dir; do
   fi
   mv "${archive}.tmp" "${archive}"
   rm -f "${tmp_archive}"
-  if ! zstd -q -t "${archive}" || ! tar -I zstd -tf "${archive}" >/dev/null; then
+  if ! zstd -q -t "${archive}" \
+    || ! zstd -q -dc "${archive}" | tar -tf - >/dev/null; then
     echo "Final archive failed validation for ${shard_name}" >&2
     rm -f "${archive}" "${checksum}"
     failed=$((failed + 1))

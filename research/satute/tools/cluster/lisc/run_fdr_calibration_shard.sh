@@ -122,9 +122,10 @@ PYTHONPATH="${PROJECT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}" "${PYTHON_BIN}" \
 
 archive_name="runs_shard_${SHARD_INDEX}_job_${SLURM_JOB_ID:-manual}.tar.zst"
 archive_local="${WORK_SHARD}/${archive_name}"
-tar -C "${WORK_SHARD}" -I "zstd -T${ZSTD_THREADS} -${ZSTD_LEVEL} -q" -cf "${archive_local}" runs
+tar -C "${WORK_SHARD}" -cf - runs \
+  | zstd -T"${ZSTD_THREADS}" -"${ZSTD_LEVEL}" -q -o "${archive_local}"
 zstd -q -t "${archive_local}"
-tar -I zstd -tf "${archive_local}" >/dev/null
+zstd -q -dc "${archive_local}" | tar -tf - >/dev/null
 (
   cd "${WORK_SHARD}"
   sha256sum "${archive_name}" > "${archive_name}.sha256"

@@ -192,7 +192,7 @@ if [[ "${SHARD_INDEX}" == "0" ]]; then
     printf "benchmark_contracts_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/benchmark_contracts.py" | awk '{print $1}')"
     printf "benchmark_summary_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/benchmark_summary.py" | awk '{print $1}')"
     printf "native_results_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/src/satute_analysis/native_results.py" | awk '{print $1}')"
-    printf "requirements_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/requirements.txt" | awk '{print $1}')"
+    printf "pyproject_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/pyproject.toml" | awk '{print $1}')"
     printf "experiment_config_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/experiment.json" | awk '{print $1}')"
     printf "r_figure_driver_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/experiments/002_relative_weighting/render_formula_comparison.R" | awk '{print $1}')"
     printf "shard_wrapper_sha256\t%s\n" "$(sha256sum "${PROJECT_DIR}/tools/cluster/lisc/run_full_head_to_head_shard.sh" | awk '{print $1}')"
@@ -245,9 +245,10 @@ if [[ "${ARCHIVE_RUNS}" == "1" || "${ARCHIVE_RUNS}" == "true" ]]; then
     CHECKSUM="${ARCHIVE}.sha256"
     DURABLE_ARCHIVE_IN_PROGRESS="${ARCHIVE}"
 
-    tar -C "${WORK_SHARD_DIR}" -I "zstd -T${ZSTD_THREADS} -${ZSTD_LEVEL} -q" -cf "${LOCAL_ARCHIVE}" runs
+    tar -C "${WORK_SHARD_DIR}" -cf - runs \
+      | zstd -T"${ZSTD_THREADS}" -"${ZSTD_LEVEL}" -q -o "${LOCAL_ARCHIVE}"
     zstd -q -t "${LOCAL_ARCHIVE}"
-    tar -I zstd -tf "${LOCAL_ARCHIVE}" >/dev/null
+    zstd -q -dc "${LOCAL_ARCHIVE}" | tar -tf - >/dev/null
     (
       cd "${WORK_SHARD_DIR}"
       sha256sum "${ARCHIVE_BASENAME}" > "${ARCHIVE_BASENAME}.sha256"
@@ -256,7 +257,7 @@ if [[ "${ARCHIVE_RUNS}" == "1" || "${ARCHIVE_RUNS}" == "true" ]]; then
     copy_atomic "${LOCAL_ARCHIVE}" "${ARCHIVE}"
     copy_atomic "${LOCAL_CHECKSUM}" "${CHECKSUM}"
     zstd -q -t "${ARCHIVE}"
-    tar -I zstd -tf "${ARCHIVE}" >/dev/null
+    zstd -q -dc "${ARCHIVE}" | tar -tf - >/dev/null
     (
       cd "${OUT_ROOT}/run-archives"
       sha256sum -c "${ARCHIVE_BASENAME}.sha256"
