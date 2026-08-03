@@ -19,6 +19,7 @@
 #include "satute/satute_results.h"
 #include "satute/satute_topology.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <map>
@@ -29,7 +30,7 @@
 using namespace std;
 using namespace satute;
 
-void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edges_file, bool enhanced_weights) {
+void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edges_file, bool enhanced_weights, bool write_sites, int sites_max) {
     if (prefix == nullptr || strlen(prefix) == 0)
         outError("SatuTe requires a valid output prefix");
     if (alpha <= 0.0 || alpha >= 1.0)
@@ -76,6 +77,9 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     double start_time = getRealTime();
 
     vector<SatuTeBranchResult> results;
+    // Per-site rows, collected only under --satute-sites. Pooled across rate
+    // categories, one entry per (branch, formula).
+    vector<SatuTeSiteSeries> site_series;
     map<int, Neighbor*> annotated_branches;
     set<int> matched_edges;
 
@@ -106,6 +110,12 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         for (size_t formula_index = 0; formula_index < formula_specs.size(); formula_index++) {
             const SatuTeFormulaSpec &formula = formula_specs[formula_index];
             vector<SatuTeBranchResult> category_results;
+            // Rate categories partition the patterns, so summing the
+            // per-category arrays reconstructs the pooled per-pattern value.
+            vector<double> pooled_pattern_coherence;
+            vector<double> category_pattern_coherence;
+            if (write_sites)
+                pooled_pattern_coherence.assign(aln->size(), 0.0);
 
             for (size_t category_index = 0; category_index < rate_categories.size(); category_index++) {
                 const SatuTeRateCategory &category = rate_categories[category_index];
@@ -147,7 +157,14 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         category.rate,
                         num_threads,
                         enhanced_weights,
-                        base));
+                        base,
+                        write_sites ? &category_pattern_coherence : nullptr));
+
+                if (write_sites) {
+                    for (size_t ptn = 0; ptn < pooled_pattern_coherence.size() &&
+                                         ptn < category_pattern_coherence.size(); ptn++)
+                        pooled_pattern_coherence[ptn] += category_pattern_coherence[ptn];
+                }
             }
 
             SatuTeBranchResult pooled_base = results::makeBaseResult(
@@ -175,6 +192,18 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             pooled.effective_length = pooled.length;
             information::setSaturationScale(pooled, pooled_information_fraction);
             results.push_back(pooled);
+
+            if (write_sites) {
+                SatuTeSiteSeries series;
+                series.branch_id = branch_id;
+                series.formula = formula.name;
+                series.split = split;
+                series.coherence = pooled.coherence;
+                series.p_value = pooled.p_value;
+                series.valid_sites = pooled.valid_sites;
+                series.pattern_coherence = pooled_pattern_coherence;
+                site_series.push_back(series);
+            }
 
             if (!(rate_categories.size() == 1 && rate_categories[0].pattern_cat < 0)) {
                 for (size_t category_index = 0; category_index < category_results.size(); category_index++) {
@@ -234,4 +263,21 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     }
 
     ReportWriter().write(*this, prefix, results);
+    if (write_sites) {
+        // Keep the branches closest to saturation. The whole-tree export is
+        // impractical on large trees (~507 MB for the 1871-taxon Tree of
+        // Life), and the branches worth windowing are the marginal ones.
+        if (sites_max > 0 && (int)site_series.size() > sites_max) {
+            stable_sort(
+                site_series.begin(),
+                site_series.end(),
+                [](const SatuTeSiteSeries &a, const SatuTeSiteSeries &b) {
+                    return a.p_value > b.p_value;
+                });
+            site_series.resize(sites_max);
+            cout << "SatuTe per-site export limited to " << sites_max
+                 << " branches with the highest satP" << endl;
+        }
+        ReportWriter().writeSiteSeries(*this, prefix, site_series);
+    }
 }

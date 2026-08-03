@@ -1762,6 +1762,24 @@ void parseArg(int argc, char *argv[], Params &params) {
                 params.satute_enhanced_weights = true;
                 continue;
             }
+            if (strcmp(argv[cnt], "--satute-sites") == 0) {
+                params.satute_analysis = true;
+                params.ignore_identical_seqs = false;
+                params.satute_sites = true;
+                continue;
+            }
+            if (strcmp(argv[cnt], "--satute-sites-max") == 0) {
+                params.satute_analysis = true;
+                params.ignore_identical_seqs = false;
+                params.satute_sites = true;
+                cnt++;
+                if (cnt >= argc)
+                    throw "Use --satute-sites-max <count>";
+                params.satute_sites_max = convert_int(argv[cnt]);
+                if (params.satute_sites_max < 0)
+                    throw "SatuTe per-site branch cap must be >= 0";
+                continue;
+            }
             if (strcmp(argv[cnt], "--qic") == 0) {
                 params.internode_certainty = 1;
                 continue;
@@ -6046,7 +6064,14 @@ void usage_iqtree(char* argv[], bool full_command) {
     << "  --satute-edges FILE  Analyze only branch IDs listed in FILE" << endl
     << "  --satute-enhanced-weights" << endl
     << "                       Use GLS/matched-filter mode weighting for" << endl
-    << "                       eigenvalue_weighted (experimental; default off)" << endl;
+    << "                       eigenvalue_weighted (experimental; default off)" << endl
+    << "  --satute-sites       Also write .sat.site: per-alignment-site centred" << endl
+    << "                       weighted contribution to satC, per analysed branch." << endl
+    << "                       For sliding-window analyses. One row per branch and" << endl
+    << "                       site, so pair with --satute-edges on large trees" << endl
+    << "  --satute-sites-max NUM" << endl
+    << "                       Limit .sat.site to NUM branches, highest satP first" << endl
+    << "                       (0 = no limit)" << endl;
     
     usage_alisim();
     cout
@@ -7111,6 +7136,8 @@ void Params::setDefault() {
     satute_alpha = 0.05;
     satute_edges_file = nullptr;
     satute_enhanced_weights = false;
+    satute_sites = false;
+    satute_sites_max = 0;
     internode_certainty = 0;
     tree_weight_file = nullptr;
     consensus_type = CT_NONE;

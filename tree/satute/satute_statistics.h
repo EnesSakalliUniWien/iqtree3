@@ -18,6 +18,15 @@
 
 namespace satute {
 
+/**
+ * @param out_pattern_coherence  Optional. When non-null, resized to the
+ * pattern count and filled with each pattern's centred, weighted contribution
+ * to satC:  sum_i w_i (L_i - mean_L_i)(R_i - mean_R_i).  These sum, frequency
+ * weighted and divided by valid_sites, to exactly the returned result's
+ * `coherence` -- the invariant the .sat.site writer is checked against.
+ * Patterns outside this call's rate category (or skipped) are left at 0, so
+ * per-category arrays tile the alignment and can simply be summed for pooled.
+ */
 SatuTeBranchResult computeCategoryStatistic(
     Node *left_node,
     Node *left_dad,
@@ -34,7 +43,8 @@ SatuTeBranchResult computeCategoryStatistic(
     double rate_multiplier,
     int num_threads,
     bool enhanced_weights,
-    const SatuTeBranchResult &base);
+    const SatuTeBranchResult &base,
+    std::vector<double> *out_pattern_coherence = nullptr);
 
 SatuTeBranchResult poolCategoryResults(
     const std::vector<SatuTeBranchResult> &category_results,

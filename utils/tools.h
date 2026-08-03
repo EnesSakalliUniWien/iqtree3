@@ -1476,7 +1476,20 @@ public:
      * worse for power at long side branches -- opt-in, default off. Never
      * affects the dominant formula. */
     bool satute_enhanced_weights;
-    
+
+    /** TRUE to additionally write <prefix>.sat.site: each analysed branch's
+     * per-alignment-site centred weighted contribution to satC. Intended for
+     * sliding-window analyses, which aggregate these site values rather than
+     * re-running SatuTe per window. One row per (branch, site), so combine
+     * with --satute-edges on large trees to keep the file bounded. */
+    bool satute_sites;
+
+    /** Cap on how many branches .sat.site covers, ranked by descending satP
+     * (closest to saturation first). 0 means no cap. Guards against the
+     * whole-tree export on large trees: all 3739 branches of the 1871-taxon
+     * Tree of Life produce a ~507 MB file. */
+    int satute_sites_max;
+
     /** 1 to compute internode certainty */
     int internode_certainty;
     

@@ -22,6 +22,19 @@ struct SatuTeFormulaSpec {
     bool eigenvalue_weighted;
 };
 
+/** Per-alignment-site centred weighted contributions to satC for one
+ * (branch, formula), pooled across rate categories. Written to .sat.site
+ * under --satute-sites; consumed by sliding-window analyses. */
+struct SatuTeSiteSeries {
+    int branch_id;
+    std::string formula;
+    std::string split;
+    double coherence;   // the branch-level satC these sum to
+    double p_value;     // branch-level satP, used to rank when the export is capped
+    int valid_sites;
+    std::vector<double> pattern_coherence;  // indexed by pattern
+};
+
 struct SatuTeRateCategory {
     std::string label;
     int pattern_cat;

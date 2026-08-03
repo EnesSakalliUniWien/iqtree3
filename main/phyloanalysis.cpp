@@ -5359,7 +5359,7 @@ void runPhyloAnalysis(Params &params, Checkpoint *checkpoint, IQTree *&tree, Ali
         if (MPIHelper::getInstance().isMaster()) {
             reportPhyloAnalysis(params, *tree, *model_info);
             if (params.satute_analysis) {
-                tree->computeSatuTe(params.out_prefix, params.satute_alpha, params.satute_edges_file, params.satute_enhanced_weights);
+                tree->computeSatuTe(params.out_prefix, params.satute_alpha, params.satute_edges_file, params.satute_enhanced_weights, params.satute_sites, params.satute_sites_max);
             }
         }
 

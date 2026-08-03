@@ -323,7 +323,8 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     double rate_multiplier,
     int num_threads,
     bool enhanced_weights,
-    const SatuTeBranchResult &base)
+    const SatuTeBranchResult &base,
+    vector<double> *out_pattern_coherence = nullptr)
 {
     SatuTeBranchResult result = base;
     size_t nmodes = formula.modes.size();
@@ -361,6 +362,25 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         right_node, right_dad, model, nstates, rate_multiplier, transition_cache);
 
     const int nptn = (int)aln->size();
+
+    // Per-pattern factors, retained only when a caller asked for the per-site
+    // export. The centred, weighted per-pattern contribution cannot be formed
+    // inside the loop because both the marginal means and (for
+    // eigenvalue_weighted with enhanced weights) the weights themselves are
+    // only known after the whole alignment has been summed -- so the raw
+    // factors are kept and combined in a cheap second pass below.
+    // schedule(static) gives each pattern to exactly one thread, so these
+    // shared arrays are written race-free without extra synchronisation.
+    const bool want_pattern_coherence = (out_pattern_coherence != nullptr);
+    vector<double> pattern_left_factor;
+    vector<double> pattern_right_factor;
+    vector<char> pattern_counted;
+    if (want_pattern_coherence) {
+        pattern_left_factor.assign((size_t)nptn * nmodes, 0.0);
+        pattern_right_factor.assign((size_t)nptn * nmodes, 0.0);
+        pattern_counted.assign((size_t)nptn, 0);
+        out_pattern_coherence->assign((size_t)nptn, 0.0);
+    }
 
     // Patterns are independent, so the loop parallelises over them. Each thread
     // accumulates into its own slot and the slots are combined in thread order
@@ -485,6 +505,13 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         }
 
         local_valid_sites += freq;
+        if (want_pattern_coherence) {
+            pattern_counted[ptn] = 1;
+            for (size_t i = 0; i < nmodes; i++) {
+                pattern_left_factor[(size_t)ptn * nmodes + i] = left_factor[i];
+                pattern_right_factor[(size_t)ptn * nmodes + i] = right_factor[i];
+            }
+        }
         for (size_t i = 0; i < nmodes; i++) {
             local_left_first[i] += freq * left_factor[i];
             local_right_first[i] += freq * right_factor[i];
@@ -582,6 +609,24 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     for (size_t i = 0; i < nmodes; i++)
         centred_coherence += active_weights[i] * (coherence_vec[i] / valid_sites - left_mean[i] * right_mean[i]);
     result.coherence = centred_coherence;
+
+    // Second pass for the per-site export: now that the means and the actually
+    // applied weights (enhanced or not) are known, each retained pattern's
+    // centred weighted contribution can be formed. Frequency weighted and
+    // divided by valid_sites these sum to centred_coherence above.
+    if (want_pattern_coherence) {
+        for (int ptn = 0; ptn < nptn; ptn++) {
+            if (!pattern_counted[ptn])
+                continue;
+            double contribution = 0.0;
+            for (size_t i = 0; i < nmodes; i++) {
+                double centred_left = pattern_left_factor[(size_t)ptn * nmodes + i] - left_mean[i];
+                double centred_right = pattern_right_factor[(size_t)ptn * nmodes + i] - right_mean[i];
+                contribution += active_weights[i] * centred_left * centred_right;
+            }
+            (*out_pattern_coherence)[ptn] = contribution;
+        }
+    }
 
     // Matching centred second moments, so the variance describes the same
     // centred quantity the numerator now measures.
@@ -725,7 +770,8 @@ SatuTeBranchResult computeCategoryStatistic(
     double rate_multiplier,
     int num_threads,
     bool enhanced_weights,
-    const SatuTeBranchResult &base)
+    const SatuTeBranchResult &base,
+    vector<double> *out_pattern_coherence)
 {
     return computeCategoryStatisticImpl(
         left_node,
@@ -743,7 +789,8 @@ SatuTeBranchResult computeCategoryStatistic(
         rate_multiplier,
         num_threads,
         enhanced_weights,
-        base);
+        base,
+        out_pattern_coherence);
 }
 
 } // namespace satute

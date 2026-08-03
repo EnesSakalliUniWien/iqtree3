@@ -25,6 +25,15 @@ public:
         PhyloTree &tree,
         const std::string &prefix,
         const std::vector<SatuTeBranchResult> &results) const;
+
+    /** Write <prefix>.sat.site: one row per (branch, formula, alignment site).
+     * Pattern values are expanded to sites via the alignment's site->pattern
+     * map, so all sites sharing a pattern carry the same value by
+     * construction. */
+    void writeSiteSeries(
+        PhyloTree &tree,
+        const std::string &prefix,
+        const std::vector<SatuTeSiteSeries> &series) const;
 };
 
 } // namespace satute

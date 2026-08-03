@@ -112,4 +112,50 @@ void ReportWriter::write(
     cout << "SatuTe statistics per branch printed to " << filename << endl;
 }
 
+void ReportWriter::writeSiteSeries(
+    PhyloTree &tree,
+    const string &prefix,
+    const vector<SatuTeSiteSeries> &series) const
+{
+    if (series.empty())
+        return;
+
+    string filename = prefix + ".sat.site";
+    ofstream out(filename.c_str());
+    if (!out.is_open())
+        outError("Cannot write SatuTe per-site file ", filename);
+
+    Alignment *aln = tree.aln;
+    size_t nsite = aln->getNSite();
+
+    out << "# SatuTe per-site contributions to satC" << endl
+        << "# One row per branch, formula and alignment site." << endl
+        << "# Columns are tab-separated with following meaning:" << endl
+        << "#   ID: Branch ID (matches the ID column in .sat.stat)" << endl
+        << "#   Formula: dominant or eigenvalue_weighted" << endl
+        << "#   Site: 1-based alignment column" << endl
+        << "#   SiteCoherence: this site's centred, weighted contribution;" << endl
+        << "#     the frequency-weighted mean of these over valid sites equals" << endl
+        << "#     the branch's pooled satC in .sat.stat" << endl
+        << "# NOTE: sites sharing an alignment pattern carry identical values." << endl
+        << "# Branch splits are not repeated per row -- look up the ID in .sat.stat." << endl
+        << "ID\tFormula\tSite\tSiteCoherence" << endl;
+
+    for (size_t i = 0; i < series.size(); i++) {
+        const SatuTeSiteSeries &entry = series[i];
+        for (size_t site = 0; site < nsite; site++) {
+            int ptn = aln->getPatternID(site);
+            if (ptn < 0 || (size_t)ptn >= entry.pattern_coherence.size())
+                continue;
+            out << entry.branch_id
+                << '\t' << entry.formula
+                << '\t' << (site + 1)
+                << '\t' << format::formatDouble(entry.pattern_coherence[ptn])
+                << endl;
+        }
+    }
+    out.close();
+    cout << "SatuTe per-site contributions printed to " << filename << endl;
+}
+
 } // namespace satute
