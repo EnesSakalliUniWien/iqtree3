@@ -259,6 +259,70 @@ def panel(svg, rows, formula, tree_case, title, left, top, width, height, scenar
         svg.append(f'<text x="{left - 42}" y="{top + height / 2:.1f}" text-anchor="middle" font-size="11" transform="rotate(-90 {left - 42} {top + height / 2:.1f})">fraction phylogenetically informative</text>')
 
 
+def delta_grouped_values(rows, tree_case):
+    dominant = grouped_values(rows, "dominant", tree_case)
+    weighted = grouped_values(rows, "eigenvalue_weighted", tree_case)
+    delta = defaultdict(dict)
+    for key, dominant_values in dominant.items():
+        weighted_values = weighted.get(key)
+        if not weighted_values:
+            continue
+        for branch_length, dominant_value in dominant_values.items():
+            if branch_length in weighted_values:
+                delta[key][branch_length] = weighted_values[branch_length] - dominant_value
+    return delta
+
+
+def delta_panel(svg, rows, tree_case, title, left, top, width, height, scenarios, show_y_label=True, show_x_label=True):
+    grouped = delta_grouped_values(rows, tree_case)
+    branch_lengths = PAPER_BRANCH_LENGTHS
+    xmin, xmax = min(branch_lengths), max(branch_lengths)
+
+    all_values = [value for series in grouped.values() for value in series.values()]
+    span = max(0.05, max((abs(value) for value in all_values), default=0.0) * 1.25)
+
+    def sy_delta(value):
+        return top + (span - value) / (2 * span) * height
+
+    svg.append(f'<text x="{left + width / 2:.1f}" y="{top - 16}" text-anchor="middle" font-size="15" font-weight="600">{title}</text>')
+    svg.append(f'<rect x="{left}" y="{top}" width="{width}" height="{height}" fill="white" stroke="#333" stroke-width="1"/>')
+
+    for ytick in (-span, -span / 2, 0.0, span / 2, span):
+        y = sy_delta(ytick)
+        stroke = "#999" if ytick == 0.0 else "#e8e8e8"
+        stroke_width = "1.4" if ytick == 0.0 else "1"
+        svg.append(f'<line x1="{left}" x2="{left + width}" y1="{y:.2f}" y2="{y:.2f}" stroke="{stroke}" stroke-width="{stroke_width}"/>')
+        if show_y_label:
+            svg.append(f'<text x="{left - 8}" y="{y + 4:.2f}" text-anchor="end" font-size="10">{ytick:+.2f}</text>')
+
+    for xtick in branch_lengths:
+        x = sx(xtick, xmin, xmax, left, width)
+        svg.append(f'<line x1="{x:.2f}" x2="{x:.2f}" y1="{top}" y2="{top + height}" stroke="#f0f0f0" stroke-width="1"/>')
+        if xtick in {0.1, 0.5, 1.0, 2.5, 5.0, 10.0}:
+            svg.append(f'<text x="{x:.2f}" y="{top + height + 16}" text-anchor="middle" font-size="10">{xtick:g}</text>')
+
+    for scenario, color, _label in scenarios:
+        for nsites in PAPER_SITE_LENGTHS:
+            values = grouped.get((scenario, nsites), {})
+            points = [
+                (sx(blen, xmin, xmax, left, width), sy_delta(values[blen]))
+                for blen in branch_lengths
+                if blen in values
+            ]
+            if not points:
+                continue
+            dash = SITE_STYLES.get(nsites, "")
+            dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
+            svg.append(f'<path d="{line_path(points)}" fill="none" stroke="{color}" stroke-width="2.1"{dash_attr}/>')
+            for x, y in points:
+                svg.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="2.5" fill="{color}" stroke="white" stroke-width="0.8"/>')
+
+    if show_x_label:
+        svg.append(f'<text x="{left + width / 2:.1f}" y="{top + height + 38}" text-anchor="middle" font-size="11">branch length AB, log scale</text>')
+    if show_y_label:
+        svg.append(f'<text x="{left - 42}" y="{top + height / 2:.1f}" text-anchor="middle" font-size="11" transform="rotate(-90 {left - 42} {top + height / 2:.1f})">Δ fraction informative (weighted − published)</text>')
+
+
 def legend(svg, x, y, scenarios):
     svg.append(f'<text x="{x}" y="{y}" font-size="14" font-weight="600">Scenario</text>')
     dy = 21
@@ -299,38 +363,41 @@ def write_baseline_figure(rows, output, problems, tree_cases, simulation_model, 
 
 
 def write_formula_grid(rows, output, problems, tree_cases, simulation_model, evaluation_model, scenarios):
-    width = 1048
-    height = 540 if len(tree_cases) == 1 else 880
+    panel_w, panel_h = 620, 165
+    x0, y0 = 96, 108
+    x_gap, y_gap = 60, 70
+    n_cols = len(tree_cases)
+    legend_x = x0 + n_cols * panel_w + (n_cols - 1) * x_gap + 44
+    width = legend_x + 240
+    height = y0 + 3 * panel_h + 2 * y_gap + 74
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         f'<rect width="{width}" height="{height}" fill="#ffffff"/>',
         f'<text x="{width / 2:.1f}" y="28" text-anchor="middle" font-size="19" font-weight="700">Head-to-head saturation-test comparison (sim {model_label(simulation_model)}, eval {model_label(evaluation_model)})</text>',
     ]
-    panel_w, panel_h = 330, 235
-    x0, y0 = 76, 94
-    x_gap, y_gap = 42, 112
-    for col, (formula, formula_label) in enumerate(FORMULAS):
-        svg.append(f'<text x="{x0 + col * (panel_w + x_gap) + panel_w / 2:.1f}" y="61" text-anchor="middle" font-size="14" font-weight="600">{formula_label}</text>')
-        for row_idx, (tree_case, tree_label) in enumerate(tree_cases):
-            panel(
-                svg,
-                rows,
-                formula,
-                tree_case,
-                tree_label,
-                x0 + col * (panel_w + x_gap),
-                y0 + row_idx * (panel_h + y_gap),
-                panel_w,
-                panel_h,
-                scenarios,
-                show_y_label=(col == 0),
-                show_x_label=(row_idx == len(tree_cases) - 1),
-            )
-    legend(svg, 828, 110, scenarios)
+    row_kinds = list(FORMULAS) + [("delta", "Δ (weighted − published)")]
+    for col, (tree_case, tree_label) in enumerate(tree_cases):
+        left = x0 + col * (panel_w + x_gap)
+        if n_cols > 1:
+            svg.append(f'<text x="{left + panel_w / 2:.1f}" y="{y0 - 34}" text-anchor="middle" font-size="14" font-weight="600">{tree_label}</text>')
+        for row_idx, (formula, formula_label) in enumerate(row_kinds):
+            top = y0 + row_idx * (panel_h + y_gap)
+            title = formula_label
+            if formula == "delta":
+                delta_panel(
+                    svg, rows, tree_case, title, left, top, panel_w, panel_h, scenarios,
+                    show_y_label=(col == 0), show_x_label=True,
+                )
+            else:
+                panel(
+                    svg, rows, formula, tree_case, title, left, top, panel_w, panel_h, scenarios,
+                    show_y_label=(col == 0), show_x_label=False,
+                )
+    legend(svg, legend_x, 126, scenarios)
     note = "Full paper grid, paired by alignment, target branch, scenario and threshold."
     if problems:
         note = "Incomplete plotting-development output; not for manuscript use."
-    svg.append(f'<text x="76" y="{height - 30}" font-size="11" fill="#555">{note}</text>')
+    svg.append(f'<text x="{x0}" y="{height - 30}" font-size="11" fill="#555">{note}</text>')
     svg.append("</svg>")
     output.write_text("\n".join(svg) + "\n", encoding="utf-8")
 
