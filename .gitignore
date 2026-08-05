@@ -32,6 +32,8 @@ __pycache__/
 /research/satute/artifacts/local/
 /research/satute/artifacts/cluster/
 /research/satute/manuscript/build/
+/tmp/
+/.playwright-mcp/
 /tools/seq-gen/
 /.mex/
 /.vs/
