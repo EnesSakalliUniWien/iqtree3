@@ -167,6 +167,219 @@ static void computeOrdinaryPartial(
     }
 }
 
+/** Position of `target` in `node`'s neighbour list; -1 when not adjacent. */
+static int neighborIndex(Node *node, Node *target) {
+    for (size_t i = 0; i < node->neighbors.size(); i++)
+        if (node->neighbors[i]->node == target)
+            return (int)i;
+    return -1;
+}
+
+/** Same rescaling the recursion applies; any positive scale cancels later. */
+static inline void rescalePartial(double *partial, int nstates) {
+    double partial_sum = 0.0;
+    for (int state = 0; state < nstates; state++)
+        partial_sum += partial[state];
+    if (partial_sum > 0.0 && isfinite(partial_sum)) {
+        for (int state = 0; state < nstates; state++)
+            partial[state] /= partial_sum;
+    }
+}
+
+size_t directionalCacheBytes(
+    size_t node_bound, int max_degree, size_t nptn, int nstates)
+{
+    return node_bound * (size_t)max_degree * nptn * (size_t)nstates * sizeof(double);
+}
+
+/**
+ * Post-order half of the two-pass sweep: fills msg(node -> dad) for `node` and
+ * everything below it. Identical arithmetic to computeOrdinaryPartial(), just
+ * recorded instead of discarded.
+ */
+static void upwardMessages(
+    Node *node,
+    Node *dad,
+    size_t ptn,
+    Alignment *aln,
+    ModelSubst *model,
+    int nstates,
+    const vector<double> &transition_cache,
+    SatuTeDirectionalCache &cache)
+{
+    double *out = cache.message(node->id, neighborIndex(node, dad), ptn);
+
+    if (node->isLeaf()) {
+        StateType state = (node->id >= 0 && node->id < (int)aln->getNSeq())
+            ? aln->at(ptn)[node->id]
+            : aln->STATE_UNKNOWN;
+        model->computeTipLikelihood(state, out);
+        return;
+    }
+
+    FOR_NEIGHBOR_IT(node, dad, it)
+        upwardMessages((*it)->node, node, ptn, aln, model, nstates, transition_cache, cache);
+
+    for (int state = 0; state < nstates; state++)
+        out[state] = 1.0;
+    FOR_NEIGHBOR_IT(node, dad, it) {
+        Node *child = (*it)->node;
+        const double *child_msg =
+            cache.message(child->id, neighborIndex(child, node), ptn);
+        // Transition matrices are keyed by the node the edge descends into, so
+        // under this rooting the key for edge (node, child) is child's id.
+        const double *transition =
+            &transition_cache[(size_t)child->id * nstates * nstates];
+        for (int parent_state = 0; parent_state < nstates; parent_state++) {
+            double contribution = 0.0;
+            for (int child_state = 0; child_state < nstates; child_state++) {
+                contribution += transition[parent_state * nstates + child_state] *
+                    child_msg[child_state];
+            }
+            out[parent_state] *= contribution;
+        }
+    }
+    rescalePartial(out, nstates);
+}
+
+/**
+ * Pre-order half: with every msg(neighbour -> node) already known, emit
+ * msg(node -> child) for each child. The message toward `dad` is skipped
+ * because the post-order pass already wrote it.
+ *
+ * Each outgoing message is the product of all incoming messages except the one
+ * it answers, so prefix and suffix products give all of them in one sweep
+ * rather than one product per outgoing edge.
+ */
+static void downwardMessages(
+    Node *node,
+    Node *dad,
+    size_t ptn,
+    int nstates,
+    const vector<double> &transition_cache,
+    SatuTeDirectionalCache &cache,
+    vector<double> &incoming,
+    vector<double> &prefix,
+    vector<double> &suffix)
+{
+    if (node->isLeaf())
+        return;
+
+    const int degree = (int)node->neighbors.size();
+    for (int i = 0; i < degree; i++) {
+        Node *other = node->neighbors[i]->node;
+        // Under the global rooting the deeper endpoint owns the matrix: that is
+        // `node` itself for the edge back to dad, and the neighbour otherwise.
+        const int key = (other == dad) ? node->id : other->id;
+        const double *in_msg = cache.message(other->id, neighborIndex(other, node), ptn);
+        const double *transition = &transition_cache[(size_t)key * nstates * nstates];
+        double *dst = &incoming[(size_t)i * nstates];
+        for (int parent_state = 0; parent_state < nstates; parent_state++) {
+            double contribution = 0.0;
+            for (int child_state = 0; child_state < nstates; child_state++) {
+                contribution += transition[parent_state * nstates + child_state] *
+                    in_msg[child_state];
+            }
+            dst[parent_state] = contribution;
+        }
+    }
+
+    for (int state = 0; state < nstates; state++) {
+        prefix[state] = 1.0;
+        suffix[(size_t)degree * nstates + state] = 1.0;
+    }
+    for (int i = 0; i < degree; i++) {
+        for (int state = 0; state < nstates; state++) {
+            prefix[(size_t)(i + 1) * nstates + state] =
+                prefix[(size_t)i * nstates + state] * incoming[(size_t)i * nstates + state];
+        }
+    }
+    for (int i = degree - 1; i >= 0; i--) {
+        for (int state = 0; state < nstates; state++) {
+            suffix[(size_t)i * nstates + state] =
+                suffix[(size_t)(i + 1) * nstates + state] * incoming[(size_t)i * nstates + state];
+        }
+    }
+
+    for (int j = 0; j < degree; j++) {
+        if (node->neighbors[j]->node == dad)
+            continue;
+        double *out = cache.message(node->id, j, ptn);
+        for (int state = 0; state < nstates; state++) {
+            out[state] = prefix[(size_t)j * nstates + state] *
+                suffix[(size_t)(j + 1) * nstates + state];
+        }
+        rescalePartial(out, nstates);
+    }
+
+    // Safe to clobber the scratch below: every outgoing message is already
+    // written into the cache.
+    FOR_NEIGHBOR_IT(node, dad, it) {
+        downwardMessages((*it)->node, node, ptn, nstates, transition_cache, cache,
+                         incoming, prefix, suffix);
+    }
+}
+
+bool buildDirectionalCache(
+    Node *root,
+    Alignment *aln,
+    ModelSubst *model,
+    int nstates,
+    double rate_multiplier,
+    int num_threads,
+    size_t node_bound,
+    int max_degree,
+    SatuTeDirectionalCache &cache)
+{
+    cache.ready = false;
+    if (root == nullptr || root->isLeaf() || max_degree <= 0)
+        return false;
+
+    const size_t nptn = aln->size();
+    cache.max_degree = max_degree;
+    cache.nstates = nstates;
+    cache.nptn = nptn;
+    cache.dir_stride = nptn * (size_t)nstates;
+    cache.data.assign(node_bound * (size_t)max_degree * cache.dir_stride, 0.0);
+
+    // One matrix per edge, filled from the same rooting the sweeps use.
+    vector<double> transition_cache(node_bound * (size_t)(nstates * nstates), 0.0);
+    FOR_NEIGHBOR_IT(root, nullptr, it) {
+        ensureTransitionMatrix(*it, model, nstates, rate_multiplier, transition_cache);
+        prepareTransitionMatrices((*it)->node, root, model, nstates, rate_multiplier,
+                                  transition_cache);
+    }
+
+    int nthreads = 1;
+#ifdef _OPENMP
+    nthreads = (num_threads > 0) ? num_threads : omp_get_max_threads();
+#endif
+
+    const int nptn_int = (int)nptn;
+#ifdef _OPENMP
+#pragma omp parallel num_threads(nthreads)
+#endif
+    {
+        vector<double> incoming((size_t)max_degree * nstates, 0.0);
+        vector<double> prefix((size_t)(max_degree + 1) * nstates, 0.0);
+        vector<double> suffix((size_t)(max_degree + 1) * nstates, 0.0);
+#ifdef _OPENMP
+#pragma omp for schedule(static)
+#endif
+        for (int ptn = 0; ptn < nptn_int; ptn++) {
+            FOR_NEIGHBOR_IT(root, nullptr, it) {
+                upwardMessages((*it)->node, root, (size_t)ptn, aln, model, nstates,
+                               transition_cache, cache);
+            }
+            downwardMessages(root, nullptr, (size_t)ptn, nstates, transition_cache,
+                             cache, incoming, prefix, suffix);
+        }
+    }
+
+    cache.ready = true;
+    return true;
+}
+
 static void finalizeSatuTeResult(SatuTeBranchResult &result) {
     if (result.valid_sites <= 0) {
         result.decision = "no_sites";
@@ -324,6 +537,7 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     int num_threads,
     bool enhanced_weights,
     const SatuTeBranchResult &base,
+    const SatuTeDirectionalCache *directional_cache = nullptr,
     vector<double> *out_pattern_coherence = nullptr)
 {
     SatuTeBranchResult result = base;
@@ -354,12 +568,22 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
 
     model->getStateFrequency(&state_freq[0]);
 
-    // Hoisted out of the pattern loop: after this the cache is read-only, which
-    // is what makes the loop below safe to share between threads.
-    prepareTransitionMatrices(
-        left_node, left_dad, model, nstates, rate_multiplier, transition_cache);
-    prepareTransitionMatrices(
-        right_node, right_dad, model, nstates, rate_multiplier, transition_cache);
+    // When the caller supplied the shared directional messages for this rate
+    // category, both partials this branch needs are already computed and the
+    // per-branch subtree recursion (and its transition matrices) is skipped
+    // entirely. That is what removes the O(n^2)-in-taxa cost.
+    const bool use_cache = (directional_cache != nullptr) && directional_cache->ready;
+    const int left_message_index = use_cache ? neighborIndex(left_node, left_dad) : -1;
+    const int right_message_index = use_cache ? neighborIndex(right_node, right_dad) : -1;
+
+    if (!use_cache) {
+        // Hoisted out of the pattern loop: after this the cache is read-only,
+        // which is what makes the loop below safe to share between threads.
+        prepareTransitionMatrices(
+            left_node, left_dad, model, nstates, rate_multiplier, transition_cache);
+        prepareTransitionMatrices(
+            right_node, right_dad, model, nstates, rate_multiplier, transition_cache);
+    }
 
     const int nptn = (int)aln->size();
 
@@ -445,32 +669,41 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
             continue;
         local_rate_category_sites += freq;
 
-        computeOrdinaryPartial(
-            left_node,
-            left_dad,
-            ptn,
-            aln,
-            model,
-            nstates,
-            transition_cache,
-            &scratch[0],
-            &left_likelihood[0]);
-        computeOrdinaryPartial(
-            right_node,
-            right_dad,
-            ptn,
-            aln,
-            model,
-            nstates,
-            transition_cache,
-            &scratch[0],
-            &right_likelihood[0]);
+        const double *left_lh;
+        const double *right_lh;
+        if (use_cache) {
+            left_lh = directional_cache->message(left_node->id, left_message_index, ptn);
+            right_lh = directional_cache->message(right_node->id, right_message_index, ptn);
+        } else {
+            computeOrdinaryPartial(
+                left_node,
+                left_dad,
+                ptn,
+                aln,
+                model,
+                nstates,
+                transition_cache,
+                &scratch[0],
+                &left_likelihood[0]);
+            computeOrdinaryPartial(
+                right_node,
+                right_dad,
+                ptn,
+                aln,
+                model,
+                nstates,
+                transition_cache,
+                &scratch[0],
+                &right_likelihood[0]);
+            left_lh = &left_likelihood[0];
+            right_lh = &right_likelihood[0];
+        }
 
         double left_sum = 0.0;
         double right_sum = 0.0;
         for (int state = 0; state < nstates; state++) {
-            left_posterior[state] = left_likelihood[state] * state_freq[state];
-            right_posterior[state] = right_likelihood[state] * state_freq[state];
+            left_posterior[state] = left_lh[state] * state_freq[state];
+            right_posterior[state] = right_lh[state] * state_freq[state];
             left_sum += left_posterior[state];
             right_sum += right_posterior[state];
         }
@@ -771,6 +1004,7 @@ SatuTeBranchResult computeCategoryStatistic(
     int num_threads,
     bool enhanced_weights,
     const SatuTeBranchResult &base,
+    const SatuTeDirectionalCache *directional_cache,
     vector<double> *out_pattern_coherence)
 {
     return computeCategoryStatisticImpl(
@@ -790,6 +1024,7 @@ SatuTeBranchResult computeCategoryStatistic(
         num_threads,
         enhanced_weights,
         base,
+        directional_cache,
         out_pattern_coherence);
 }
 

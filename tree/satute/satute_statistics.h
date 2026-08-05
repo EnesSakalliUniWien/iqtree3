@@ -19,6 +19,58 @@
 namespace satute {
 
 /**
+ * Directional partial likelihoods: for every (node, neighbour) pair, the
+ * message L(node \ neighbour) at every alignment pattern, for ONE rate
+ * category.
+ *
+ * Why this exists: the per-branch recursion recomputes an entire subtree for
+ * each of the 2n-3 branches, so the statistic was O(n^2) in taxa. Each branch
+ * needs only the two messages that meet on it, and the whole set of 2(2n-3)
+ * messages is produced by two traversals per pattern. Filling this once per
+ * rate category makes the statistic O(n) in taxa.
+ *
+ * Keyed by node id and the neighbour's index in that node's neighbour list --
+ * dense, and independent of any rooting.
+ */
+struct SatuTeDirectionalCache {
+    std::vector<double> data;
+    int max_degree = 0;
+    int nstates = 0;
+    size_t nptn = 0;
+    size_t dir_stride = 0;   // nptn * nstates
+    bool ready = false;
+
+    inline const double *message(int node_id, int neighbor_index, size_t ptn) const {
+        return &data[((size_t)node_id * (size_t)max_degree + (size_t)neighbor_index)
+                     * dir_stride + ptn * (size_t)nstates];
+    }
+    inline double *message(int node_id, int neighbor_index, size_t ptn) {
+        return &data[((size_t)node_id * (size_t)max_degree + (size_t)neighbor_index)
+                     * dir_stride + ptn * (size_t)nstates];
+    }
+};
+
+/** Bytes a cache of this shape needs, for budgeting before allocating. */
+size_t directionalCacheBytes(
+    size_t node_bound, int max_degree, size_t nptn, int nstates);
+
+/**
+ * Fill every directional message for one rate category. Returns false when the
+ * tree has no interior node to traverse from, in which case the caller keeps
+ * using the per-branch recursion.
+ */
+bool buildDirectionalCache(
+    Node *root,
+    Alignment *aln,
+    ModelSubst *model,
+    int nstates,
+    double rate_multiplier,
+    int num_threads,
+    size_t node_bound,
+    int max_degree,
+    SatuTeDirectionalCache &cache);
+
+/**
  * @param out_pattern_coherence  Optional. When non-null, resized to the
  * pattern count and filled with each pattern's centred, weighted contribution
  * to satC:  sum_i w_i (L_i - mean_L_i)(R_i - mean_R_i).  These sum, frequency
@@ -44,6 +96,7 @@ SatuTeBranchResult computeCategoryStatistic(
     int num_threads,
     bool enhanced_weights,
     const SatuTeBranchResult &base,
+    const SatuTeDirectionalCache *directional_cache = nullptr,
     std::vector<double> *out_pattern_coherence = nullptr);
 
 SatuTeBranchResult poolCategoryResults(

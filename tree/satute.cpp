@@ -76,6 +76,64 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     cout << "Computing SatuTe branch saturation statistics..." << endl;
     double start_time = getRealTime();
 
+    // Every branch needs the two directional partial likelihoods that meet on
+    // it. Computed per branch that is O(n^2) in taxa, because each of the 2n-3
+    // branches re-walks a whole subtree. Computed once per rate category by a
+    // two-pass sweep it is O(n), so build that shared cache when it fits in
+    // memory and fall back to the per-branch recursion when it does not.
+    const size_t node_bound = 2 * aln->getNSeq() + 2;
+    // Every node is an endpoint of some branch, so this sees the whole tree.
+    int max_degree = 0;
+    for (BranchVector::iterator brit = branches.begin(); brit != branches.end(); brit++) {
+        max_degree = max(max_degree, (int)brit->first->neighbors.size());
+        max_degree = max(max_degree, (int)brit->second->neighbors.size());
+    }
+    Node *sweep_root = nullptr;
+    for (BranchVector::iterator brit = branches.begin();
+         brit != branches.end() && sweep_root == nullptr; brit++) {
+        if (!brit->first->isLeaf())
+            sweep_root = brit->first;
+        else if (!brit->second->isLeaf())
+            sweep_root = brit->second;
+    }
+
+    // Rate categories are the innermost loop below, so every category's cache
+    // has to stay resident; the budget covers all of them together.
+    const size_t directional_cache_budget = (size_t)2 * 1024 * 1024 * 1024;
+    const size_t directional_cache_bytes = (max_degree > 0)
+        ? satute::directionalCacheBytes(node_bound, max_degree, aln->size(), nstates)
+          * rate_categories.size()
+        : 0;
+    // Escape hatch: forces the per-branch recursion so the two paths can be
+    // compared against each other within one binary. Validation only.
+    const bool directional_cache_disabled =
+        (getenv("SATUTE_DISABLE_DIRECTIONAL_CACHE") != nullptr);
+    const bool directional_cache_fits =
+        !directional_cache_disabled && (sweep_root != nullptr) &&
+        (directional_cache_bytes > 0) &&
+        (directional_cache_bytes <= directional_cache_budget);
+
+    vector<satute::SatuTeDirectionalCache> directional_caches;
+    if (directional_cache_fits) {
+        directional_caches.resize(rate_categories.size());
+        for (size_t category_index = 0; category_index < rate_categories.size(); category_index++) {
+            satute::buildDirectionalCache(
+                sweep_root,
+                aln,
+                model,
+                nstates,
+                rate_categories[category_index].rate,
+                num_threads,
+                node_bound,
+                max_degree,
+                directional_caches[category_index]);
+        }
+    } else if (sweep_root != nullptr && !directional_cache_disabled) {
+        cout << "  Directional partial-likelihood cache would need "
+             << (directional_cache_bytes / (1024 * 1024))
+             << " MB; using the slower per-branch recursion instead." << endl;
+    }
+
     vector<SatuTeBranchResult> results;
     // Per-site rows, collected only under --satute-sites. Pooled across rate
     // categories, one entry per (branch, formula).
@@ -158,6 +216,9 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         num_threads,
                         enhanced_weights,
                         base,
+                        directional_caches.empty()
+                            ? nullptr
+                            : &directional_caches[category_index],
                         write_sites ? &category_pattern_coherence : nullptr));
 
                 if (write_sites) {
