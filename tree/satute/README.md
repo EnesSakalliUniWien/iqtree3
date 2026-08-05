@@ -97,10 +97,14 @@ Measured on an M-series Mac, GTR, 2000 sites, `-T 1`:
 
 Linear in alignment length throughout (16 000 sites at 50 taxa: 3.92 s → 0.21 s).
 
-The cache holds `nodes × max_degree × patterns × states` doubles per rate
-category. If all categories together would exceed 2 GB, SatuTe says so and
-falls back to the per-branch recursion, which is slower but produces identical
-numbers. Setting `SATUTE_DISABLE_DIRECTIONAL_CACHE=1` forces that fallback, so
-the two paths can be diffed against each other; they are verified byte-identical
-across JC, GTR, +G4, +I+G4, +R4, protein, `--satute-sites` and
+The cache holds `nodes × max_degree × patterns × states` doubles. Rate category
+is the outer loop, so each category's cache is released before the next is
+built and only one is resident: peak memory is one category's worth regardless
+of how many the model has. If that single cache would exceed 2 GB, SatuTe says
+so and falls back to the per-branch recursion, which is slower but produces
+identical numbers.
+
+Setting `SATUTE_DISABLE_DIRECTIONAL_CACHE=1` forces that fallback, so the two
+paths can be diffed against each other; they are verified byte-identical across
+JC, GTR, +G4, +I+G4, +R4, protein, `--satute-sites` and
 `--satute-enhanced-weights`.
