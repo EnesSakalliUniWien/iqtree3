@@ -239,18 +239,140 @@ def manuscript_command() -> None:
     )
 
 
-def clean_command() -> None:
-    targets = (
-        PROJECT_ROOT / "manuscript" / "build",
-        PROJECT_ROOT / "artifacts" / "local" / "smoke",
-        PROJECT_ROOT / ".pytest_cache",
-    )
-    for target in targets:
+LOCAL_ARTIFACTS = PROJECT_ROOT / "artifacts" / "local"
+
+# Removed by a bare `clean`: each is recreated in full by one documented
+# command, so deleting it costs only the time to re-run that command.
+REGENERABLE_TARGETS = (
+    (PROJECT_ROOT / "manuscript" / "build", "./satute manuscript"),
+    (LOCAL_ARTIFACTS / "smoke", "./satute data --profile smoke"),
+    (LOCAL_ARTIFACTS / "check", "./satute check all"),
+    (PROJECT_ROOT / ".pytest_cache", "./satute check all"),
+)
+
+
+def directory_bytes(path: Path) -> int:
+    if path.is_file():
+        return path.stat().st_size
+    return sum(item.stat().st_size for item in path.rglob("*") if item.is_file())
+
+
+def format_bytes(count: int) -> str:
+    size = float(count)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024.0 or unit == "GB":
+            return f"{size:.0f} {unit}" if unit == "B" else f"{size:.1f} {unit}"
+        size /= 1024.0
+    return f"{size:.1f} GB"
+
+
+def declared_output_directories() -> dict[Path, str]:
+    """Output directories some experiment manifest claims, and who claims them."""
+    declared: dict[Path, str] = {}
+    for manifest in sorted(PROJECT_ROOT.glob("experiments/*/experiment.json")):
+        try:
+            data = json.loads(manifest.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        output = data.get("config", {}).get("output")
+        if isinstance(output, str) and output.strip():
+            declared[(PROJECT_ROOT / output).resolve()] = data.get("id", manifest.parent.name)
+    return declared
+
+
+def report_local_artifacts() -> None:
+    """Inventory artifacts/local so it is clear what is safe to delete.
+
+    Anything a manifest declares is rebuilt by `./satute experiment <id>`.
+    Anything else is a one-off exploratory run that no command recreates, so
+    `clean` never touches it and removing it has to be asked for by name.
+    """
+    if not LOCAL_ARTIFACTS.is_dir():
+        print(f"{LOCAL_ARTIFACTS} does not exist")
+        return
+    declared = declared_output_directories()
+    regenerable = {path.resolve() for path, _ in REGENERABLE_TARGETS}
+
+    entries = sorted(LOCAL_ARTIFACTS.iterdir(), key=lambda p: -directory_bytes(p))
+    total = 0
+    print(f"{'entry':<44} {'size':>9}  provenance")
+    for entry in entries:
+        size = directory_bytes(entry)
+        total += size
+        resolved = entry.resolve()
+        if resolved in regenerable:
+            provenance = "regenerable, removed by ./satute clean"
+        elif resolved in declared:
+            provenance = f"declared by {declared[resolved]}"
+        else:
+            provenance = "ad hoc -- no command recreates this"
+        print(f"{entry.name:<44} {format_bytes(size):>9}  {provenance}")
+    print(f"{'total':<44} {format_bytes(total):>9}")
+    print()
+    print("Remove an ad hoc entry with:  ./satute clean --purge <entry> [...]")
+
+
+def purge_local_artifacts(names: list[str]) -> int:
+    """Delete named entries under artifacts/local. Refuses anything else."""
+    failures = 0
+    for name in names:
+        target = (LOCAL_ARTIFACTS / name).resolve()
+        try:
+            target.relative_to(LOCAL_ARTIFACTS.resolve())
+        except ValueError:
+            print(f"refusing {name}: outside {LOCAL_ARTIFACTS}")
+            failures += 1
+            continue
+        if target == LOCAL_ARTIFACTS.resolve():
+            print("refusing to remove artifacts/local itself; name the entries")
+            failures += 1
+            continue
+        if not target.exists():
+            print(f"skipping {name}: not present")
+            continue
+        size = directory_bytes(target)
         if target.is_dir():
             shutil.rmtree(target)
-    for cache in sorted(PROJECT_ROOT.rglob("__pycache__"), reverse=True):
-        if cache.is_dir() and ".venv" not in cache.parts:
-            shutil.rmtree(cache)
+        else:
+            target.unlink()
+        print(f"removed {name} ({format_bytes(size)})")
+    return failures
+
+
+def clean_command(dry_run: bool = False, purge: list[str] | None = None) -> int:
+    if purge:
+        return 1 if purge_local_artifacts(purge) else 0
+
+    reclaimed = 0
+    for target, rebuild in REGENERABLE_TARGETS:
+        if not target.is_dir():
+            continue
+        size = directory_bytes(target)
+        reclaimed += size
+        label = target.relative_to(PROJECT_ROOT)
+        if dry_run:
+            print(f"would remove {label} ({format_bytes(size)}) -- rebuild: {rebuild}")
+        else:
+            shutil.rmtree(target)
+            print(f"removed {label} ({format_bytes(size)})")
+
+    caches = [
+        cache for cache in sorted(PROJECT_ROOT.rglob("__pycache__"), reverse=True)
+        if cache.is_dir() and ".venv" not in cache.parts
+    ]
+    if caches:
+        cache_bytes = sum(directory_bytes(cache) for cache in caches)
+        reclaimed += cache_bytes
+        if dry_run:
+            print(f"would remove {len(caches)} __pycache__ directories ({format_bytes(cache_bytes)})")
+        else:
+            for cache in caches:
+                shutil.rmtree(cache)
+            print(f"removed {len(caches)} __pycache__ directories ({format_bytes(cache_bytes)})")
+
+    print(f"{'would reclaim' if dry_run else 'reclaimed'} {format_bytes(reclaimed)}")
+    print("Run ./satute clean --report to inventory the rest of artifacts/local.")
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -331,7 +453,24 @@ def build_parser() -> argparse.ArgumentParser:
     developer_parser.add_argument("adapter", choices=tuple(DEVELOPER_ADAPTERS))
     developer_parser.add_argument("arguments", nargs=argparse.REMAINDER)
 
-    subparsers.add_parser("clean", help="Remove reproducible local build and smoke outputs.")
+    clean_parser = subparsers.add_parser(
+        "clean", help="Remove reproducible local build and smoke outputs."
+    )
+    clean_parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be removed."
+    )
+    clean_parser.add_argument(
+        "--report",
+        action="store_true",
+        help="Inventory artifacts/local with sizes and whether each entry is regenerable.",
+    )
+    clean_parser.add_argument(
+        "--purge",
+        nargs="+",
+        metavar="ENTRY",
+        default=None,
+        help="Delete named artifacts/local entries. For ad hoc runs no command recreates.",
+    )
     return parser
 
 
@@ -370,7 +509,10 @@ def main() -> int:
         arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
         run_python(DEVELOPER_ADAPTERS[args.adapter], *arguments)
     elif args.command == "clean":
-        clean_command()
+        if args.report:
+            report_local_artifacts()
+            return 0
+        return clean_command(dry_run=args.dry_run, purge=args.purge)
     return 0
 
 

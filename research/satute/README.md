@@ -214,8 +214,25 @@ underlying script:
 | `saturation-simulation` | `experiments/004_saturation_diagnostics/run.py` |
 | `validate-weighted-formula` | `tests/native/validate_weighted_formula.py` |
 
-### `clean`
+### `clean [--dry-run] [--report] [--purge ENTRY ...]`
 
-Removes reproducible local build/smoke outputs: `manuscript/build/`,
-`artifacts/local/smoke/`, `.pytest_cache/`, and any `__pycache__` outside
-`.venv`. No options.
+With no options, removes only output that one documented command rebuilds in
+full: `manuscript/build/`, `artifacts/local/smoke/`, `artifacts/local/check/`,
+`.pytest_cache/`, and any `__pycache__` outside `.venv`. It reports what each
+removal costs to rebuild, and the total reclaimed.
+
+- `--dry-run`: list what would be removed, with sizes, and delete nothing.
+- `--report`: inventory every entry under `artifacts/local/` with its size and
+  provenance — regenerable, declared by an experiment manifest, or ad hoc.
+- `--purge ENTRY [...]`: delete named entries under `artifacts/local/`.
+
+`clean` deliberately never touches ad hoc entries. Most of what accumulates in
+`artifacts/local/` is one-off exploratory runs that no registered command
+recreates, so deleting them loses the results permanently — they have to be
+named explicitly via `--purge`. Paths outside `artifacts/local/`, and
+`artifacts/local` itself, are refused.
+
+```bash
+./satute clean --report
+./satute clean --purge skewed-gtr-sites-reps500
+```
