@@ -97,41 +97,25 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             sweep_root = brit->second;
     }
 
-    // Rate categories are the innermost loop below, so every category's cache
-    // has to stay resident; the budget covers all of them together.
+    // Rate category is the outer loop below, so only one category's cache is
+    // ever resident and the budget covers a single category.
     const size_t directional_cache_budget = (size_t)2 * 1024 * 1024 * 1024;
     const size_t directional_cache_bytes = (max_degree > 0)
         ? satute::directionalCacheBytes(node_bound, max_degree, aln->size(), nstates)
-          * rate_categories.size()
         : 0;
     // Escape hatch: forces the per-branch recursion so the two paths can be
     // compared against each other within one binary. Validation only.
     const bool directional_cache_disabled =
         (getenv("SATUTE_DISABLE_DIRECTIONAL_CACHE") != nullptr);
-    const bool directional_cache_fits =
+    const bool use_directional_cache =
         !directional_cache_disabled && (sweep_root != nullptr) &&
         (directional_cache_bytes > 0) &&
         (directional_cache_bytes <= directional_cache_budget);
-
-    vector<satute::SatuTeDirectionalCache> directional_caches;
-    if (directional_cache_fits) {
-        directional_caches.resize(rate_categories.size());
-        for (size_t category_index = 0; category_index < rate_categories.size(); category_index++) {
-            satute::buildDirectionalCache(
-                sweep_root,
-                aln,
-                model,
-                nstates,
-                rate_categories[category_index].rate,
-                num_threads,
-                node_bound,
-                max_degree,
-                directional_caches[category_index]);
-        }
-    } else if (sweep_root != nullptr && !directional_cache_disabled) {
+    if (!use_directional_cache && sweep_root != nullptr && !directional_cache_disabled) {
         cout << "  Directional partial-likelihood cache would need "
              << (directional_cache_bytes / (1024 * 1024))
-             << " MB; using the slower per-branch recursion instead." << endl;
+             << " MB per rate category; using the slower per-branch recursion"
+             << " instead." << endl;
     }
 
     vector<SatuTeBranchResult> results;
@@ -140,6 +124,21 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     vector<SatuTeSiteSeries> site_series;
     map<int, Neighbor*> annotated_branches;
     set<int> matched_edges;
+
+    // Everything about a branch that does not depend on the rate category.
+    // Resolved once so the compute pass below can run category-outer.
+    struct AnalysedBranch {
+        Node *left_node;
+        Node *right_node;
+        Neighbor *annotated_branch;
+        int branch_id;
+        int left_taxa;
+        int right_taxa;
+        string label;
+        string split;
+        double pooled_information_fraction;
+    };
+    vector<AnalysedBranch> analysed;
 
     for (BranchVector::iterator brit = branches.begin(); brit != branches.end(); brit++) {
         int branch_id = brit->second->id;
@@ -156,34 +155,63 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         if (!label.empty())
             annotated_branch->putAttr("label", label);
 
-        int left_taxa = topology::countTipsAwayFrom(brit->first, brit->second);
-        int right_taxa = topology::countTipsAwayFrom(brit->second, brit->first);
-        string split = topology::splitLabel(brit->first, brit->second);
-        double pooled_information_fraction = information::computePooledInformationFraction(
+        AnalysedBranch entry;
+        entry.left_node = brit->first;
+        entry.right_node = brit->second;
+        entry.annotated_branch = annotated_branch;
+        entry.branch_id = branch_id;
+        entry.left_taxa = topology::countTipsAwayFrom(brit->first, brit->second);
+        entry.right_taxa = topology::countTipsAwayFrom(brit->second, brit->first);
+        entry.label = label;
+        entry.split = topology::splitLabel(brit->first, brit->second);
+        entry.pooled_information_fraction = information::computePooledInformationFraction(
             eval,
             all_nonzero_modes,
             rate_categories,
             annotated_branch->length);
+        analysed.push_back(entry);
+    }
 
-        for (size_t formula_index = 0; formula_index < formula_specs.size(); formula_index++) {
-            const SatuTeFormulaSpec &formula = formula_specs[formula_index];
-            vector<SatuTeBranchResult> category_results;
-            // Rate categories partition the patterns, so summing the
-            // per-category arrays reconstructs the pooled per-pattern value.
-            vector<double> pooled_pattern_coherence;
-            vector<double> category_pattern_coherence;
-            if (write_sites)
-                pooled_pattern_coherence.assign(aln->size(), 0.0);
+    // Compute pass. Rate category is outermost so each category's directional
+    // cache is built, used by every branch and formula, then released before
+    // the next one -- only one is resident at a time. Results are held in a
+    // [branch][formula][category] cube and reduced afterwards, which keeps the
+    // emitted row order identical to the branch-major original.
+    vector<vector<vector<SatuTeBranchResult> > > category_stats(
+        analysed.size(),
+        vector<vector<SatuTeBranchResult> >(formula_specs.size()));
+    // Rate categories partition the patterns, so summing the per-category
+    // arrays reconstructs the pooled per-pattern value.
+    vector<vector<vector<double> > > pooled_pattern_coherence;
+    if (write_sites) {
+        pooled_pattern_coherence.assign(
+            analysed.size(),
+            vector<vector<double> >(formula_specs.size(), vector<double>(aln->size(), 0.0)));
+    }
 
-            for (size_t category_index = 0; category_index < rate_categories.size(); category_index++) {
-                const SatuTeRateCategory &category = rate_categories[category_index];
-                double effective_length = annotated_branch->length * category.rate;
+    for (size_t category_index = 0; category_index < rate_categories.size(); category_index++) {
+        const SatuTeRateCategory &category = rate_categories[category_index];
+
+        satute::SatuTeDirectionalCache directional_cache;
+        if (use_directional_cache) {
+            satute::buildDirectionalCache(
+                sweep_root, aln, model, nstates, category.rate, num_threads,
+                node_bound, max_degree, directional_cache);
+        }
+
+        vector<double> category_pattern_coherence;
+        for (size_t branch_index = 0; branch_index < analysed.size(); branch_index++) {
+            const AnalysedBranch &entry = analysed[branch_index];
+            double effective_length = entry.annotated_branch->length * category.rate;
+
+            for (size_t formula_index = 0; formula_index < formula_specs.size(); formula_index++) {
+                const SatuTeFormulaSpec &formula = formula_specs[formula_index];
                 vector<double> weights = formulas::buildFormulaWeights(eval, formula, effective_length);
                 SatuTeBranchResult base = results::makeBaseResult(
-                    branch_id,
-                    left_taxa,
-                    right_taxa,
-                    annotated_branch->length,
+                    entry.branch_id,
+                    entry.left_taxa,
+                    entry.right_taxa,
+                    entry.annotated_branch->length,
                     effective_length,
                     alpha,
                     formula.name,
@@ -192,18 +220,18 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                     format::formatIntVector(formula.modes),
                     format::eigenvalueString(eval, formula.modes),
                     format::formatVector(weights),
-                    label,
-                    split);
+                    entry.label,
+                    entry.split);
                 information::setSaturationScale(
                     base,
                     information::computeInformationFraction(eval, all_nonzero_modes, effective_length));
 
-                category_results.push_back(
+                category_stats[branch_index][formula_index].push_back(
                     computeCategoryStatistic(
-                        brit->first,
-                        brit->second,
-                        brit->second,
-                        brit->first,
+                        entry.left_node,
+                        entry.right_node,
+                        entry.right_node,
+                        entry.left_node,
                         aln,
                         model,
                         nstates,
@@ -216,17 +244,34 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         num_threads,
                         enhanced_weights,
                         base,
-                        directional_caches.empty()
-                            ? nullptr
-                            : &directional_caches[category_index],
+                        directional_cache.ready ? &directional_cache : nullptr,
                         write_sites ? &category_pattern_coherence : nullptr));
 
                 if (write_sites) {
-                    for (size_t ptn = 0; ptn < pooled_pattern_coherence.size() &&
+                    vector<double> &target = pooled_pattern_coherence[branch_index][formula_index];
+                    for (size_t ptn = 0; ptn < target.size() &&
                                          ptn < category_pattern_coherence.size(); ptn++)
-                        pooled_pattern_coherence[ptn] += category_pattern_coherence[ptn];
+                        target[ptn] += category_pattern_coherence[ptn];
                 }
             }
+        }
+    }
+
+    // Reduction and emission, branch-major exactly as before.
+    for (size_t branch_index = 0; branch_index < analysed.size(); branch_index++) {
+        const AnalysedBranch &entry = analysed[branch_index];
+        const int branch_id = entry.branch_id;
+        const int left_taxa = entry.left_taxa;
+        const int right_taxa = entry.right_taxa;
+        const string &label = entry.label;
+        const string &split = entry.split;
+        const double pooled_information_fraction = entry.pooled_information_fraction;
+        Neighbor *annotated_branch = entry.annotated_branch;
+
+        for (size_t formula_index = 0; formula_index < formula_specs.size(); formula_index++) {
+            const SatuTeFormulaSpec &formula = formula_specs[formula_index];
+            const vector<SatuTeBranchResult> &category_results =
+                category_stats[branch_index][formula_index];
 
             SatuTeBranchResult pooled_base = results::makeBaseResult(
                 branch_id,
@@ -262,7 +307,8 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                 series.coherence = pooled.coherence;
                 series.p_value = pooled.p_value;
                 series.valid_sites = pooled.valid_sites;
-                series.pattern_coherence = pooled_pattern_coherence;
+                series.pattern_coherence =
+                    pooled_pattern_coherence[branch_index][formula_index];
                 site_series.push_back(series);
             }
 
