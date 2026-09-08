@@ -169,6 +169,145 @@ about the spectral phase coordinates and transition-operator energy. It is not
 a claim that $S(t)$ is a child-state probability, an entanglement measure or a
 quantum-advantage metric.
 
+## Non-reversible extension: three re-derivations
+
+The backbone above assumes detailed balance. For an irreducible but
+non-reversible rate matrix, the stationary distribution $\boldsymbol\pi$ with
+$\boldsymbol\pi^\top Q=0$ still exists, and $\sqrt{\boldsymbol\pi}$ remains
+both a left and a right null vector of $\widehat Q=\Pi^{1/2}Q\Pi^{-1/2}$, so
+the stationary component $\Pi_0$ still splits off. Everything else rests on
+the symmetry of $\widehat Q$, and three results must be re-derived.
+
+### 1. Antisymmetric part and damped rotations
+
+Split the symmetrized generator into its symmetric and antisymmetric parts,
+
+$$
+\widehat Q=\widehat A+\widehat W,
+\qquad
+\widehat A=\tfrac12\bigl(\widehat Q+\widehat Q^\top\bigr),
+\qquad
+\widehat W=\tfrac12\bigl(\widehat Q-\widehat Q^\top\bigr).
+$$
+
+With the time reversal $Q^\ast=\Pi^{-1}Q^\top\Pi$,
+
+$$
+\widehat A=\Pi^{1/2}\,\tfrac12(Q+Q^\ast)\,\Pi^{-1/2},
+$$
+
+the symmetric representation of the additive reversibilization: a reversible
+generator with the same stationary distribution. $\widehat W$ is
+antisymmetric, so $\exp(\widehat W t)$ is a rotation. Detailed balance is
+exactly $\widehat W=0$; in the reversible sections above, "rotation" is a
+reparametrization of damping through $\cos\theta_{kc}(t)=\rho_{kc}(t)$,
+whereas $\widehat W$ generates literal rotation.
+
+Eigenvalues of $Q$ now come in complex conjugate pairs
+$\lambda_k=\alpha_k\pm i\beta_k$ with $\alpha_k<0$, so the modal persistence
+becomes a damped rotation,
+$\rho_{kc}(t)=e^{\alpha_kr_ct}\bigl(\cos\beta_kr_ct\pm i\sin\beta_kr_ct\bigr)$,
+and $Q$ may carry Jordan blocks with $t^m e^{\lambda_kt}$ factors. The
+eigenvalue-sum formula for $R(t)$ fails, because the eigenvectors are no
+longer orthonormal. The basis-independent Frobenius definition survives and
+stays monotone: writing $N_c(t)=\widehat P_c(t)-\Pi_0$, every column of
+$N_c(t)$ is orthogonal to $\sqrt{\boldsymbol\pi}$ and
+$\operatorname{tr}[N^\top\widehat WN]=0$ for antisymmetric $\widehat W$, so
+
+$$
+\frac{d}{dt}\bigl\|\widehat P_c(t)-\Pi_0\bigr\|_F^2
+=
+2\operatorname{tr}\bigl[N_c(t)^\top\widehat A\,N_c(t)\bigr]
+\le 0.
+$$
+
+Dissipation comes only from $\widehat A$; $\widehat W$ rotates without
+dissipating. Therefore
+
+$$
+R_c(t)=\frac{1}{K}\bigl\|\widehat P_c(t)-\Pi_0\bigr\|_F^2
+$$
+
+remains a monotone `SaturationIndex` coordinate, while
+$R_c(t)=\frac1K\sum_{k\ne0}|\rho_{kc}(t)|^2$ holds only when $\widehat Q$ is
+normal, that is $[\widehat A,\widehat W]=0$.
+
+### 2. Directed edges and canonical correlations replacing the pulley principle
+
+Place the root inside a branch at distances $(t_1,t_2)$ from its two ends.
+The stationary joint law of the endpoint states is
+
+$$
+J(t_1,t_2)=P(t_1)^\top\,\Pi\,P(t_2).
+$$
+
+Reversibility gives $P(t_1)^\top\Pi=\Pi P(t_1)$, collapsing this to
+$\Pi P(t_1+t_2)$ — the pulley principle. Non-reversibly, $J$ genuinely
+depends on the split, the root position is identifiable, and the statistic
+must be defined on rooted, directed edges.
+
+The symmetrized joint operator is
+
+$$
+M(t_1,t_2)=\Pi^{-1/2}J\,\Pi^{-1/2}=\widehat P(t_1)^\top\widehat P(t_2),
+$$
+
+and its singular value decomposition
+$M=\sum_k\sigma_ku_kv_k^\top$ replaces the eigendecomposition of
+$\widehat P_c(t)$. Markov operators contract $L^2(\boldsymbol\pi)$, so
+$\sigma_0=1$ is attained by $\sqrt{\boldsymbol\pi}$ on both sides and every
+other $\sigma_k\le1$: the $\sigma_k$ are the canonical correlations between
+the two edge ends and replace $\rho_{kc}(t)$. Two changes of substance
+follow. Each side projects onto its own basis — $u_k$ for the parent side,
+$v_k$ for the child side — and, unlike the fixed $\widehat S$, both bases
+depend on the branch length because $\widehat P(t)$ is non-normal. Reversing
+the edge direction transposes $M$, which swaps $u_k\leftrightarrow v_k$ and
+leaves $\sigma_k$ unchanged, so the canonical correlations are
+direction-invariant while the side factors are direction-specific.
+
+### 3. Null variance with cross-mode covariances
+
+Let the coherence be $C=\sum_kw_kF_{\mathrm L}(k)F_{\mathrm R}(k)$ with side
+factors projected onto right eigenvectors $\tilde r_k$ of $Q$. Under the
+saturation null the two sides are independent and stationary, and
+$\operatorname E[F(k)]=\boldsymbol\pi^\top\tilde r_k=0$ by biorthogonality
+with the stationary left eigenvector, so $\operatorname E[C]=0$ survives
+non-reversibly. The variance does not. The Gram matrix in
+$L^2(\boldsymbol\pi)$,
+
+$$
+G_{kl}=\sum_s\pi_s\,\tilde r_k(s)\,\tilde r_l(s),
+$$
+
+equals $\delta_{kl}$ only for a reversible $Q$. In general
+
+$$
+\operatorname{Var}(C)
+=
+\sum_{k,l}w_kw_l\,G^{\mathrm L}_{kl}\,G^{\mathrm R}_{kl},
+$$
+
+a full double sum with cross-mode covariance terms; the reversible
+product-of-second-moments rule is its diagonal special case. Conjugate
+eigenvalue pairs contribute jointly, keeping $C$ and the variance real. If
+the statistic is instead built on the singular vectors of the previous
+derivation, Euclidean orthonormality of $u_k$ means
+$\langle\Pi^{-1/2}u_k,\Pi^{-1/2}u_l\rangle_{\boldsymbol\pi}=\delta_{kl}$,
+the Gram matrix is again the identity, and the diagonal variance rule
+returns.
+
+### Numerical verification
+
+All three derivations were checked on a random irreducible non-reversible
+four-state generator: monotone decrease of the Frobenius energy with
+$\operatorname{tr}[N^\top\widehat WN]=0$; failure of the eigenvalue-sum
+formula for the same operator; split dependence of $J(t_1,t_2)$ with
+$M=\widehat P(t_1)^\top\widehat P(t_2)$, $\sigma_0=1$,
+$\sigma_k\le1$ and direction-invariant singular values; a zero null mean, a
+nonzero cross-mode Gram matrix, Monte-Carlo variance matching
+$\sum_{k,l}G_{kl}^{\mathrm L}G_{kl}^{\mathrm R}$ within two percent, and an
+identity Gram matrix in the singular basis.
+
 ## Map of the current methods
 
 | Method | Spectral quantity | What it answers | Why it need not move monotonically |

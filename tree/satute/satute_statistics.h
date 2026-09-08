@@ -55,6 +55,37 @@ size_t directionalCacheBytes(
     size_t node_bound, int max_degree, size_t nptn, int nstates);
 
 /**
+ * Symmetric eigenvalue decomposition by cyclic Jacobi rotations: a, IN/OUT,
+ * becomes diagonal; eigenvectors, OUT, has the eigenvectors as columns.
+ * Adequate for the small matrices here (n <= ~19 for protein, typically 1-3
+ * for DNA): a handful of sweeps converges to machine precision at this size,
+ * and no external linear-algebra dependency is needed for it. Shared with the
+ * non-reversible directed-basis builder, which diagonalizes M^T M for its
+ * singular value decomposition.
+ */
+void jacobiEigenSymmetric(
+    std::vector<double> &a, int n, std::vector<double> &eigenvectors);
+
+/**
+ * Directed (rooted, non-reversible) evaluation context for
+ * computeCategoryStatistic. When supplied:
+ * - side partial likelihoods are recomputed direction-aware on the rooted
+ *   tree: edges toward the root transport with the transposed transition
+ *   matrix and the root leaf contributes the stationary distribution, so the
+ *   rootward side factor is the joint P(rootward data, X_u = x) and is NOT
+ *   multiplied by the stationary frequencies again;
+ * - side factors project onto the left/right singular bases of the
+ *   symmetrized joint operator M = Pi^{1/2} P(t) Pi^{-1/2} instead of the
+ *   shared reversible eigenvector basis.
+ */
+struct SatuTeDirectedContext {
+    const double *left_projection;   // nmodes x nstates: u_k(x)/sqrt(pi_x)
+    const double *right_projection;  // nmodes x nstates: v_k(y)/sqrt(pi_y)
+    const std::vector<int> *parent_of;  // node id -> parent node id; -1 at root
+    int root_node_id;                   // id of the root leaf carrying pi
+};
+
+/**
  * Fill every directional message for one rate category. Returns false when the
  * tree has no interior node to traverse from, in which case the caller keeps
  * using the per-branch recursion.
@@ -97,7 +128,8 @@ SatuTeBranchResult computeCategoryStatistic(
     bool enhanced_weights,
     const SatuTeBranchResult &base,
     const SatuTeDirectionalCache *directional_cache = nullptr,
-    std::vector<double> *out_pattern_coherence = nullptr);
+    std::vector<double> *out_pattern_coherence = nullptr,
+    const SatuTeDirectedContext *directed = nullptr);
 
 SatuTeBranchResult poolCategoryResults(
     const std::vector<SatuTeBranchResult> &category_results,

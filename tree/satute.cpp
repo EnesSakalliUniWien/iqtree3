@@ -22,9 +22,11 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <set>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -37,12 +39,23 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         outError("SatuTe alpha must be between 0 and 1");
     if (isSuperTree())
         outError("SatuTe currently supports single-alignment analyses only");
-    if (rooted)
-        outError("SatuTe currently supports unrooted trees only");
     if (!model || !site_rate || !model_factory)
         outError("SatuTe requires an initialized likelihood model");
-    if (!model->useRevKernel())
-        outError("SatuTe currently requires the reversible likelihood kernel");
+    // Reversible models keep the published unrooted formulation. Without
+    // detailed balance the pulley principle fails, the root position is
+    // identifiable and the statistic lives on rooted, directed edges, so the
+    // non-reversible path requires the rooted tree IQ-TREE itself maintains
+    // for these models.
+    const bool directed_nonreversible = !model->isReversible();
+    if (directed_nonreversible) {
+        if (!rooted)
+            outError("SatuTe requires a rooted tree for non-reversible models");
+    } else {
+        if (rooted)
+            outError("SatuTe currently supports unrooted trees only");
+        if (!model->useRevKernel())
+            outError("SatuTe currently requires the reversible likelihood kernel");
+    }
     if (model->getNMixtures() != 1)
         outError("SatuTe currently does not support mixture models");
     if (model_factory->getASC() != ASC_NONE || !model_factory->unobserved_ptns.empty())
@@ -52,13 +65,21 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     if (nstates < 2)
         outError("SatuTe requires at least two model states");
 
-    double *eval = model->getEigenvalues();
-    if (eval == nullptr)
-        outError("SatuTe requires eigenvalues from the substitution model");
-
-    int zero_index = formulas::findZeroEigenIndex(eval, nstates);
-    vector<SatuTeFormulaSpec> formula_specs = formulas::buildFormulaSpecs(eval, nstates, zero_index);
-    vector<int> all_nonzero_modes = formulas::findNonZeroModes(eval, nstates, zero_index);
+    double *eval = nullptr;
+    vector<SatuTeFormulaSpec> formula_specs;
+    vector<int> all_nonzero_modes;
+    if (directed_nonreversible) {
+        // Mode sets depend on the branch length through the singular basis of
+        // M(t), so only the two formula labels are fixed model-wide.
+        formula_specs = formulas::buildDirectedFormulaSpecs();
+    } else {
+        eval = model->getEigenvalues();
+        if (eval == nullptr)
+            outError("SatuTe requires eigenvalues from the substitution model");
+        int zero_index = formulas::findZeroEigenIndex(eval, nstates);
+        formula_specs = formulas::buildFormulaSpecs(eval, nstates, zero_index);
+        all_nonzero_modes = formulas::findNonZeroModes(eval, nstates, zero_index);
+    }
 
     DoubleVector pattern_rates;
     IntVector pattern_cat;
@@ -82,6 +103,13 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     // two-pass sweep it is O(n), so build that shared cache when it fits in
     // memory and fall back to the per-branch recursion when it does not.
     const size_t node_bound = 2 * aln->getNSeq() + 2;
+    // Parent relation for the directed statistic: which end of every edge is
+    // the true parent under the rooted tree.
+    vector<int> parent_of;
+    if (directed_nonreversible) {
+        parent_of.assign(node_bound, -1);
+        topology::fillParentMap(root, nullptr, parent_of);
+    }
     // Every node is an endpoint of some branch, so this sees the whole tree.
     int max_degree = 0;
     for (BranchVector::iterator brit = branches.begin(); brit != branches.end(); brit++) {
@@ -107,11 +135,16 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     // compared against each other within one binary. Validation only.
     const bool directional_cache_disabled =
         (getenv("SATUTE_DISABLE_DIRECTIONAL_CACHE") != nullptr);
+    // The shared message cache transports every edge with the reversible
+    // kernel convention, so the direction-aware non-reversible path always
+    // uses the per-branch recursion.
     const bool use_directional_cache =
+        !directed_nonreversible &&
         !directional_cache_disabled && (sweep_root != nullptr) &&
         (directional_cache_bytes > 0) &&
         (directional_cache_bytes <= directional_cache_budget);
-    if (!use_directional_cache && sweep_root != nullptr && !directional_cache_disabled) {
+    if (!directed_nonreversible &&
+        !use_directional_cache && sweep_root != nullptr && !directional_cache_disabled) {
         cout << "  Directional partial-likelihood cache would need "
              << (directional_cache_bytes / (1024 * 1024))
              << " MB per rate category; using the slower per-branch recursion"
@@ -142,6 +175,11 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
 
     for (BranchVector::iterator brit = branches.begin(); brit != branches.end(); brit++) {
         int branch_id = brit->second->id;
+        // The edge to the __root__ leaf splits {} from all taxa: nothing lies
+        // above it, so no saturation test is defined there.
+        if (directed_nonreversible &&
+            (isRootLeaf(brit->first) || isRootLeaf(brit->second)))
+            continue;
         if (restrict_edges && target_edges.find(branch_id) == target_edges.end())
             continue;
 
@@ -158,17 +196,22 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         AnalysedBranch entry;
         entry.left_node = brit->first;
         entry.right_node = brit->second;
+        // The directed statistic distinguishes the rootward (left) and
+        // tipward (right) side; orient without touching branch ids.
+        if (directed_nonreversible &&
+            parent_of[brit->first->id] == brit->second->id)
+            swap(entry.left_node, entry.right_node);
         entry.annotated_branch = annotated_branch;
         entry.branch_id = branch_id;
-        entry.left_taxa = topology::countTipsAwayFrom(brit->first, brit->second);
-        entry.right_taxa = topology::countTipsAwayFrom(brit->second, brit->first);
+        entry.left_taxa = topology::countTipsAwayFrom(entry.left_node, entry.right_node);
+        entry.right_taxa = topology::countTipsAwayFrom(entry.right_node, entry.left_node);
         entry.label = label;
-        entry.split = topology::splitLabel(brit->first, brit->second);
-        entry.pooled_information_fraction = information::computePooledInformationFraction(
-            eval,
-            all_nonzero_modes,
-            rate_categories,
-            annotated_branch->length);
+        entry.split = topology::splitLabel(entry.left_node, entry.right_node);
+        entry.pooled_information_fraction = directed_nonreversible
+            ? information::computePooledDirectedInformationFraction(
+                  model, nstates, rate_categories, annotated_branch->length)
+            : information::computePooledInformationFraction(
+                  eval, all_nonzero_modes, rate_categories, annotated_branch->length);
         analysed.push_back(entry);
     }
 
@@ -204,9 +247,44 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             const AnalysedBranch &entry = analysed[branch_index];
             double effective_length = entry.annotated_branch->length * category.rate;
 
+            // The directed singular basis and the Frobenius information
+            // fraction depend on the effective length, so both are rebuilt per
+            // (branch, category) and shared by the two formulas.
+            SatuTeDirectedBasis directed_basis;
+            double directed_information = numeric_limits<double>::quiet_NaN();
+            if (directed_nonreversible) {
+                formulas::buildDirectedBasis(model, nstates, effective_length, directed_basis);
+                directed_information = information::computeDirectedInformationFraction(
+                    model, nstates, effective_length);
+            }
+
             for (size_t formula_index = 0; formula_index < formula_specs.size(); formula_index++) {
                 const SatuTeFormulaSpec &formula = formula_specs[formula_index];
-                vector<double> weights = formulas::buildFormulaWeights(eval, formula, effective_length);
+                SatuTeFormulaSpec active_formula = formula;
+                vector<double> weights;
+                vector<double> left_projection;
+                vector<double> right_projection;
+                vector<double> mode_sigma;
+                if (directed_nonreversible) {
+                    active_formula.modes = formula.eigenvalue_weighted
+                        ? formulas::allModeOffsets(directed_basis)
+                        : formulas::dominantModeOffsets(directed_basis);
+                    weights = formulas::buildSigmaWeights(
+                        directed_basis, active_formula.modes, formula.eigenvalue_weighted);
+                    for (size_t i = 0; i < active_formula.modes.size(); i++) {
+                        int offset = active_formula.modes[i];
+                        mode_sigma.push_back(directed_basis.sigma[offset]);
+                        for (int state = 0; state < nstates; state++) {
+                            left_projection.push_back(
+                                directed_basis.left_projection[(size_t)offset * nstates + state]);
+                            right_projection.push_back(
+                                directed_basis.right_projection[(size_t)offset * nstates + state]);
+                        }
+                    }
+                } else {
+                    weights = formulas::buildFormulaWeights(eval, formula, effective_length);
+                }
+
                 SatuTeBranchResult base = results::makeBaseResult(
                     entry.branch_id,
                     entry.left_taxa,
@@ -217,14 +295,28 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                     formula.name,
                     category.label,
                     format::formatDouble(category.rate),
-                    format::formatIntVector(formula.modes),
-                    format::eigenvalueString(eval, formula.modes),
+                    format::formatIntVector(active_formula.modes),
+                    // Without a fixed eigenbasis the spectral column carries
+                    // the canonical correlations sigma_k of this branch.
+                    directed_nonreversible
+                        ? format::formatVector(mode_sigma)
+                        : format::eigenvalueString(eval, formula.modes),
                     format::formatVector(weights),
                     entry.label,
                     entry.split);
                 information::setSaturationScale(
                     base,
-                    information::computeInformationFraction(eval, all_nonzero_modes, effective_length));
+                    directed_nonreversible
+                        ? directed_information
+                        : information::computeInformationFraction(eval, all_nonzero_modes, effective_length));
+
+                SatuTeDirectedContext directed_context;
+                if (directed_nonreversible) {
+                    directed_context.left_projection = left_projection.data();
+                    directed_context.right_projection = right_projection.data();
+                    directed_context.parent_of = &parent_of;
+                    directed_context.root_node_id = root->id;
+                }
 
                 category_stats[branch_index][formula_index].push_back(
                     computeCategoryStatistic(
@@ -236,7 +328,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         model,
                         nstates,
                         eval,
-                        formula,
+                        active_formula,
                         weights,
                         pattern_cat_ptr,
                         category.pattern_cat,
@@ -245,7 +337,8 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         enhanced_weights,
                         base,
                         directional_cache.ready ? &directional_cache : nullptr,
-                        write_sites ? &category_pattern_coherence : nullptr));
+                        write_sites ? &category_pattern_coherence : nullptr,
+                        directed_nonreversible ? &directed_context : nullptr));
 
                 if (write_sites) {
                     vector<double> &target = pooled_pattern_coherence[branch_index][formula_index];
@@ -283,8 +376,10 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                 formula.name,
                 "pooled",
                 "NA",
-                format::formatIntVector(formula.modes),
-                format::eigenvalueString(eval, formula.modes),
+                // Directed mode sets and canonical correlations are
+                // category-specific, so pooled rows carry no single set.
+                directed_nonreversible ? "NA" : format::formatIntVector(formula.modes),
+                directed_nonreversible ? "NA" : format::eigenvalueString(eval, formula.modes),
                 "NA",
                 label,
                 split);

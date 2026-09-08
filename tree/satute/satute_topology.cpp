@@ -11,6 +11,7 @@
 #include "satute_topology.h"
 
 #include <algorithm>
+#include <cstring>
 #include <sstream>
 #include <vector>
 
@@ -19,9 +20,16 @@ using namespace std;
 namespace satute {
 namespace topology {
 
+/** The __root__ leaf of a rooted tree is an attachment point, not a taxon.
+ * ROOT_NAME never occurs as a real taxon name, so this is inert on the
+ * unrooted reversible path. */
+static bool isRootAttachment(Node *node) {
+    return node->isLeaf() && node->name == ROOT_NAME;
+}
+
 int countTipsAwayFrom(Node *node, Node *dad) {
     if (node->isLeaf())
-        return 1;
+        return isRootAttachment(node) ? 0 : 1;
 
     int count = 0;
     FOR_NEIGHBOR_IT(node, dad, it) {
@@ -32,12 +40,23 @@ int countTipsAwayFrom(Node *node, Node *dad) {
 
 void collectTipsAwayFrom(Node *node, Node *dad, vector<string> &tips) {
     if (node->isLeaf()) {
-        tips.push_back(node->name);
+        if (!isRootAttachment(node))
+            tips.push_back(node->name);
         return;
     }
 
     FOR_NEIGHBOR_IT(node, dad, it) {
         collectTipsAwayFrom((*it)->node, node, tips);
+    }
+}
+
+void fillParentMap(Node *node, Node *dad, vector<int> &parent_of) {
+    if (dad == nullptr)
+        parent_of[node->id] = -1;
+
+    FOR_NEIGHBOR_IT(node, dad, it) {
+        parent_of[(*it)->node->id] = node->id;
+        fillParentMap((*it)->node, node, parent_of);
     }
 }
 

@@ -167,6 +167,142 @@ static void computeOrdinaryPartial(
     }
 }
 
+/**
+ * Direction-aware transition matrices for the rooted non-reversible path.
+ * Each edge keeps ONE matrix, computed for the edge's TRUE direction (parent
+ * to child under the tree rooting), keyed by the true child's node id. The
+ * traversal mirrors computeDirectedPartial() below. computeTransMatrix()
+ * dispatches to the non-reversible matrix exponential for these models.
+ */
+static void prepareDirectedTransitionMatrices(
+    Node *node,
+    Node *dad,
+    ModelSubst *model,
+    int nstates,
+    double rate_multiplier,
+    const vector<int> &parent_of,
+    vector<double> &transition_cache,
+    vector<char> &transition_filled)
+{
+    if (node->isLeaf())
+        return;
+
+    FOR_NEIGHBOR_IT(node, dad, it) {
+        Neighbor *branch = *it;
+        Node *neighbor = branch->node;
+        Node *true_child = (parent_of[neighbor->id] == node->id) ? neighbor : node;
+        if (!transition_filled[true_child->id]) {
+            model->computeTransMatrix(
+                branch->length * rate_multiplier,
+                &transition_cache[(size_t)true_child->id * nstates * nstates]);
+            transition_filled[true_child->id] = 1;
+        }
+        prepareDirectedTransitionMatrices(
+            neighbor, node, model, nstates, rate_multiplier, parent_of,
+            transition_cache, transition_filled);
+    }
+}
+
+/**
+ * Direction-aware side vector for the rooted non-reversible path: the product
+ * of the messages into `node` from every neighbour except `dad`.
+ *
+ * Downward edges (neighbour below node) transport a below-likelihood with the
+ * parent-to-child matrix contracted over child states, exactly as the
+ * reversible recursion does. Upward edges (neighbour above node) transport
+ * with the SAME matrix contracted over the PARENT states -- the transpose
+ * direction -- and the root leaf contributes the stationary distribution
+ * instead of an all-ones tip vector. The result on the rootward side of a
+ * focal branch is therefore the joint P(rootward data, X = x), with the
+ * stationary prior already carried down from the root.
+ */
+static void computeDirectedPartial(
+    Node *node,
+    Node *dad,
+    size_t ptn,
+    Alignment *aln,
+    ModelSubst *model,
+    int nstates,
+    const vector<int> &parent_of,
+    int root_node_id,
+    const double *state_freq,
+    const vector<double> &transition_cache,
+    double *scratch,
+    double *partial)
+{
+    if (node->isLeaf()) {
+        if (node->id == root_node_id) {
+            for (int state = 0; state < nstates; state++)
+                partial[state] = state_freq[state];
+            return;
+        }
+        StateType state = (node->id >= 0 && node->id < (int)aln->getNSeq())
+            ? aln->at(ptn)[node->id]
+            : aln->STATE_UNKNOWN;
+        model->computeTipLikelihood(state, partial);
+        return;
+    }
+
+    for (int state = 0; state < nstates; state++)
+        partial[state] = 1.0;
+
+    double *neighbor_partial = scratch;
+    FOR_NEIGHBOR_IT(node, dad, it) {
+        Neighbor *branch = *it;
+        Node *neighbor = branch->node;
+        computeDirectedPartial(
+            neighbor,
+            node,
+            ptn,
+            aln,
+            model,
+            nstates,
+            parent_of,
+            root_node_id,
+            state_freq,
+            transition_cache,
+            scratch + nstates,
+            neighbor_partial);
+
+        Node *true_child = (parent_of[neighbor->id] == node->id) ? neighbor : node;
+        const double *transition =
+            &transition_cache[(size_t)true_child->id * nstates * nstates];
+        if (true_child == neighbor) {
+            // Downward edge: contribution(x) = sum_y P(x, y) message(y).
+            for (int node_state = 0; node_state < nstates; node_state++) {
+                double contribution = 0.0;
+                for (int child_state = 0; child_state < nstates; child_state++) {
+                    contribution += transition[node_state * nstates + child_state] *
+                        neighbor_partial[child_state];
+                }
+                partial[node_state] *= contribution;
+            }
+        } else {
+            // Upward edge: node is the true child, so the message from above
+            // transports along the transposed direction:
+            // contribution(x) = sum_y message(y) P(y, x).
+            for (int node_state = 0; node_state < nstates; node_state++) {
+                double contribution = 0.0;
+                for (int parent_state = 0; parent_state < nstates; parent_state++) {
+                    contribution += neighbor_partial[parent_state] *
+                        transition[parent_state * nstates + node_state];
+                }
+                partial[node_state] *= contribution;
+            }
+        }
+    }
+
+    // Same rescaling as the reversible recursion; any positive scale cancels
+    // in the normalised posterior downstream.
+    double partial_sum = 0.0;
+    for (int state = 0; state < nstates; state++)
+        partial_sum += partial[state];
+    if (partial_sum > 0.0 && isfinite(partial_sum)) {
+        for (int state = 0; state < nstates; state++)
+            partial[state] /= partial_sum;
+    }
+}
+
 /** Position of `target` in `node`'s neighbour list; -1 when not adjacent. */
 static int neighborIndex(Node *node, Node *target) {
     for (size_t i = 0; i < node->neighbors.size(); i++)
@@ -401,14 +537,7 @@ static void finalizeSatuTeResult(SatuTeBranchResult &result) {
     }
 }
 
-/**
- * Symmetric eigenvalue decomposition by cyclic Jacobi rotations: a, IN/OUT,
- * becomes diagonal; eigenvectors, OUT, has the eigenvectors as columns.
- * Adequate for the small matrices here (n <= ~19 for protein, typically 1-3
- * for DNA): a handful of sweeps converges to machine precision at this size,
- * and no external linear-algebra dependency is needed for it.
- */
-static void jacobiEigenSymmetric(vector<double> &a, int n, vector<double> &eigenvectors)
+void jacobiEigenSymmetric(vector<double> &a, int n, vector<double> &eigenvectors)
 {
     eigenvectors.assign((size_t)n * n, 0.0);
     for (int i = 0; i < n; i++)
@@ -538,7 +667,8 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     bool enhanced_weights,
     const SatuTeBranchResult &base,
     const SatuTeDirectionalCache *directional_cache = nullptr,
-    vector<double> *out_pattern_coherence = nullptr)
+    vector<double> *out_pattern_coherence = nullptr,
+    const SatuTeDirectedContext *directed = nullptr)
 {
     SatuTeBranchResult result = base;
     size_t nmodes = formula.modes.size();
@@ -568,15 +698,30 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
 
     model->getStateFrequency(&state_freq[0]);
 
+    // Directed non-reversible evaluation recomputes both side vectors with the
+    // direction-aware recursion; the shared reversible message cache does not
+    // apply to it.
+    const bool use_directed = (directed != nullptr);
+
     // When the caller supplied the shared directional messages for this rate
     // category, both partials this branch needs are already computed and the
     // per-branch subtree recursion (and its transition matrices) is skipped
     // entirely. That is what removes the O(n^2)-in-taxa cost.
-    const bool use_cache = (directional_cache != nullptr) && directional_cache->ready;
+    const bool use_cache =
+        !use_directed && (directional_cache != nullptr) && directional_cache->ready;
     const int left_message_index = use_cache ? neighborIndex(left_node, left_dad) : -1;
     const int right_message_index = use_cache ? neighborIndex(right_node, right_dad) : -1;
 
-    if (!use_cache) {
+    vector<char> transition_filled;
+    if (use_directed) {
+        transition_filled.assign(2 * aln->getNSeq() + 2, 0);
+        prepareDirectedTransitionMatrices(
+            left_node, left_dad, model, nstates, rate_multiplier,
+            *directed->parent_of, transition_cache, transition_filled);
+        prepareDirectedTransitionMatrices(
+            right_node, right_dad, model, nstates, rate_multiplier,
+            *directed->parent_of, transition_cache, transition_filled);
+    } else if (!use_cache) {
         // Hoisted out of the pattern loop: after this the cache is read-only,
         // which is what makes the loop below safe to share between threads.
         prepareTransitionMatrices(
@@ -674,6 +819,35 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         if (use_cache) {
             left_lh = directional_cache->message(left_node->id, left_message_index, ptn);
             right_lh = directional_cache->message(right_node->id, right_message_index, ptn);
+        } else if (use_directed) {
+            computeDirectedPartial(
+                left_node,
+                left_dad,
+                ptn,
+                aln,
+                model,
+                nstates,
+                *directed->parent_of,
+                directed->root_node_id,
+                &state_freq[0],
+                transition_cache,
+                &scratch[0],
+                &left_likelihood[0]);
+            computeDirectedPartial(
+                right_node,
+                right_dad,
+                ptn,
+                aln,
+                model,
+                nstates,
+                *directed->parent_of,
+                directed->root_node_id,
+                &state_freq[0],
+                transition_cache,
+                &scratch[0],
+                &right_likelihood[0]);
+            left_lh = &left_likelihood[0];
+            right_lh = &right_likelihood[0];
         } else {
             computeOrdinaryPartial(
                 left_node,
@@ -702,7 +876,11 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         double left_sum = 0.0;
         double right_sum = 0.0;
         for (int state = 0; state < nstates; state++) {
-            left_posterior[state] = left_lh[state] * state_freq[state];
+            // Directed rootward vectors already carry the stationary prior
+            // from the root leaf, so only the tipward side multiplies pi.
+            left_posterior[state] = use_directed
+                ? left_lh[state]
+                : left_lh[state] * state_freq[state];
             right_posterior[state] = right_lh[state] * state_freq[state];
             left_sum += left_posterior[state];
             right_sum += right_posterior[state];
@@ -722,10 +900,20 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         for (size_t i = 0; i < nmodes; i++) {
             left_factor[i] = 0.0;
             right_factor[i] = 0.0;
-            for (int state = 0; state < nstates; state++) {
-                double eigenvector_value = eigenvectors[state * nstates + formula.modes[i]];
-                left_factor[i] += eigenvector_value * left_posterior[state];
-                right_factor[i] += eigenvector_value * right_posterior[state];
+            if (use_directed) {
+                // Non-reversible: each side has its own singular basis.
+                for (int state = 0; state < nstates; state++) {
+                    left_factor[i] += directed->left_projection[i * nstates + state] *
+                        left_posterior[state];
+                    right_factor[i] += directed->right_projection[i * nstates + state] *
+                        right_posterior[state];
+                }
+            } else {
+                for (int state = 0; state < nstates; state++) {
+                    double eigenvector_value = eigenvectors[state * nstates + formula.modes[i]];
+                    left_factor[i] += eigenvector_value * left_posterior[state];
+                    right_factor[i] += eigenvector_value * right_posterior[state];
+                }
             }
             if (!isfinite(left_factor[i]) || !isfinite(right_factor[i])) {
                 valid = false;
@@ -1005,7 +1193,8 @@ SatuTeBranchResult computeCategoryStatistic(
     bool enhanced_weights,
     const SatuTeBranchResult &base,
     const SatuTeDirectionalCache *directional_cache,
-    vector<double> *out_pattern_coherence)
+    vector<double> *out_pattern_coherence,
+    const SatuTeDirectedContext *directed)
 {
     return computeCategoryStatisticImpl(
         left_node,
@@ -1025,7 +1214,8 @@ SatuTeBranchResult computeCategoryStatistic(
         enhanced_weights,
         base,
         directional_cache,
-        out_pattern_coherence);
+        out_pattern_coherence,
+        directed);
 }
 
 } // namespace satute

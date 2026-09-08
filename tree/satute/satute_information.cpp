@@ -9,14 +9,48 @@
  ***************************************************************************/
 
 #include "satute_information.h"
+#include "satute_formulas.h"
 
 #include <cmath>
+#include <functional>
 #include <limits>
 
 using namespace std;
 
 namespace satute {
 namespace information {
+
+/** Rate-proportion-weighted pooling shared by both information fractions. */
+static double poolInformationOverCategories(
+    const vector<SatuTeRateCategory> &categories,
+    double branch_length,
+    const std::function<double(double)> &category_information)
+{
+    double weighted_information = 0.0;
+    double total_proportion = 0.0;
+    for (size_t i = 0; i < categories.size(); i++) {
+        const SatuTeRateCategory &category = categories[i];
+        if (!(category.proportion > 0.0) || !isfinite(category.proportion))
+            continue;
+        double information = category_information(branch_length * category.rate);
+        if (!isfinite(information))
+            return numeric_limits<double>::quiet_NaN();
+        weighted_information += category.proportion * information;
+        total_proportion += category.proportion;
+    }
+    if (!(total_proportion > 0.0))
+        return numeric_limits<double>::quiet_NaN();
+    return weighted_information / total_proportion;
+}
+
+/** Clamp tiny numerical excursions outside [0, 1]. */
+static double clampInformation(double information) {
+    if (information < 0.0 && information > -1e-12)
+        information = 0.0;
+    if (information > 1.0 && information < 1.0 + 1e-12)
+        information = 1.0;
+    return information;
+}
 
 double computeInformationFraction(
     const double *eval,
@@ -30,11 +64,7 @@ double computeInformationFraction(
     for (size_t i = 0; i < modes.size(); i++)
         information += exp(2.0 * eval[modes[i]] * effective_length);
     information /= modes.size();
-    if (information < 0.0 && information > -1e-12)
-        information = 0.0;
-    if (information > 1.0 && information < 1.0 + 1e-12)
-        information = 1.0;
-    return information;
+    return clampInformation(information);
 }
 
 double computePooledInformationFraction(
@@ -43,24 +73,51 @@ double computePooledInformationFraction(
     const vector<SatuTeRateCategory> &categories,
     double branch_length)
 {
-    double weighted_information = 0.0;
-    double total_proportion = 0.0;
-    for (size_t i = 0; i < categories.size(); i++) {
-        const SatuTeRateCategory &category = categories[i];
-        if (!(category.proportion > 0.0) || !isfinite(category.proportion))
-            continue;
-        double category_information = computeInformationFraction(
-            eval,
-            modes,
-            branch_length * category.rate);
-        if (!isfinite(category_information))
-            return numeric_limits<double>::quiet_NaN();
-        weighted_information += category.proportion * category_information;
-        total_proportion += category.proportion;
-    }
-    if (!(total_proportion > 0.0))
+    return poolInformationOverCategories(
+        categories,
+        branch_length,
+        [eval, &modes](double effective_length) {
+            return computeInformationFraction(eval, modes, effective_length);
+        });
+}
+
+double computeDirectedInformationFraction(
+    ModelSubst *model,
+    int nstates,
+    double effective_length)
+{
+    if (nstates < 2 || effective_length < 0.0 || !isfinite(effective_length))
         return numeric_limits<double>::quiet_NaN();
-    return weighted_information / total_proportion;
+
+    vector<double> symmetrized;
+    vector<double> pi;
+    formulas::buildSymmetrizedOperator(
+        model, nstates, effective_length, symmetrized, pi);
+
+    double energy = 0.0;
+    for (int x = 0; x < nstates; x++) {
+        for (int y = 0; y < nstates; y++) {
+            double stationary_component = sqrt(pi[x] * pi[y]);
+            double difference =
+                symmetrized[(size_t)x * nstates + y] - stationary_component;
+            energy += difference * difference;
+        }
+    }
+    return clampInformation(energy / (nstates - 1));
+}
+
+double computePooledDirectedInformationFraction(
+    ModelSubst *model,
+    int nstates,
+    const vector<SatuTeRateCategory> &categories,
+    double branch_length)
+{
+    return poolInformationOverCategories(
+        categories,
+        branch_length,
+        [model, nstates](double effective_length) {
+            return computeDirectedInformationFraction(model, nstates, effective_length);
+        });
 }
 
 void setSaturationScale(SatuTeBranchResult &result, double information_fraction) {

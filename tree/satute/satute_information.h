@@ -15,6 +15,8 @@
 
 #include <vector>
 
+class ModelSubst;
+
 namespace satute {
 namespace information {
 
@@ -28,6 +30,26 @@ double computePooledInformationFraction(
     const std::vector<int> &modes,
     const std::vector<SatuTeRateCategory> &categories,
     double branch_length);
+
+/**
+ * Non-reversible information fraction: the normalized squared Frobenius
+ * energy ||M(t) - Pi0||_F^2 / K with K = nstates - 1, where
+ * M(t) = Pi^{1/2} P(t) Pi^{-1/2} and Pi0 = sqrt(pi) sqrt(pi)^T. The
+ * eigenvalue-sum formula is invalid without an orthonormal eigenbasis, but
+ * this operator definition reduces to it reversibly and remains monotone
+ * non-reversibly, because only the symmetric part of the symmetrized
+ * generator dissipates; the antisymmetric part rotates without dissipating.
+ */
+double computeDirectedInformationFraction(
+    ModelSubst *model,
+    int nstates,
+    double effective_length);
+double computePooledDirectedInformationFraction(
+    ModelSubst *model,
+    int nstates,
+    const std::vector<SatuTeRateCategory> &categories,
+    double branch_length);
+
 void setSaturationScale(SatuTeBranchResult &result, double information_fraction);
 
 } // namespace information
