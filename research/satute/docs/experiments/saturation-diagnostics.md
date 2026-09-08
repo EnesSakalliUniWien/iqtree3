@@ -16,7 +16,7 @@ statistic is a detection statistic. None is, by itself, a guaranteed monotonic
 measure of evolutionary saturation.
 
 The focused diagnostic pipeline is
-[`saturation_diagnostics.py`](saturation_diagnostics.py). It reads the three
+[`experiments/004_saturation_diagnostics/run.py`](../../experiments/004_saturation_diagnostics/run.py). It reads the three
 native formulas directly from `.sat.stat`, reads IQ-TREE's fitted rate-category
 table from `.iqtree`, estimates formula-specific null thresholds on one half of
 the saturated simulations, and evaluates those thresholds on the held-out
@@ -223,7 +223,7 @@ matched the closed form $S(t)=1-\exp(-8t/3)$ within
 $5.9\times10^{-11}$.
 
 The refined weighted likelihood is checked independently by
-[`verify_weighted_likelihood.py`](verify_weighted_likelihood.py). Exact
+[`tests/exact/test_weighted_likelihood.py`](../../tests/exact/test_weighted_likelihood.py). Exact
 enumeration recovered the positive-rate mixture likelihood-ratio identity with
 maximum error $5.4\times10^{-14}$ and the corrected `+I` identity with maximum
 error $1.1\times10^{-11}$ at branch length $10{,}000$. The corresponding null
@@ -268,7 +268,7 @@ the hard statistic and $-3.5\times10^{-18}$ for the normalized soft statistic.
 Direct multinomial sampling with 20,000 replicates at each alignment length
 gave null rejection rates between 0.0483 and 0.0518.
 The exact enumeration and multinomial assertions are reproduced by
-[`verify_saturation_null.py`](verify_saturation_null.py).
+[`tests/exact/test_saturation_null.py`](../../tests/exact/test_saturation_null.py).
 
 The native alignment-length experiment used 1,000 batch-generated replicates
 per value:
@@ -303,7 +303,7 @@ conditions.
 ### Dedicated `+I+G4` and `+I+R4` paired grid
 
 The invariant-category correction was evaluated separately with
-[`weighted_invariant_simulations.py`](weighted_invariant_simulations.py). The
+[`experiments/003_invariant_mixture/run.py`](../../experiments/003_invariant_mixture/run.py). The
 script enumerates all $4^4=256$ site patterns under fixed `GTR+I+G4` and
 `GTR+I+R4` models, then draws paired multinomial alignments. Every alignment is
 evaluated by both the former counterfactual construction and the refined
@@ -520,31 +520,31 @@ the remaining energy is detectable at the available sample size.
 The requested six-panel separation of effect, uncertainty, detection,
 persistence, calibrated decisions and model saturation is:
 
-![SatuTe saturation diagnostics](figures/generated/figure_saturation_diagnostics.png)
+![SatuTe saturation diagnostics](../../artifacts/releases/generated-figures/figure_saturation_diagnostics.png)
 
 The hard-category mechanism is shown separately:
 
-![Hard-category assignment and signed contributions](figures/generated/figure_saturation_category_assignment.png)
+![Hard-category assignment and signed contributions](../../artifacts/releases/generated-figures/figure_saturation_category_assignment.png)
 
 The alignment-length null verification is:
 
-![Standard-normal null behavior across alignment lengths](figures/generated/figure_null_scaling_diagnostics.png)
+![Standard-normal null behavior across alignment lengths](../../artifacts/releases/generated-figures/figure_null_scaling_diagnostics.png)
 
 The dedicated paired invariant-mixture grid is:
 
-![Paired +I+G4 and +I+R4 correction grid](figures/generated/figure_weighted_invariant_grid.png)
+![Paired +I+G4 and +I+R4 correction grid](../../artifacts/releases/generated-figures/figure_weighted_invariant_grid.png)
 
 The higher-precision direct-shift rerun is:
 
-![Direct paired shift caused by the invariant correction](figures/generated/figure_weighted_invariant_shift.png)
+![Direct paired shift caused by the invariant correction](../../artifacts/releases/generated-figures/figure_weighted_invariant_shift.png)
 
 The manuscript-scale dense branch-grid figure is:
 
-![Full dense paired invariant-mixture analysis](figures/generated/figure_weighted_invariant_full.png)
+![Full dense paired invariant-mixture analysis](../../artifacts/releases/generated-figures/figure_weighted_invariant_full.png)
 
 The dense figure is exported as a vector
-[PDF](figures/generated/figure_weighted_invariant_full.pdf) and
-[SVG](figures/generated/figure_weighted_invariant_full.svg), plus a
+[PDF](../../artifacts/releases/generated-figures/figure_weighted_invariant_full.pdf) and
+[SVG](../../artifacts/releases/generated-figures/figure_weighted_invariant_full.svg), plus a
 4,800-by-4,200-pixel PNG.
 
 The full manuscript run is reproduced with:
@@ -595,7 +595,7 @@ SVG, PDF and PNG are written as
 The category-mechanism figure is written as
 `research/satute/artifacts/releases/generated-figures/figure_saturation_category_assignment.*`.
 The null-scaling summary and figure are generated with
-[`summarize_null_scaling.py`](summarize_null_scaling.py).
+[`experiments/004_saturation_diagnostics/summarize_null.py`](../../experiments/004_saturation_diagnostics/summarize_null.py).
 
 The exact verifier requires NumPy:
 

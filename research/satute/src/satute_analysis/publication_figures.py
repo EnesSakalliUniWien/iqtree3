@@ -92,12 +92,6 @@ def stable_case_summary(case_id: str) -> Path:
     return PUBLICATION_CASE_ROOT / case_id / "data" / "head_to_head_summary.tsv"
 
 
-def stable_case_detail(case_id: str) -> Path:
-    """Return the stable case-local detail path used by publication renderers."""
-
-    return PUBLICATION_CASE_ROOT / case_id / "data" / "head_to_head_detail.tsv"
-
-
 def stable_figure_root(figure_id: str) -> Path:
     """Return the self-contained publication directory for one figure."""
 

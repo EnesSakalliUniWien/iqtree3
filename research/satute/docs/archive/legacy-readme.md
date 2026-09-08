@@ -1,5 +1,11 @@
 # SatuTe Wiki
 
+> **Archived.** This is the README of the former flat `doc/satute-wiki`
+> directory, kept as a historical record of the pre-reorganization workspace.
+> Its relative links describe that old layout and do not resolve against the
+> current tree. For the current workspace see [`../../README.md`](../../README.md)
+> and [`../overview/experiment-architecture.md`](../overview/experiment-architecture.md).
+
 This directory documents the SatuTe paper, the IQ-TREE integration work in
 this repository and the proposed eigenvalue-weighted extension. It separates
 source material, derivations, reproducible development checks and manuscript

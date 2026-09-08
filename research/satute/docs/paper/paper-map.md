@@ -59,7 +59,7 @@ called phylogenetically informative.
 
 ## Development Smoke Test
 
-The script [reconstruct_fig2_simulations.py](reconstruct_fig2_simulations.py)
+The script [experiments/001_paper_reconstruction/run.py](../../experiments/001_paper_reconstruction/run.py)
 implements the same four scenario labels using IQ-TREE AliSim and the native
 `--satute` integration. This is useful for testing branch selection and output
 parsing, but it is not yet a paper-faithful reproduction because the original

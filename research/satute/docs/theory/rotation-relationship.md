@@ -245,14 +245,14 @@ panels describe the observed statistic and its sampling behavior.
 The relationship above was checked against the current manuscript and its
 implementation-facing documentation:
 
-- [manuscript abstract and structure](<../../../Is it rotation/manuscript/main.tex>)
-- [reversible-rate introduction](<../../../Is it rotation/manuscript/sections/01_introduction/index.tex>)
-- [JC2 decay and rotation](<../../../Is it rotation/manuscript/sections/03_jc2_two_state_model/index.tex>)
-- [GTR symmetrization](<../../../Is it rotation/manuscript/sections/05_four_state_models/gtr/01_model_and_symmetrization.tex>)
-- [four-state branch construction](<../../../Is it rotation/manuscript/sections/06_four_state_gate_construction/index.tex>)
-- [spectral-unitary versus sampler distinction](<../../../Is it rotation/manuscript/sections/06_four_state_gate_construction/01_spectral_gate_map.tex>)
-- [results](<../../../Is it rotation/manuscript/sections/09_results/index.tex>)
-- [discussion](<../../../Is it rotation/manuscript/sections/10_conclusion/index.tex>)
-- [compiled manuscript](<../../../Is it rotation/build/main.pdf>)
+- [manuscript abstract and structure](<../../../../../Is it rotation/manuscript/main.tex>)
+- [reversible-rate introduction](<../../../../../Is it rotation/manuscript/sections/01_introduction/index.tex>)
+- [JC2 decay and rotation](<../../../../../Is it rotation/manuscript/sections/03_jc2_two_state_model/index.tex>)
+- [GTR symmetrization](<../../../../../Is it rotation/manuscript/sections/05_four_state_models/gtr/01_model_and_symmetrization.tex>)
+- [four-state branch construction](<../../../../../Is it rotation/manuscript/sections/06_four_state_gate_construction/index.tex>)
+- [spectral-unitary versus sampler distinction](<../../../../../Is it rotation/manuscript/sections/06_four_state_gate_construction/01_spectral_gate_map.tex>)
+- [results](<../../../../../Is it rotation/manuscript/sections/09_results/index.tex>)
+- [discussion](<../../../../../Is it rotation/manuscript/sections/10_conclusion/index.tex>)
+- [compiled manuscript](<../../../../../Is it rotation/build/main.pdf>)
 
 No files in the rotation repository were changed during this review.

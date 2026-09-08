@@ -134,14 +134,14 @@ For homogeneous models, only pooled rows are emitted.
 
 Use:
 
-- eigensystem decomposition in [modelmarkov.h](../../model/modelmarkov.h)
-- eigenvalue/eigenvector accessors in [modelmarkov.h](../../model/modelmarkov.h)
+- eigensystem decomposition in [modelmarkov.h](../../../../model/modelmarkov.h)
+- eigenvalue/eigenvector accessors in [modelmarkov.h](../../../../model/modelmarkov.h)
 
 ### 5. Reversible-kernel gate
 
 Use:
 
-- [modelsubst.h](../../model/modelsubst.h)
+- [modelsubst.h](../../../../model/modelsubst.h)
 
 Phase 1 rejects unsupported cases early: rooted trees, supertrees, mixture
 models and ascertainment-bias correction.
@@ -291,8 +291,8 @@ eigen-space buffers.
 
 Relevant code:
 
-- inverse-eigenvector projection in [phylokernelnew.h](../../tree/phylokernelnew.h)
-- branch likelihood assembly in [phylokernelnew.h](../../tree/phylokernelnew.h)
+- inverse-eigenvector projection in [phylokernelnew.h](../../../../tree/phylokernelnew.h)
+- branch likelihood assembly in [phylokernelnew.h](../../../../tree/phylokernelnew.h)
 
 Those buffers are not scalar site-contiguous, so phase 1 does not read them
 directly for the SatuTe statistic. It recomputes the ordinary side partials in
@@ -312,10 +312,10 @@ For a tested branch `AB`, use:
 
 Where they come from:
 
-- edge partials: [phylonode.h](../../tree/phylonode.h)
-- branch likelihood trigger: [phylotree.h](../../tree/phylotree.h)
-- eigenvalues/eigenvectors: [modelmarkov.h](../../model/modelmarkov.h)
-- pattern/category buffers: [phylotree.h](../../tree/phylotree.h)
+- edge partials: [phylonode.h](../../../../tree/phylonode.h)
+- branch likelihood trigger: [phylotree.h](../../../../tree/phylotree.h)
+- eigenvalues/eigenvectors: [modelmarkov.h](../../../../model/modelmarkov.h)
+- pattern/category buffers: [phylotree.h](../../../../tree/phylotree.h)
 
 Do not use these as the core statistic:
 

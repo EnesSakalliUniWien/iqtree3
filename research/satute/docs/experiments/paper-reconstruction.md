@@ -40,7 +40,7 @@ The focal branch is the central branch between those two subtrees.
 The reduced outputs committed in this folder are development checks. They use
 small replicate counts and do not reproduce the paper simulations.
 
-The manuscript archive in `sources/SatuTe_manuscript_2024_08` gives the
+The manuscript archive in `references/SatuTe_manuscript_2024_08` gives the
 pre-publication Nature-format protocol. It clarifies that the five-taxon
 simulation is the `B | A1,A2,A3,A4` split: taxon `B` is connected by branch
 `AB` to the root `A` of a balanced four-taxon subtree. It also states that

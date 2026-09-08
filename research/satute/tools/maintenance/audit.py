@@ -126,14 +126,6 @@ def main():
         if result.returncode:
             fail(f"shell syntax failed: {script}: {result.stderr.strip()}", failures)
 
-    compatibility = {
-        REPOSITORY / "doc/satute-wiki": PROJECT,
-        REPOSITORY / "doc/satute-phase1": PROJECT / "tests/native",
-    }
-    for link, expected in compatibility.items():
-        if not link.is_symlink() or link.resolve() != expected.resolve():
-            fail(f"compatibility link invalid: {link} -> {expected}", failures)
-
     for manifest in sorted((PROJECT / "artifacts/releases").glob("*/manifest.json")):
         payload = json.loads(manifest.read_text())
         for output in payload.get("outputs", []):
@@ -150,7 +142,7 @@ def main():
         return 1
     print(
         "Audit passed: experiment modules, driver CLIs, manuscript assets, module boundaries, "
-        "cluster scripts, compatibility links, and release checksums are valid."
+        "cluster scripts, and release checksums are valid."
     )
     return 0
 

@@ -63,8 +63,6 @@ clean. Reviewed summaries and final figures are promoted explicitly to
 | `references/` | Papers and historical source material | tracked |
 | `docs/archive/` | Superseded plans and compatibility notes | tracked |
 
-The former `doc/satute-wiki` and `doc/satute-phase1` paths are compatibility
-links for directory-level navigation and should not be used for new commands.
 Experiments are discovered from their colocated `experiment.json` manifests;
 the common execution interface is implemented by
 `src/satute_analysis/experiments.py`.
