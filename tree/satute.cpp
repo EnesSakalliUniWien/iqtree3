@@ -169,6 +169,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         int right_taxa;
         string label;
         string split;
+        double sibling_length;
         double pooled_information_fraction;
     };
     vector<AnalysedBranch> analysed;
@@ -207,9 +208,19 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         entry.right_taxa = topology::countTipsAwayFrom(entry.right_node, entry.left_node);
         entry.label = label;
         entry.split = topology::splitLabel(entry.left_node, entry.right_node);
+        // Below a two-child root the rootward side is only the sibling clade,
+        // so the tested split spans both root edges.
+        entry.sibling_length = 0.0;
+        if (directed_nonreversible && parent_of[entry.left_node->id] == root->id &&
+            entry.left_node->neighbors.size() == 3) {
+            FOR_NEIGHBOR_IT(entry.left_node, entry.right_node, it)
+                if (!isRootLeaf((*it)->node))
+                    entry.sibling_length = (*it)->length;
+        }
         entry.pooled_information_fraction = directed_nonreversible
             ? information::computePooledDirectedInformationFraction(
-                  model, nstates, rate_categories, annotated_branch->length)
+                  model, nstates, rate_categories, annotated_branch->length,
+                  entry.sibling_length)
             : information::computePooledInformationFraction(
                   eval, all_nonzero_modes, rate_categories, annotated_branch->length);
         analysed.push_back(entry);
@@ -255,7 +266,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
             if (directed_nonreversible) {
                 formulas::buildDirectedBasis(model, nstates, effective_length, directed_basis);
                 directed_information = information::computeDirectedInformationFraction(
-                    model, nstates, effective_length);
+                    model, nstates, effective_length, entry.sibling_length * category.rate);
             }
 
             for (size_t formula_index = 0; formula_index < formula_specs.size(); formula_index++) {

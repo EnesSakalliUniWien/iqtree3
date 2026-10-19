@@ -274,4 +274,43 @@ if ! grep -q "SatuTe currently supports unrooted trees only" "$rooted_log"; then
 fi
 printf 'jc_rooted\tmodel=JC\texpected_failure\n'
 
+# Non-reversible models run on IQ-TREE's rooted tree, where the two edges of a
+# two-child root are one split: both rows must report the whole root path.
+# Equal UNREST rates give JC dynamics, so the index is 1 - exp(-8(t1+t2)/3).
+root_tree="$OUTDIR/unrest_root.tree"
+root_prefix="$OUTDIR/unrest_root"
+root_model='UNREST{1,1,1,1,1,1,1,1,1,1,1}'
+printf '((A:0.05,B:0.05):0.5,C:0.05,(D:0.05,E:0.05):0.3);\n' > "$root_tree"
+"$IQTREE" --alisim "$root_prefix" -t "$root_tree" -m "$root_model" --length 5000 \
+    --seed 11 -af fasta --redo --quiet >/dev/null
+"$IQTREE" -s "$root_prefix.fa" -te "$root_tree" -m "$root_model" --satute \
+    --prefix "${root_prefix}_sat" -T 1 --redo --quiet >/dev/null
+if ! awk 'BEGIN{FS="\t"}
+    $1 == "ID" { for (i = 1; i <= NF; i++) h[$i] = i; next }
+    $1 ~ /^[0-9]+$/ && $h["Formula"] == "dominant" && $h["RateCategory"] == "pooled" {
+        split_id = $h["Split"]
+        rows[split_id]++
+        path_length[split_id] += $h["Length"]
+        index_of[split_id, rows[split_id]] = $h["SaturationIndex"] + 0
+    }
+    END {
+        pairs = 0
+        for (split_id in rows) {
+            if (rows[split_id] != 2) continue
+            pairs++
+            expected = 1 - exp((-8.0/3.0) * path_length[split_id])
+            for (k = 1; k <= 2; k++) {
+                difference = index_of[split_id, k] - expected
+                if (difference < 0) difference = -difference
+                if (difference > 1e-8) exit 1
+            }
+        }
+        exit (pairs == 1) ? 0 : 1
+    }
+' "${root_prefix}_sat.sat.stat"; then
+    echo "SatuTe root-path saturation-index check failed" >&2
+    exit 1
+fi
+printf 'unrest_root_path\tmodel=UNREST\tsplit=root\n'
+
 echo "SatuTe simulated smoke test passed; outputs are in $OUTDIR"

@@ -84,15 +84,32 @@ double computePooledInformationFraction(
 double computeDirectedInformationFraction(
     ModelSubst *model,
     int nstates,
-    double effective_length)
+    double effective_length,
+    double sibling_length)
 {
-    if (nstates < 2 || effective_length < 0.0 || !isfinite(effective_length))
+    if (nstates < 2 || effective_length < 0.0 || !isfinite(effective_length) ||
+        sibling_length < 0.0 || !isfinite(sibling_length))
         return numeric_limits<double>::quiet_NaN();
 
     vector<double> symmetrized;
     vector<double> pi;
     formulas::buildSymmetrizedOperator(
         model, nstates, effective_length, symmetrized, pi);
+
+    // The two edges of a two-child root form one split. Without the pulley
+    // principle its far ends are joined by M(t1)^T M(t2), not by M(t1 + t2).
+    if (sibling_length > 0.0) {
+        vector<double> sibling;
+        formulas::buildSymmetrizedOperator(
+            model, nstates, sibling_length, sibling, pi);
+        vector<double> joint((size_t)nstates * nstates, 0.0);
+        for (int x = 0; x < nstates; x++)
+            for (int y = 0; y < nstates; y++)
+                for (int z = 0; z < nstates; z++)
+                    joint[(size_t)x * nstates + y] +=
+                        symmetrized[(size_t)z * nstates + x] * sibling[(size_t)z * nstates + y];
+        symmetrized.swap(joint);
+    }
 
     double energy = 0.0;
     for (int x = 0; x < nstates; x++) {
@@ -110,13 +127,17 @@ double computePooledDirectedInformationFraction(
     ModelSubst *model,
     int nstates,
     const vector<SatuTeRateCategory> &categories,
-    double branch_length)
+    double branch_length,
+    double sibling_length)
 {
+    // Pooled at unit length so the callback receives the rate, which scales
+    // both edges of a root path alike.
     return poolInformationOverCategories(
         categories,
-        branch_length,
-        [model, nstates](double effective_length) {
-            return computeDirectedInformationFraction(model, nstates, effective_length);
+        1.0,
+        [model, nstates, branch_length, sibling_length](double rate) {
+            return computeDirectedInformationFraction(
+                model, nstates, branch_length * rate, sibling_length * rate);
         });
 }
 

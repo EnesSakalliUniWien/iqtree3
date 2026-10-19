@@ -39,16 +39,20 @@ double computePooledInformationFraction(
  * this operator definition reduces to it reversibly and remains monotone
  * non-reversibly, because only the symmetric part of the symmetrized
  * generator dissipates; the antisymmetric part rotates without dissipating.
+ * A positive sibling_length (the other edge of a two-child root) replaces
+ * M(t) by the root-path operator M(t)^T M(t_sibling); zero leaves M(t).
  */
 double computeDirectedInformationFraction(
     ModelSubst *model,
     int nstates,
-    double effective_length);
+    double effective_length,
+    double sibling_length);
 double computePooledDirectedInformationFraction(
     ModelSubst *model,
     int nstates,
     const std::vector<SatuTeRateCategory> &categories,
-    double branch_length);
+    double branch_length,
+    double sibling_length);
 
 void setSaturationScale(SatuTeBranchResult &result, double information_fraction);
 
