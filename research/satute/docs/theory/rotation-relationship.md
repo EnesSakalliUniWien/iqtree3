@@ -379,19 +379,24 @@ For every branch or simulation condition, plot:
 The first, second and seventh panels describe the fitted model. The remaining
 panels describe the observed statistic and its sampling behavior.
 
-## Sources reviewed in the rotation repository
+## Sources reviewed
 
-The relationship above was checked against the current manuscript and its
-implementation-facing documentation:
+The relationship above was checked against the rotation manuscript and its
+implementation-facing documentation. The manuscript has since moved out of the
+rotation repository into the sibling `Quantum Manuscript` project and been
+restructured; each link points to the current home of the section that was
+reviewed. The spectral-unitary versus sampler section has no current
+counterpart, so it is cited at the last rotation-repository commit that has it.
 
-- [manuscript abstract and structure](<../../../../../Is it rotation/manuscript/main.tex>)
-- [reversible-rate introduction](<../../../../../Is it rotation/manuscript/sections/01_introduction/index.tex>)
-- [JC2 decay and rotation](<../../../../../Is it rotation/manuscript/sections/03_jc2_two_state_model/index.tex>)
-- [GTR symmetrization](<../../../../../Is it rotation/manuscript/sections/05_four_state_models/gtr/01_model_and_symmetrization.tex>)
-- [four-state branch construction](<../../../../../Is it rotation/manuscript/sections/06_four_state_gate_construction/index.tex>)
-- [spectral-unitary versus sampler distinction](<../../../../../Is it rotation/manuscript/sections/06_four_state_gate_construction/01_spectral_gate_map.tex>)
-- [results](<../../../../../Is it rotation/manuscript/sections/09_results/index.tex>)
-- [discussion](<../../../../../Is it rotation/manuscript/sections/10_conclusion/index.tex>)
-- [compiled manuscript](<../../../../../Is it rotation/build/main.pdf>)
+- [manuscript abstract and structure](<../../../../../Quantum Manuscript/01_reversible_substitution_as_rotation/main.tex>)
+- [reversible-rate introduction](<../../../../../Quantum Manuscript/01_reversible_substitution_as_rotation/sections/01_introduction/index.tex>)
+- [JC2 decay and rotation](<../../../../../Quantum Manuscript/01_reversible_substitution_as_rotation/sections/04_online_methods/01_two_state_model/index.tex>)
+- [GTR symmetrization](<../../../../../Quantum Manuscript/01_reversible_substitution_as_rotation/sections/04_online_methods/02_four_state_models/03_gtr_model/02_symmetrization_and_transition_probabilities.tex>)
+- [four-state branch construction](<../../../../../Quantum Manuscript/01_reversible_substitution_as_rotation/sections/04_online_methods/03_branch_circuit_construction/index.tex>)
+- spectral-unitary versus sampler distinction: in the rotation repository, run
+  `git show 53dcea16:manuscript/sections/06_four_state_gate_construction/01_spectral_gate_map.tex`
+- [results](<../../../../../Quantum Manuscript/01_reversible_substitution_as_rotation/sections/02_results/index.tex>)
+- [discussion](<../../../../../Quantum Manuscript/01_reversible_substitution_as_rotation/sections/03_discussion/index.tex>)
+- [compiled manuscript](<../../../../../Quantum Manuscript/build/main.pdf>)
 
 No files in the rotation repository were changed during this review.
