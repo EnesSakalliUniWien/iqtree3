@@ -143,8 +143,9 @@ Use:
 
 - [modelsubst.h](../../../../model/modelsubst.h)
 
-Phase 1 rejects unsupported cases early: rooted trees, supertrees, mixture
-models and ascertainment-bias correction.
+Phase 1 rejects unsupported cases early: supertrees, mixture models and
+ascertainment-bias correction. A rooted input tree is unrooted for reversible
+models and kept, root included, for non-reversible ones.
 
 ### 6. Simulated examples
 

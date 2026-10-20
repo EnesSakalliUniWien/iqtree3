@@ -634,10 +634,7 @@ void IQTree::computeInitialTree(LikelihoodKernel kernel, istream* in) {
         if (mesgExist) {
             cout << endl;
         }
-        if (params->satute_analysis && myrooted) {
-            outError("SatuTe currently supports unrooted trees only");
-        }
-        
+
         // show a warning if users want to perform tree dating (with mcmc) but supply an unrooted tree
         if (params->dating_method == "mcmctree"
             && !(myrooted && !isSuperTreeUnlinked()))
