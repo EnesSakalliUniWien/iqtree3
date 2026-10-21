@@ -6070,7 +6070,7 @@ void usage_iqtree(char* argv[], bool full_command) {
     << "                       For sliding-window analyses. One row per branch and" << endl
     << "                       site, so pair with --satute-edges on large trees" << endl
     << "  --satute-sites-max NUM" << endl
-    << "                       Limit .sat.site to NUM branches, highest satP first" << endl
+    << "                       Limit .sat.site to NUM branches per formula, highest satP first" << endl
     << "                       (0 = no limit)" << endl;
     
     usage_alisim();

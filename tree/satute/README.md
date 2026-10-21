@@ -29,7 +29,7 @@ iqtree3 -s aln.fa -te tree.nwk -m GTR+F -blfix --satute
 | `--satute-alpha NUM` | significance and FDR level (default `0.05`) |
 | `--satute-edges FILE` | restrict to branch IDs listed in `FILE` |
 | `--satute-sites` | also write per-site contributions (`.sat.site`) |
-| `--satute-sites-max NUM` | cap `.sat.site` to NUM branches, highest `satP` first |
+| `--satute-sites-max NUM` | cap `.sat.site` to NUM branches per formula, highest `satP` first |
 | `--satute-enhanced-weights` | experimental GLS mode weighting; off by default |
 
 Writes `<prefix>.sat.stat` (one row per branch × formula × rate category),

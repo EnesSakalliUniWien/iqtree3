@@ -480,16 +480,26 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         // Keep the branches closest to saturation. The whole-tree export is
         // impractical on large trees (~507 MB for the 1871-taxon Tree of
         // Life), and the branches worth windowing are the marginal ones.
-        if (sites_max > 0 && (int)site_series.size() > sites_max) {
+        // The cap applies within each formula: their p-values sit on very
+        // different scales, so one shared ranking would let a single formula
+        // fill the whole export.
+        if (sites_max > 0) {
             stable_sort(
                 site_series.begin(),
                 site_series.end(),
                 [](const SatuTeSiteSeries &a, const SatuTeSiteSeries &b) {
                     return a.p_value > b.p_value;
                 });
-            site_series.resize(sites_max);
-            cout << "SatuTe per-site export limited to " << sites_max
-                 << " branches with the highest satP" << endl;
+            map<string, int> kept_per_formula;
+            vector<SatuTeSiteSeries> capped;
+            for (size_t i = 0; i < site_series.size(); i++) {
+                if (kept_per_formula[site_series[i].formula]++ < sites_max)
+                    capped.push_back(std::move(site_series[i]));
+            }
+            if (capped.size() < site_series.size())
+                cout << "SatuTe per-site export limited to " << sites_max
+                     << " branches per formula with the highest satP" << endl;
+            site_series.swap(capped);
         }
         ReportWriter().writeSiteSeries(*this, prefix, site_series);
     }
