@@ -34,6 +34,7 @@ __pycache__/
 /research/satute/manuscript/build/
 /tmp/
 /.playwright-mcp/
+/.serena/
 /tools/seq-gen/
 /.mex/
 /.vs/
