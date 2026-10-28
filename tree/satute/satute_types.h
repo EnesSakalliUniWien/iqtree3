@@ -49,8 +49,8 @@ struct SatuTeDirectedBasis {
     std::vector<double> right_projection;  // sigma.size() x nstates
 };
 
-/** Per-alignment-site centred weighted contributions to satC for one
- * (branch, formula), pooled across rate categories. Written to .sat.site
+/** Per-alignment-site contributions to satC for one (branch, formula):
+ * centred products, homogeneous or integrated over rate categories. Written to .sat.site
  * under --satute-sites; consumed by sliding-window analyses. */
 struct SatuTeSiteSeries {
     int branch_id;

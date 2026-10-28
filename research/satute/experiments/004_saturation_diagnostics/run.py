@@ -719,8 +719,8 @@ def render_category_figure(category_summary, summary, output_prefix):
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="#ffffff"/>',
-        '<text x="590" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Why relative-weighted coherence changes abruptly</text>',
-        '<text x="590" y="62" text-anchor="middle" font-size="12" fill="#5f6368">Hard MAP rate categories; fixed GTR+G4 model and 1,000-site alignments</text>',
+        '<text x="590" y="36" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Rate-category diagnostics and integrated coherence</text>',
+        '<text x="590" y="62" text-anchor="middle" font-size="12" fill="#5f6368">Hard MAP category diagnostics beside the integrated pooled score</text>',
     ]
     draw_axes(svg, lefts[0], top, panel_w, panel_h, "A  Hard-category occupancy", "Mean fraction of sites assigned to each category", xmin, xmax, 0.0, 1.0, "assigned fraction", False)
     contribution_values = [
@@ -730,7 +730,7 @@ def render_category_figure(category_summary, summary, output_prefix):
     padding = 0.08 * (ymax - ymin)
     ymin -= padding
     ymax += padding
-    draw_axes(svg, lefts[1], top, panel_w, panel_h, "B  Signed contribution to pooled coherence", "Transition region t≥10; contribution = (valid sites / all sites) × category satC", contribution_xmin, xmax, ymin, ymax, "coherence contribution", False)
+    draw_axes(svg, lefts[1], top, panel_w, panel_h, "B  Hard-category coherence diagnostics", "Diagnostic product = (valid sites / all sites) × category satC", contribution_xmin, xmax, ymin, ymax, "coherence", False)
     zero_y = scale_linear(0.0, ymin, ymax, top, panel_h, invert=True)
     svg.append(f'<line x1="{lefts[1]}" x2="{lefts[1]+panel_w}" y1="{zero_y:.2f}" y2="{zero_y:.2f}" stroke="#3c4043" stroke-dasharray="5,4"/>')
 
@@ -767,7 +767,7 @@ def render_category_figure(category_summary, summary, output_prefix):
     ]
     svg.append(f'<path d="{path(pooled_points)}" fill="none" stroke="#202124" stroke-width="2.7"/>')
     svg.append(f'<text x="{lefts[1]+panel_w-6}" y="{top+18}" text-anchor="end" font-size="10" fill="#202124">black: pooled total</text>')
-    svg.append('<text x="95" y="505" font-size="10.5" fill="#5f6368">Abrupt pooled movement is caused by reassignment and cancellation between signed category contributions, not by discontinuous eigenvalue weights.</text>')
+    svg.append('<text x="95" y="505" font-size="10.5" fill="#5f6368">The pooled score uses the saturated mixture likelihood. Category traces show assignment diagnostics.</text>')
     svg.append("</svg>")
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     svg_path = output_prefix.with_suffix(".svg")
@@ -854,29 +854,17 @@ def check_report(
     scale_status = "PASS" if max_native_scale_error < 2e-5 and formula_invariance_error < 1e-12 else "FAIL"
     checks.append(("Native saturation-scale identity", scale_status, f"max equation error = {max_native_scale_error:.3g} with rounded report rates; max between-formula difference = {formula_invariance_error:.3g}"))
 
-    pooled_by_key = {
-        (float(row["branch_length"]), int(row["replicate"]), row["formula"]): row
+    standard_error_errors = [
+        abs(math.sqrt(float(row["satVar"]) / int(row["valid_sites"])) - float(row["satSE"]))
         for row in detail
         if row["formula"] in {"dominant", "eigenvalue_weighted"}
-    }
-    categories_by_key = defaultdict(list)
-    for row in category_detail:
-        categories_by_key[(float(row["branch_length"]), int(row["replicate"]), row["formula"])].append(row)
-    pooled_mean_errors = []
-    pooled_variance_errors = []
-    for key, rows in categories_by_key.items():
-        valid = [row for row in rows if row["valid_sites"] not in {"", "0"} and row["satC"] not in {"", "NA"}]
-        total = sum(float(row["valid_sites"]) for row in valid)
-        if total <= 0.0 or key not in pooled_by_key:
-            continue
-        recomputed_mean = sum(float(row["valid_sites"]) / total * float(row["satC"]) for row in valid)
-        recomputed_variance = sum(float(row["valid_sites"]) / total * float(row["satVar"]) for row in valid)
-        pooled_mean_errors.append(abs(recomputed_mean - float(pooled_by_key[key]["satC"])))
-        pooled_variance_errors.append(abs(recomputed_variance - float(pooled_by_key[key]["satVar"])))
-    max_pool_mean_error = max(pooled_mean_errors, default=math.inf)
-    max_pool_variance_error = max(pooled_variance_errors, default=math.inf)
-    pool_status = "PASS" if max_pool_mean_error < 1e-7 and max_pool_variance_error < 1e-7 else "FAIL"
-    checks.append(("Hard-category pooling identity", pool_status, f"max mean error = {max_pool_mean_error:.3g}; max variance error = {max_pool_variance_error:.3g}"))
+        and int(row["valid_sites"]) > 1 and row["satVar"] not in {"", "NA"}
+        and row["satSE"] not in {"", "NA"}
+    ]
+    maximum_standard_error = max(standard_error_errors, default=math.inf)
+    pool_status = "PASS" if maximum_standard_error < 1e-7 else "FAIL"
+    checks.append(("Integrated-score studentization", pool_status,
+                   f"max |satSE - sqrt(satVar/n)| = {maximum_standard_error:.3g}; hard categories are diagnostic"))
 
     assignment_by_length = defaultdict(lambda: defaultdict(list))
     for row in category_detail:

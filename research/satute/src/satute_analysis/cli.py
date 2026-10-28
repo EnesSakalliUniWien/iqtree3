@@ -157,6 +157,7 @@ def run_check(check_name: str) -> None:
         for script in unit_checks:
             run_python(script)
         run_python("tests/exact/test_weighted_likelihood.py")
+        run_python("tests/native/test_satute_mixture_null.py", IQTREE, "artifacts/local/check/mixture-null")
         run_python(
             "tests/exact/test_saturation_null.py",
             "--replicates",
@@ -183,6 +184,7 @@ def run_check(check_name: str) -> None:
         for script in unit_checks[2:]:
             run_python(script)
         run_python("tests/exact/test_weighted_likelihood.py")
+        run_python("tests/native/test_satute_mixture_null.py", IQTREE, "artifacts/local/check/mixture-null")
         run_python(
             "tests/native/test_satute_rate_categories.py",
             IQTREE,

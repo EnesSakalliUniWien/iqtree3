@@ -76,8 +76,8 @@ The site coherence is:
 C_site = sum_k F_left(k) * F_right(k)
 ```
 
-The reported `satC` is the frequency-weighted mean over valid site patterns.
-The null variance uses the product of the left and right second moments over
+For homogeneous models, `satC` is the frequency-weighted mean of centred mode
+products. The null variance uses the product of the left and right covariances over
 the same modes. The `dominant` formula uses the published SatuTe dominant
 eigenspace. The `eigenvalue_weighted` formula uses every non-stationary mode with relative
 weight `exp((lambda_k - lambda_1) * t)`, where `t` is the tested branch length
@@ -106,13 +106,33 @@ largest posterior category.
 For `dominant` and `eigenvalue_weighted`, each rate category is evaluated on a
 tree whose branch lengths are multiplied by the IQ-TREE category rate. The
 `.sat.stat` file contains one pooled row and one row per category for each branch
-and formula. Their pooled row uses the SatuTe global-variance rule:
+and formula. Category rows retain the IQ-TREE assignments for diagnostics,
+with `satP=NA` and `Decision=diagnostic`. The pooled test instead integrates
+the fitted category proportions over every valid site. For a zero-rate
+category, its joint probability `J_0` remains in the saturated null:
 
 ```text
-satC_pooled   = sum_c n_c / n * satC_c
-satVar_pooled = sum_c n_c / n * satVar_c
-satSE_pooled  = sqrt(satVar_pooled / n)
+p_inf(s) = q_0 J_0(s) + sum_{c:r_c>0} q_c A_c(s) B_c(s)
+C_{s,c,i}  = (F_left(s,c,i) - mean_s F_left(.,c,i))
+             * (F_right(s,c,i) - mean_s F_right(.,c,i))
+u_s(t) = sum_{c:r_c>0} q_c A_c(s) B_c(s)
+           * sum_{i in formula} exp(lambda_i r_c t) C_{s,c,i} / p_inf(s)
+satC_pooled = mean(u_s / exp(delta))
+satVar_pooled = sample_variance(u_s / exp(delta))
+satSE_pooled = sqrt(satVar_pooled / n)
 ```
+
+One common `delta = max_{c:r_c>0,i} lambda_i r_c t` prevents underflow.
+The invariant component contributes no numerator signal. Each category's mode
+products are centred on their own marginal means over every valid site, for
+the same reason the homogeneous statistic is: without it the pooled z-score
+inherits the `E[L_k]E[R_k]` bias of a misspecified model. Centring makes the
+weighted formula an estimated covariance rather than an exact finite/null
+likelihood ratio; the two agree when the fitted model generates the data.
+The dominant formula retains the tied dominant eigenspace.
+The native centred-mixture regression runs with `./satute check power` and
+`./satute check all`; it checks all 256 four-taxon patterns, exported site
+scores, sample variance, and the opt-in `M+ M a` weight projection.
 
 Every row also reports the model-based scale
 

@@ -34,6 +34,7 @@ namespace satute {
  */
 struct SatuTeDirectionalCache {
     std::vector<double> data;
+    std::vector<double> log_scales;
     int max_degree = 0;
     int nstates = 0;
     size_t nptn = 0;
@@ -48,11 +49,27 @@ struct SatuTeDirectionalCache {
         return &data[((size_t)node_id * (size_t)max_degree + (size_t)neighbor_index)
                      * dir_stride + ptn * (size_t)nstates];
     }
+    inline double &logScale(int node_id, int neighbor_index, size_t ptn) {
+        return log_scales[((size_t)node_id * max_degree + neighbor_index) * nptn + ptn];
+    }
+    inline double logScale(int node_id, int neighbor_index, size_t ptn) const {
+        return log_scales[((size_t)node_id * max_degree + neighbor_index) * nptn + ptn];
+    }
+};
+
+/** Streaming centred mixture score, with a common persistence scale. */
+struct SatuTeMixtureAccumulator {
+    double proportion = 0.0;
+    double weight_scale = 0.0;
+    std::vector<double> log_null;
+    std::vector<double> score;
+    std::vector<char> invalid;
 };
 
 /** Bytes a cache of this shape needs, for budgeting before allocating. */
 size_t directionalCacheBytes(
-    size_t node_bound, int max_degree, size_t nptn, int nstates);
+    size_t node_bound, int max_degree, size_t nptn, int nstates,
+    bool track_scales = false);
 
 /**
  * Symmetric eigenvalue decomposition by cyclic Jacobi rotations: a, IN/OUT,
@@ -99,7 +116,8 @@ bool buildDirectionalCache(
     int num_threads,
     size_t node_bound,
     int max_degree,
-    SatuTeDirectionalCache &cache);
+    SatuTeDirectionalCache &cache,
+    bool track_scales = false);
 
 /**
  * @param out_pattern_coherence  Optional. When non-null, resized to the
@@ -129,11 +147,14 @@ SatuTeBranchResult computeCategoryStatistic(
     const SatuTeBranchResult &base,
     const SatuTeDirectionalCache *directional_cache = nullptr,
     std::vector<double> *out_pattern_coherence = nullptr,
-    const SatuTeDirectedContext *directed = nullptr);
+    const SatuTeDirectedContext *directed = nullptr,
+    SatuTeMixtureAccumulator *mixture = nullptr);
 
-SatuTeBranchResult poolCategoryResults(
-    const std::vector<SatuTeBranchResult> &category_results,
-    const SatuTeBranchResult &base);
+SatuTeBranchResult computeMixtureStatistic(
+    const SatuTeMixtureAccumulator &mixture,
+    Alignment *aln,
+    const SatuTeBranchResult &base,
+    std::vector<double> *out_pattern_coherence = nullptr);
 
 /**
  * Apply Benjamini-Yekutieli FDR adjustment independently to the pooled

@@ -6063,10 +6063,10 @@ void usage_iqtree(char* argv[], bool full_command) {
     << "  --satute-alpha NUM   Significance and FDR level (default: 0.05)" << endl
     << "  --satute-edges FILE  Analyze only branch IDs listed in FILE" << endl
     << "  --satute-enhanced-weights" << endl
-    << "                       Use GLS/matched-filter mode weighting for" << endl
-    << "                       eigenvalue_weighted (experimental; default off)" << endl
-    << "  --satute-sites       Also write .sat.site: per-alignment-site centred" << endl
-    << "                       weighted contribution to satC, per analysed branch." << endl
+    << "                       Project homogeneous persistence weights onto" << endl
+    << "                       identifiable modes (experimental; default off)" << endl
+    << "  --satute-sites       Also write .sat.site: per-alignment-site" << endl
+    << "                       score contribution to satC, per analysed branch." << endl
     << "                       For sliding-window analyses. One row per branch and" << endl
     << "                       site, so pair with --satute-edges on large trees" << endl
     << "  --satute-sites-max NUM" << endl

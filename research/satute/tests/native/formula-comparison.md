@@ -59,8 +59,10 @@ non-stationary mode keeps weight one.
 For rate-category models, `branch_length` in this expression is the tested
 branch length multiplied by the IQ-TREE category rate. Native `--satute` obtains
 the maximum-posterior pattern category and category multiplier from IQ-TREE,
-then emits category-specific weights and a pooled row whose variance uses the
-SatuTe global-variance rule. Pure `+I` is excluded from category-wise output
+then emits category-specific diagnostics with no nominal p-values. The pooled
+test integrates the fitted rate proportions using the saturated mixture null,
+retains the invariant joint term only in its denominator, and uses the sample
+variance of the integrated site scores. Pure `+I` is excluded from category-wise output
 unless IQ-TREE combines it with a discrete rate model that provides
 `computePatternRates` categories.
 

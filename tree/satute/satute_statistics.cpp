@@ -49,6 +49,13 @@ static void ensureTransitionMatrix(
     double *transition = &transition_cache[(size_t)branch->node->id * matrix_size];
     double length = branch->length * rate_multiplier;
 
+    if (length == 0.0) {
+        for (int i = 0; i < nstates; i++)
+            for (int j = 0; j < nstates; j++)
+                transition[i * nstates + j] = (i == j) ? 1.0 : 0.0;
+        return;
+    }
+
     for (int parent_state = 0; parent_state < nstates; parent_state++) {
         for (int child_state = 0; child_state < nstates; child_state++) {
             double value = 0.0;
@@ -102,7 +109,8 @@ static void computeOrdinaryPartial(
     int nstates,
     const vector<double> &transition_cache,
     double *scratch,
-    double *partial)
+    double *partial,
+    double *log_scale = nullptr)
 {
     if (node->isLeaf()) {
         // IUPAC ambiguity codes occupy states in [nstates, STATE_UNKNOWN) and
@@ -138,7 +146,8 @@ static void computeOrdinaryPartial(
             nstates,
             transition_cache,
             scratch + nstates,
-            child_partial);
+            child_partial,
+            log_scale);
 
         // Filled by prepareTransitionMatrices(), which walks the same edges.
         const double *transition =
@@ -153,15 +162,13 @@ static void computeOrdinaryPartial(
         }
     }
 
-    // Rescale to keep deep subtrees away from underflow. Downstream only the
-    // normalised posterior partial[s]*freq[s] / sum_s(partial[s]*freq[s]) is
-    // used, so any positive scale factor cancels exactly and no log-scale
-    // bookkeeping is required. Without this, subtrees of a few hundred taxa
-    // drive the product below DBL_MIN and their sites are silently discarded.
+    // Mixture responsibilities need the likelihood scale that posteriors cancel.
     double partial_sum = 0.0;
     for (int state = 0; state < nstates; state++)
         partial_sum += partial[state];
     if (partial_sum > 0.0 && isfinite(partial_sum)) {
+        if (log_scale != nullptr)
+            *log_scale += log(partial_sum);
         for (int state = 0; state < nstates; state++)
             partial[state] /= partial_sum;
     }
@@ -228,7 +235,8 @@ static void computeDirectedPartial(
     const double *state_freq,
     const vector<double> &transition_cache,
     double *scratch,
-    double *partial)
+    double *partial,
+    double *log_scale = nullptr)
 {
     if (node->isLeaf()) {
         if (node->id == root_node_id) {
@@ -262,7 +270,8 @@ static void computeDirectedPartial(
             state_freq,
             transition_cache,
             scratch + nstates,
-            neighbor_partial);
+            neighbor_partial,
+            log_scale);
 
         Node *true_child = (parent_of[neighbor->id] == node->id) ? neighbor : node;
         const double *transition =
@@ -298,6 +307,8 @@ static void computeDirectedPartial(
     for (int state = 0; state < nstates; state++)
         partial_sum += partial[state];
     if (partial_sum > 0.0 && isfinite(partial_sum)) {
+        if (log_scale != nullptr)
+            *log_scale += log(partial_sum);
         for (int state = 0; state < nstates; state++)
             partial[state] /= partial_sum;
     }
@@ -312,20 +323,22 @@ static int neighborIndex(Node *node, Node *target) {
 }
 
 /** Same rescaling the recursion applies; any positive scale cancels later. */
-static inline void rescalePartial(double *partial, int nstates) {
+static inline void rescalePartial(double *partial, int nstates, double *log_scale = nullptr) {
     double partial_sum = 0.0;
     for (int state = 0; state < nstates; state++)
         partial_sum += partial[state];
     if (partial_sum > 0.0 && isfinite(partial_sum)) {
+        if (log_scale != nullptr)
+            *log_scale += log(partial_sum);
         for (int state = 0; state < nstates; state++)
             partial[state] /= partial_sum;
     }
 }
 
 size_t directionalCacheBytes(
-    size_t node_bound, int max_degree, size_t nptn, int nstates)
+    size_t node_bound, int max_degree, size_t nptn, int nstates, bool track_scales)
 {
-    return node_bound * (size_t)max_degree * nptn * (size_t)nstates * sizeof(double);
+    return node_bound * (size_t)max_degree * nptn * (nstates + (track_scales ? 1 : 0)) * sizeof(double);
 }
 
 /**
@@ -358,10 +371,13 @@ static void upwardMessages(
 
     for (int state = 0; state < nstates; state++)
         out[state] = 1.0;
+    double scale = 0.0;
     FOR_NEIGHBOR_IT(node, dad, it) {
         Node *child = (*it)->node;
         const double *child_msg =
             cache.message(child->id, neighborIndex(child, node), ptn);
+        if (!cache.log_scales.empty())
+            scale += cache.logScale(child->id, neighborIndex(child, node), ptn);
         // Transition matrices are keyed by the node the edge descends into, so
         // under this rooting the key for edge (node, child) is child's id.
         const double *transition =
@@ -375,7 +391,9 @@ static void upwardMessages(
             out[parent_state] *= contribution;
         }
     }
-    rescalePartial(out, nstates);
+    rescalePartial(out, nstates, cache.log_scales.empty() ? nullptr : &scale);
+    if (!cache.log_scales.empty())
+        cache.logScale(node->id, neighborIndex(node, dad), ptn) = scale;
 }
 
 /**
@@ -402,12 +420,15 @@ static void downwardMessages(
         return;
 
     const int degree = (int)node->neighbors.size();
+    double total_scale = 0.0;
     for (int i = 0; i < degree; i++) {
         Node *other = node->neighbors[i]->node;
         // Under the global rooting the deeper endpoint owns the matrix: that is
         // `node` itself for the edge back to dad, and the neighbour otherwise.
         const int key = (other == dad) ? node->id : other->id;
         const double *in_msg = cache.message(other->id, neighborIndex(other, node), ptn);
+        if (!cache.log_scales.empty())
+            total_scale += cache.logScale(other->id, neighborIndex(other, node), ptn);
         const double *transition = &transition_cache[(size_t)key * nstates * nstates];
         double *dst = &incoming[(size_t)i * nstates];
         for (int parent_state = 0; parent_state < nstates; parent_state++) {
@@ -445,7 +466,14 @@ static void downwardMessages(
             out[state] = prefix[(size_t)j * nstates + state] *
                 suffix[(size_t)(j + 1) * nstates + state];
         }
-        rescalePartial(out, nstates);
+        double scale = 0.0;
+        if (!cache.log_scales.empty()) {
+            Node *other = node->neighbors[j]->node;
+            scale = total_scale - cache.logScale(other->id, neighborIndex(other, node), ptn);
+        }
+        rescalePartial(out, nstates, cache.log_scales.empty() ? nullptr : &scale);
+        if (!cache.log_scales.empty())
+            cache.logScale(node->id, j, ptn) = scale;
     }
 
     // Safe to clobber the scratch below: every outgoing message is already
@@ -465,7 +493,8 @@ bool buildDirectionalCache(
     int num_threads,
     size_t node_bound,
     int max_degree,
-    SatuTeDirectionalCache &cache)
+    SatuTeDirectionalCache &cache,
+    bool track_scales)
 {
     cache.ready = false;
     if (root == nullptr || root->isLeaf() || max_degree <= 0)
@@ -477,6 +506,9 @@ bool buildDirectionalCache(
     cache.nptn = nptn;
     cache.dir_stride = nptn * (size_t)nstates;
     cache.data.assign(node_bound * (size_t)max_degree * cache.dir_stride, 0.0);
+    cache.log_scales.clear();
+    if (track_scales)
+        cache.log_scales.assign(node_bound * (size_t)max_degree * nptn, 0.0);
 
     // One matrix per edge, filled from the same rooting the sweeps use.
     vector<double> transition_cache(node_bound * (size_t)(nstates * nstates), 0.0);
@@ -592,35 +624,16 @@ void jacobiEigenSymmetric(vector<double> &a, int n, vector<double> &eigenvectors
 }
 
 /**
- * Solve w = M+ s: the Rayleigh-quotient-maximising combination of modes for
- * detecting a signal shaped like s under noise covariance M, where M+ is the
- * Moore-Penrose pseudo-inverse of M. M is the Hadamard product of the left
- * and right per-mode covariance matrices and is PSD by the Schur product
- * theorem (a Hadamard product of two PSD matrices is PSD), so its
- * eigenvalues are all >= 0 and a truncated pseudo-inverse is well-defined.
- *
- * s here is exp((lambda_k - lambda_max) * effective_length), the current
- * formula's own weight vector, reused as the model-predicted signal shape.
- * This reduces to the un-enhanced formula exactly when M is a scalar
- * multiple of the identity (equal, uncorrelated per-mode noise -- the
- * implicit assumption the plain weighted sum makes) and interpolates
- * smoothly as modes become near-degenerate, which is precisely where that
- * assumption breaks down and findDominantModes's hard-threshold mode
- * SELECTION (used by the dominant formula, untouched here) becomes unstable
- * -- see spectral_gap_stability in tests/native/validate_weighted_formula.py.
- *
- * Eigenvalues of M at or below `tolerance` are treated as zero (truncated,
- * not naively inverted): M is estimated from finite data, so near-zero
- * eigenvalues are noise, not signal, and inverting them would blow up the
- * weight on exactly the least-trustworthy directions -- again, exactly the
- * case a near-degenerate spectral gap produces.
+ * The model mean is M a, so M+ times that mean is the projection M+ M a.
+ * Retain persistence weights on identifiable directions; do not invert a
+ * second time by mistaking a itself for the model mean.
  */
 static vector<double> solveEnhancedWeights(const vector<double> &noise_matrix, const vector<double> &signal, size_t n)
 {
     if (n == 1) {
         double m = noise_matrix[0];
         double tolerance = fabs(m) * 1e-8;
-        return vector<double>(1, (m > tolerance) ? signal[0] / m : 0.0);
+        return vector<double>(1, (m > tolerance) ? signal[0] : 0.0);
     }
 
     vector<double> a = noise_matrix;
@@ -642,11 +655,23 @@ static vector<double> solveEnhancedWeights(const vector<double> &noise_matrix, c
         double projection = 0.0;
         for (size_t i = 0; i < n; i++)
             projection += eigenvectors[i * n + k] * signal[i];
-        double scale = projection / eigenvalues[k];
+        double scale = projection;
         for (size_t i = 0; i < n; i++)
             weights[i] += scale * eigenvectors[i * n + k];
     }
     return weights;
+}
+
+static void addMixtureCategory(
+    SatuTeMixtureAccumulator &mixture, size_t ptn,
+    double log_density, double category_score)
+{
+    double previous = mixture.log_null[ptn];
+    double largest = max(previous, log_density);
+    double combined = largest + log(exp(previous - largest) + exp(log_density - largest));
+    mixture.score[ptn] = mixture.score[ptn] * exp(previous - combined)
+        + category_score * exp(log_density - combined);
+    mixture.log_null[ptn] = combined;
 }
 
 static SatuTeBranchResult computeCategoryStatisticImpl(
@@ -668,7 +693,8 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     const SatuTeBranchResult &base,
     const SatuTeDirectionalCache *directional_cache = nullptr,
     vector<double> *out_pattern_coherence = nullptr,
-    const SatuTeDirectedContext *directed = nullptr)
+    const SatuTeDirectedContext *directed = nullptr,
+    SatuTeMixtureAccumulator *mixture = nullptr)
 {
     SatuTeBranchResult result = base;
     size_t nmodes = formula.modes.size();
@@ -751,6 +777,23 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         out_pattern_coherence->assign((size_t)nptn, 0.0);
     }
 
+    // The mixture score is centred for the same reason the homogeneous one is:
+    // the raw cross-moment only tests independence when E[L_k]=E[R_k]=0, which
+    // a misspecified model breaks. The marginal means are over every valid site
+    // rather than this category's assigned subset, so like the export above the
+    // factors are kept and the score formed in a second pass.
+    const bool want_mixture = (mixture != nullptr && mixture->proportion > 0.0);
+    vector<double> mixture_left_factor;
+    vector<double> mixture_right_factor;
+    vector<double> mixture_log_density;
+    vector<char> mixture_counted;
+    if (want_mixture) {
+        mixture_left_factor.assign((size_t)nptn * nmodes, 0.0);
+        mixture_right_factor.assign((size_t)nptn * nmodes, 0.0);
+        mixture_log_density.assign((size_t)nptn, 0.0);
+        mixture_counted.assign((size_t)nptn, 0);
+    }
+
     // Patterns are independent, so the loop parallelises over them. Each thread
     // accumulates into its own slot and the slots are combined in thread order
     // after the region; together with schedule(static) that makes results bit
@@ -770,6 +813,9 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     vector<double> thread_left_first(nthreads * nmodes, 0.0);
     vector<double> thread_right_first(nthreads * nmodes, 0.0);
     vector<double> thread_coherence_vec(nthreads * nmodes, 0.0);
+    vector<double> thread_mixture_left_first(nthreads * nmodes, 0.0);
+    vector<double> thread_mixture_right_first(nthreads * nmodes, 0.0);
+    vector<double> thread_mixture_sites(nthreads, 0.0);
 
 #ifdef _OPENMP
 #pragma omp parallel num_threads(nthreads)
@@ -793,6 +839,9 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     vector<double> local_left_first(nmodes, 0.0);
     vector<double> local_right_first(nmodes, 0.0);
     vector<double> local_coherence_vec(nmodes, 0.0);
+    vector<double> local_mixture_left_first(nmodes, 0.0);
+    vector<double> local_mixture_right_first(nmodes, 0.0);
+    double local_mixture_sites = 0.0;
     double local_valid_sites = 0.0;
     int local_rate_category_sites = 0;
     int local_skipped_sites = 0;
@@ -804,21 +853,30 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
 #pragma omp for schedule(static) nowait
 #endif
     for (int ptn = 0; ptn < nptn; ptn++) {
+        bool assigned = true;
         if (pattern_cat != nullptr && required_pattern_cat >= 0) {
-            if ((size_t)ptn >= pattern_cat->size() || (*pattern_cat)[ptn] != required_pattern_cat)
-                continue;
+            assigned = (size_t)ptn < pattern_cat->size() && (*pattern_cat)[ptn] == required_pattern_cat;
         }
+        if (!assigned && !want_mixture)
+            continue;
 
         int freq = aln->at(ptn).frequency;
         if (freq <= 0)
             continue;
-        local_rate_category_sites += freq;
+        if (assigned)
+            local_rate_category_sites += freq;
 
         const double *left_lh;
         const double *right_lh;
+        double left_log_scale = 0.0;
+        double right_log_scale = 0.0;
         if (use_cache) {
             left_lh = directional_cache->message(left_node->id, left_message_index, ptn);
             right_lh = directional_cache->message(right_node->id, right_message_index, ptn);
+            if (want_mixture) {
+                left_log_scale = directional_cache->logScale(left_node->id, left_message_index, ptn);
+                right_log_scale = directional_cache->logScale(right_node->id, right_message_index, ptn);
+            }
         } else if (use_directed) {
             computeDirectedPartial(
                 left_node,
@@ -832,7 +890,7 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
                 &state_freq[0],
                 transition_cache,
                 &scratch[0],
-                &left_likelihood[0]);
+                &left_likelihood[0], !want_mixture ? nullptr : &left_log_scale);
             computeDirectedPartial(
                 right_node,
                 right_dad,
@@ -845,7 +903,7 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
                 &state_freq[0],
                 transition_cache,
                 &scratch[0],
-                &right_likelihood[0]);
+                &right_likelihood[0], !want_mixture ? nullptr : &right_log_scale);
             left_lh = &left_likelihood[0];
             right_lh = &right_likelihood[0];
         } else {
@@ -858,7 +916,7 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
                 nstates,
                 transition_cache,
                 &scratch[0],
-                &left_likelihood[0]);
+                &left_likelihood[0], !want_mixture ? nullptr : &left_log_scale);
             computeOrdinaryPartial(
                 right_node,
                 right_dad,
@@ -868,7 +926,7 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
                 nstates,
                 transition_cache,
                 &scratch[0],
-                &right_likelihood[0]);
+                &right_likelihood[0], !want_mixture ? nullptr : &right_log_scale);
             left_lh = &left_likelihood[0];
             right_lh = &right_likelihood[0];
         }
@@ -888,7 +946,10 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
 
         if (!isfinite(left_sum) || !isfinite(right_sum) ||
             fabs(left_sum) <= DBL_MIN || fabs(right_sum) <= DBL_MIN) {
-            local_skipped_sites += freq;
+            if (assigned)
+                local_skipped_sites += freq;
+            if (want_mixture && (!isfinite(left_sum) || !isfinite(right_sum)))
+                mixture->invalid[ptn] = 1;
             continue;
         }
         for (int state = 0; state < nstates; state++) {
@@ -921,9 +982,46 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
             }
         }
         if (!valid) {
-            local_skipped_sites += freq;
+            if (assigned)
+                local_skipped_sites += freq;
+            if (want_mixture)
+                mixture->invalid[ptn] = 1;
             continue;
         }
+
+        if (want_mixture) {
+            // A zero-rate category keeps its joint probability in the null but
+            // carries no branch signal, so it stores no factors and scores 0.
+            const bool has_signal = (rate_multiplier != 0.0);
+            double null_ratio = 1.0;
+            if (!has_signal) {
+                null_ratio = 0.0;
+                for (int state = 0; state < nstates; state++)
+                    if (state_freq[state] > 0.0)
+                        null_ratio += left_posterior[state] * right_posterior[state] / state_freq[state];
+            }
+            if (null_ratio > 0.0) {
+                double log_density = log(mixture->proportion) + log(left_sum) + log(right_sum)
+                    + left_log_scale + right_log_scale + log(null_ratio);
+                if (isfinite(log_density)) {
+                    mixture_log_density[ptn] = log_density;
+                    mixture_counted[ptn] = 1;
+                    if (has_signal) {
+                        for (size_t i = 0; i < nmodes; i++) {
+                            mixture_left_factor[(size_t)ptn * nmodes + i] = left_factor[i];
+                            mixture_right_factor[(size_t)ptn * nmodes + i] = right_factor[i];
+                            local_mixture_left_first[i] += freq * left_factor[i];
+                            local_mixture_right_first[i] += freq * right_factor[i];
+                        }
+                        local_mixture_sites += freq;
+                    }
+                } else {
+                    mixture->invalid[ptn] = 1;
+                }
+            }
+        }
+        if (!assigned)
+            continue;
 
         local_valid_sites += freq;
         if (want_pattern_coherence) {
@@ -958,7 +1056,10 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         thread_left_first[thread_id * nmodes + i] = local_left_first[i];
         thread_right_first[thread_id * nmodes + i] = local_right_first[i];
         thread_coherence_vec[thread_id * nmodes + i] = local_coherence_vec[i];
+        thread_mixture_left_first[thread_id * nmodes + i] = local_mixture_left_first[i];
+        thread_mixture_right_first[thread_id * nmodes + i] = local_mixture_right_first[i];
     }
+    thread_mixture_sites[thread_id] = local_mixture_sites;
     } // omp parallel
 
     // Fixed combination order, so the totals do not depend on thread timing.
@@ -977,6 +1078,46 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
             left_first[i] += thread_left_first[thread * nmodes + i];
             right_first[i] += thread_right_first[thread * nmodes + i];
             coherence_vec[i] += thread_coherence_vec[thread * nmodes + i];
+        }
+    }
+
+    // Before the early return below: a category can own no assigned pattern
+    // yet still owe the mixture its share of every site.
+    if (want_mixture) {
+        double mixture_sites = 0.0;
+        vector<double> mixture_left_mean(nmodes, 0.0);
+        vector<double> mixture_right_mean(nmodes, 0.0);
+        for (int thread = 0; thread < nthreads; thread++) {
+            mixture_sites += thread_mixture_sites[thread];
+            for (size_t i = 0; i < nmodes; i++) {
+                mixture_left_mean[i] += thread_mixture_left_first[thread * nmodes + i];
+                mixture_right_mean[i] += thread_mixture_right_first[thread * nmodes + i];
+            }
+        }
+        if (mixture_sites > 0.0) {
+            for (size_t i = 0; i < nmodes; i++) {
+                mixture_left_mean[i] /= mixture_sites;
+                mixture_right_mean[i] /= mixture_sites;
+            }
+        }
+        // Serial and in pattern order: the streaming combination is not
+        // associative, so this keeps results reproducible across thread counts.
+        for (int ptn = 0; ptn < nptn; ptn++) {
+            if (!mixture_counted[ptn])
+                continue;
+            double category_score = 0.0;
+            for (size_t i = 0; i < nmodes; i++) {
+                double centred_left =
+                    mixture_left_factor[(size_t)ptn * nmodes + i] - mixture_left_mean[i];
+                double centred_right =
+                    mixture_right_factor[(size_t)ptn * nmodes + i] - mixture_right_mean[i];
+                category_score += mode_weights[i] * centred_left * centred_right;
+            }
+            category_score *= mixture->weight_scale;
+            if (isfinite(category_score))
+                addMixtureCategory(*mixture, (size_t)ptn, mixture_log_density[ptn], category_score);
+            else
+                mixture->invalid[ptn] = 1;
         }
     }
 
@@ -1011,13 +1152,7 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
         }
     }
 
-    // dominant never sets eigenvalue_weighted, so it always takes this
-    // branch unchanged: active_weights == mode_weights, exactly today's
-    // behaviour. eigenvalue_weighted solves for an enhanced weight only when
-    // explicitly requested via --satute-enhanced-weights: mathematically
-    // valid (proven not to affect calibration) but empirically inert at
-    // short side-branch lengths and measurably worse for power at long ones
-    // (see tests/native/validate_weighted_formula.py); opt-in, default off.
+    // The optional projection removes unidentifiable directions of M a.
     vector<double> active_weights = mode_weights;
     if (formula.eigenvalue_weighted && enhanced_weights) {
         vector<double> noise_matrix(nmodes * nmodes, 0.0);
@@ -1063,50 +1198,47 @@ static SatuTeBranchResult computeCategoryStatisticImpl(
     // eigenvalue_weighted it is now data-dependent and only known here.
     result.weights = format::formatVector(active_weights);
     finalizeSatuTeResult(result);
+    if (mixture != nullptr) {
+        result.p_value = numeric_limits<double>::quiet_NaN();
+        result.decision = "diagnostic";
+        result.decision_bonferroni = "not_tested";
+    }
     return result;
 }
 
-SatuTeBranchResult poolCategoryResults(
-    const vector<SatuTeBranchResult> &category_results,
-    const SatuTeBranchResult &base)
+SatuTeBranchResult computeMixtureStatistic(
+    const SatuTeMixtureAccumulator &mixture, Alignment *aln,
+    const SatuTeBranchResult &base, vector<double> *out_pattern_coherence)
 {
-    SatuTeBranchResult pooled = base;
-    pooled.rate_category = "pooled";
-    pooled.rate_multiplier = "NA";
-    pooled.effective_length = pooled.length;
-
-    double valid_total = 0.0;
-    int rate_category_sites = 0;
-    int skipped_total = 0;
-    for (size_t i = 0; i < category_results.size(); i++) {
-        valid_total += category_results[i].valid_sites;
-        rate_category_sites += category_results[i].rate_category_sites;
-        skipped_total += category_results[i].skipped_sites;
-    }
-
-    pooled.valid_sites = (int)valid_total;
-    pooled.rate_category_sites = rate_category_sites;
-    pooled.skipped_sites = skipped_total;
-
-    if (valid_total <= 0.0) {
-        finalizeSatuTeResult(pooled);
-        return pooled;
-    }
-
-    pooled.coherence = 0.0;
-    pooled.variance = 0.0;
-    for (size_t i = 0; i < category_results.size(); i++) {
-        const SatuTeBranchResult &category = category_results[i];
-        if (category.valid_sites <= 0 || !isfinite(category.coherence) || !isfinite(category.variance))
+    SatuTeBranchResult result = base;
+    result.coherence = 0.0;
+    if (out_pattern_coherence != nullptr)
+        out_pattern_coherence->assign(aln->size(), 0.0);
+    for (size_t ptn = 0; ptn < aln->size(); ptn++) {
+        int freq = aln->at(ptn).frequency;
+        result.rate_category_sites += freq;
+        if (mixture.invalid[ptn] || !isfinite(mixture.log_null[ptn]) || !isfinite(mixture.score[ptn])) {
+            result.skipped_sites += freq;
             continue;
-        double category_weight = (double)category.valid_sites / valid_total;
-        pooled.coherence += category_weight * category.coherence;
-        pooled.variance += category_weight * category.variance;
+        }
+        result.valid_sites += freq;
+        result.coherence += freq * mixture.score[ptn];
+        if (out_pattern_coherence != nullptr)
+            (*out_pattern_coherence)[ptn] = mixture.score[ptn];
     }
-    pooled.weights = "NA";
-
-    finalizeSatuTeResult(pooled);
-    return pooled;
+    if (result.valid_sites > 0)
+        result.coherence /= result.valid_sites;
+    result.variance = 0.0;
+    for (size_t ptn = 0; ptn < aln->size(); ptn++) {
+        if (mixture.invalid[ptn] || !isfinite(mixture.log_null[ptn]) || !isfinite(mixture.score[ptn]))
+            continue;
+        double difference = mixture.score[ptn] - result.coherence;
+        result.variance += aln->at(ptn).frequency * difference * difference;
+    }
+    if (result.valid_sites > 1)
+        result.variance /= result.valid_sites - 1;
+    finalizeSatuTeResult(result);
+    return result;
 }
 
 void applySeparateFormulaFdr(
@@ -1194,7 +1326,8 @@ SatuTeBranchResult computeCategoryStatistic(
     const SatuTeBranchResult &base,
     const SatuTeDirectionalCache *directional_cache,
     vector<double> *out_pattern_coherence,
-    const SatuTeDirectedContext *directed)
+    const SatuTeDirectedContext *directed,
+    SatuTeMixtureAccumulator *mixture)
 {
     return computeCategoryStatisticImpl(
         left_node,
@@ -1215,7 +1348,8 @@ SatuTeBranchResult computeCategoryStatistic(
         base,
         directional_cache,
         out_pattern_coherence,
-        directed);
+        directed,
+        mixture);
 }
 
 } // namespace satute

@@ -30,7 +30,7 @@ iqtree3 -s aln.fa -te tree.nwk -m GTR+F -blfix --satute
 | `--satute-edges FILE` | restrict to branch IDs listed in `FILE` |
 | `--satute-sites` | also write per-site contributions (`.sat.site`) |
 | `--satute-sites-max NUM` | cap `.sat.site` to NUM branches per formula, highest `satP` first |
-| `--satute-enhanced-weights` | experimental GLS mode weighting; off by default |
+| `--satute-enhanced-weights` | project homogeneous persistence weights onto identifiable modes; off by default |
 
 Writes `<prefix>.sat.stat` (one row per branch × formula × rate category),
 plus `.sat.branch`, `.sat.tree` and `.sat.tree.nex`. Key columns: `satC`
@@ -43,7 +43,7 @@ ascertainment-bias correction; mixture models are not supported.
 
 Every branch is reported twice.
 
-- **`dominant`** — the published statistic. Uses only the eigenmodes tied to
+- **`dominant`** — the published homogeneous statistic. Uses only the eigenmodes tied to
   the largest non-zero eigenvalue, selected by a hard tolerance.
 - **`eigenvalue_weighted`** — uses every non-zero mode, weighting mode *k* by
   `exp((λ_k − λ_max)·t)`. No selection step, so it cannot flip its mode set
@@ -53,7 +53,33 @@ The statistic is **centred**: it accumulates a covariance
 `Σ_k w_k (E[L_k R_k] − E[L_k]E[R_k])`, not the raw cross-moment. The uncentred
 form is only a valid independence test when `E[L_k]=E[R_k]=0`, which fails
 under a misspecified model and biases the z-score by a factor that grows with
-alignment length.
+alignment length. This holds for both the homogeneous statistic and the rate
+mixture below.
+
+For discrete rate mixtures, the pooled test integrates every positive-rate
+category for every site. Its saturated null is
+`p_inf(s) = q_0 J_0(s) + sum_{c:r_c>0} q_c A_c(s) B_c(s)`:
+the zero-rate category retains its joint probability in the denominator and
+contributes no branch signal to the numerator. Positive-rate mode persistences
+share one branch-wide scale, and each category's mode products are centred on
+their own marginal means over every valid site. The pooled mean and sample
+variance of these site scores define `satC`, `satVar` and the normal test.
+`dominant` retains its selected modes; `eigenvalue_weighted` uses every
+non-stationary mode. Centring makes the weighted score an estimated covariance
+rather than an exact finite/null likelihood ratio: the two coincide when the
+fitted model generates the data, and only the centred form stays calibrated
+when it does not.
+
+IQ-TREE's maximum-posterior category assignments remain visible as diagnostic
+rows with `satP=NA` and `Decision=diagnostic`. They do not define independent
+null samples and are not pooled into the test. `.sat.site` exports the actual
+integrated score used by the pooled result.
+
+The optional homogeneous projection uses the model mean `M a`, giving weights
+`M+ M a`; full-rank information therefore preserves the default persistence
+weights. The integrated mixture score already uses the model persistence law.
+Earlier native rate-mixture outputs must be regenerated for this construction;
+historical release artifacts have not been rewritten.
 
 BY-FDR is applied separately within each formula's pooled branch rows.
 Rate-category rows are diagnostic and are not members of either FDR family.

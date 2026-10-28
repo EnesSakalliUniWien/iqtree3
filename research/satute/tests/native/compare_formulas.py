@@ -257,16 +257,11 @@ def compute_formula(sequences, lengths, model, formula, alpha=0.05, enhanced_wei
     left_cov = left_second / valid_sites - np.outer(left_mean, left_mean)
     right_cov = right_second / valid_sites - np.outer(right_mean, right_mean)
 
-    # dominant never sets eigenvalue_weighted, so it always takes this branch
-    # unchanged: active_weights == weights. eigenvalue_weighted solves
-    # w = M+ s via a truncated pseudo-inverse of the noise-covariance matrix
-    # M = Cov_L (Hadamard) Cov_R only when enhanced_weights is requested,
-    # matching native's --satute-enhanced-weights (default off). Mirrors
-    # tree/satute/satute_statistics.cpp::solveEnhancedWeights exactly.
+    # The model mean is M a, so optional weights project with M+ M a.
     active_weights = weights
     if formula == "eigenvalue_weighted" and enhanced_weights:
         noise_matrix = left_cov * right_cov
-        active_weights = np.linalg.pinv(noise_matrix, rcond=1e-8) @ weights
+        active_weights = np.linalg.pinv(noise_matrix, rcond=1e-8) @ (noise_matrix @ weights)
 
     # Centre the cross-moment into a covariance, matching the native side.
     coherence = float(np.dot(active_weights, coherence_vec / valid_sites - left_mean * right_mean))
@@ -368,10 +363,7 @@ def compute_mode_decomposition(sequences, lengths, model, alpha=0.05):
 
 def assert_native_matches_python_reference(label, formula, implementation, reference, enhanced_weights=False):
     for field in ("satC", "satVar", "satSE", "satZ", "satP"):
-        # Only widened when enhanced_weights is active: see the matching
-        # comment in solveEnhancedWeights (tree/satute/satute_statistics.cpp).
-        tolerance = max(NATIVE_REFERENCE_TOL, abs(reference[field]) * 1e-2) \
-            if enhanced_weights and formula == "eigenvalue_weighted" else NATIVE_REFERENCE_TOL
+        tolerance = NATIVE_REFERENCE_TOL
         if not math.isclose(
             implementation[field],
             reference[field],

@@ -20,6 +20,7 @@
 #include "satute/satute_topology.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <iostream>
 #include <limits>
@@ -85,6 +86,20 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     IntVector pattern_cat;
     vector<SatuTeRateCategory> rate_categories = rates::buildRateCategories(site_rate, pattern_rates, pattern_cat);
     const IntVector *pattern_cat_ptr = pattern_cat.empty() ? nullptr : &pattern_cat;
+    const bool integrate_rates = !(rate_categories.size() == 1 && rate_categories[0].pattern_cat < 0);
+    double smallest_positive_rate = numeric_limits<double>::infinity();
+    double total_proportion = 0.0;
+    for (size_t i = 0; i < rate_categories.size(); i++) {
+        const SatuTeRateCategory &category = rate_categories[i];
+        if (!isfinite(category.rate) || category.rate < 0.0 ||
+            !isfinite(category.proportion) || category.proportion < 0.0)
+            outError("SatuTe requires finite non-negative category rates and proportions");
+        total_proportion += category.proportion;
+        if (category.proportion > 0.0 && category.rate > 0.0)
+            smallest_positive_rate = min(smallest_positive_rate, category.rate);
+    }
+    if (!(total_proportion > 0.0) || !isfinite(smallest_positive_rate))
+        outError("SatuTe requires a positive-rate category with positive proportion");
 
     set<int> target_edges = edges::readEdgeFile(edges_file);
     bool restrict_edges = (edges_file != nullptr && strlen(edges_file) > 0);
@@ -129,7 +144,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     // ever resident and the budget covers a single category.
     const size_t directional_cache_budget = (size_t)2 * 1024 * 1024 * 1024;
     const size_t directional_cache_bytes = (max_degree > 0)
-        ? satute::directionalCacheBytes(node_bound, max_degree, aln->size(), nstates)
+        ? satute::directionalCacheBytes(node_bound, max_degree, aln->size(), nstates, integrate_rates)
         : 0;
     // Escape hatch: forces the per-branch recursion so the two paths can be
     // compared against each other within one binary. Validation only.
@@ -234,8 +249,44 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     vector<vector<vector<SatuTeBranchResult> > > category_stats(
         analysed.size(),
         vector<vector<SatuTeBranchResult> >(formula_specs.size()));
-    // Rate categories partition the patterns, so summing the per-category
-    // arrays reconstructs the pooled per-pattern value.
+    vector<vector<SatuTeMixtureAccumulator> > mixture_stats;
+    vector<double> mixture_shift(analysed.size(), 0.0);
+    if (integrate_rates) {
+        // Unlike the directional cache these stay resident for the whole run
+        // and have no slower fallback, so refuse up front with an actionable
+        // message rather than failing inside the allocator. They are resident
+        // alongside the cache, so the two budgets bound the peak together.
+        const size_t mixture_bytes = analysed.size() * formula_specs.size() * aln->size() *
+            (2 * sizeof(double) + sizeof(char));
+        if (mixture_bytes > directional_cache_budget) {
+            stringstream message;
+            message << "SatuTe rate-mixture accumulators would need "
+                    << (mixture_bytes / (1024 * 1024))
+                    << " MB; restrict the run with --satute-edges";
+            outError(message.str());
+        }
+        mixture_stats.resize(analysed.size(), vector<SatuTeMixtureAccumulator>(formula_specs.size()));
+        for (size_t b = 0; b < analysed.size(); b++) {
+            double length = analysed[b].annotated_branch->length * smallest_positive_rate;
+            if (directed_nonreversible) {
+                SatuTeDirectedBasis basis;
+                formulas::buildDirectedBasis(model, nstates, length, basis);
+                if (!basis.sigma.empty())
+                    mixture_shift[b] = log(basis.sigma[0]);
+            } else {
+                double largest = -numeric_limits<double>::infinity();
+                for (size_t k = 0; k < all_nonzero_modes.size(); k++)
+                    largest = max(largest, eval[all_nonzero_modes[k]]);
+                mixture_shift[b] = largest * length;
+            }
+            for (size_t f = 0; f < formula_specs.size(); f++) {
+                mixture_stats[b][f].log_null.assign(aln->size(), -numeric_limits<double>::infinity());
+                mixture_stats[b][f].score.assign(aln->size(), 0.0);
+                mixture_stats[b][f].invalid.assign(aln->size(), 0);
+            }
+        }
+    }
+    // Homogeneous centred contributions or integrated mixture scores.
     vector<vector<vector<double> > > pooled_pattern_coherence;
     if (write_sites) {
         pooled_pattern_coherence.assign(
@@ -250,7 +301,7 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         if (use_directional_cache) {
             satute::buildDirectionalCache(
                 sweep_root, aln, model, nstates, category.rate, num_threads,
-                node_bound, max_degree, directional_cache);
+                node_bound, max_degree, directional_cache, integrate_rates);
         }
 
         vector<double> category_pattern_coherence;
@@ -329,6 +380,23 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                     directed_context.root_node_id = root->id;
                 }
 
+                SatuTeMixtureAccumulator *mixture = integrate_rates
+                    ? &mixture_stats[branch_index][formula_index] : nullptr;
+                if (mixture != nullptr) {
+                    mixture->proportion = category.proportion;
+                    double leading_log = -numeric_limits<double>::infinity();
+                    if (category.rate > 0.0) {
+                        if (directed_nonreversible) {
+                            if (!mode_sigma.empty())
+                                leading_log = log(mode_sigma[0]);
+                        } else {
+                            for (size_t i = 0; i < formula.modes.size(); i++)
+                                leading_log = max(leading_log, eval[formula.modes[i]] * effective_length);
+                        }
+                    }
+                    mixture->weight_scale = exp(leading_log - mixture_shift[branch_index]);
+                }
+
                 category_stats[branch_index][formula_index].push_back(
                     computeCategoryStatistic(
                         entry.left_node,
@@ -348,10 +416,11 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                         enhanced_weights,
                         base,
                         directional_cache.ready ? &directional_cache : nullptr,
-                        write_sites ? &category_pattern_coherence : nullptr,
-                        directed_nonreversible ? &directed_context : nullptr));
+                        write_sites && !integrate_rates ? &category_pattern_coherence : nullptr,
+                        directed_nonreversible ? &directed_context : nullptr,
+                        mixture));
 
-                if (write_sites) {
+                if (write_sites && !integrate_rates) {
                     vector<double> &target = pooled_pattern_coherence[branch_index][formula_index];
                     for (size_t ptn = 0; ptn < target.size() &&
                                          ptn < category_pattern_coherence.size(); ptn++)
@@ -396,9 +465,11 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
                 split);
             information::setSaturationScale(pooled_base, pooled_information_fraction);
 
-            SatuTeBranchResult pooled = (rate_categories.size() == 1 && rate_categories[0].pattern_cat < 0)
-                ? category_results[0]
-                : poolCategoryResults(category_results, pooled_base);
+            SatuTeBranchResult pooled = integrate_rates
+                ? computeMixtureStatistic(
+                    mixture_stats[branch_index][formula_index], aln, pooled_base,
+                    write_sites ? &pooled_pattern_coherence[branch_index][formula_index] : nullptr)
+                : category_results[0];
             pooled.rate_category = "pooled";
             pooled.rate_multiplier = "NA";
             pooled.effective_length = pooled.length;

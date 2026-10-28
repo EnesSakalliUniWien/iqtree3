@@ -47,7 +47,7 @@ void ReportWriter::write(
         << "# Columns are tab-separated with following meaning:" << endl
         << "#   ID: Branch ID" << endl
         << "#   Formula: dominant or eigenvalue_weighted" << endl
-        << "#   RateCategory: pooled for all sites, or the IQ-TREE maximum-posterior pattern-rate category" << endl
+        << "#   RateCategory: pooled for the test, or an IQ-TREE maximum-posterior category diagnostic" << endl
         << "#   RateMultiplier: IQ-TREE category rate used to rescale branch lengths; NA for pooled rows" << endl
         << "#   RateSites: Number of sites assigned by IQ-TREE to this rate category or pooled row" << endl
         << "#   LeftTaxa, RightTaxa: Number of taxa on each side of the branch" << endl
@@ -55,13 +55,14 @@ void ReportWriter::write(
         << "#   SkippedSites: Alignment sites skipped because likelihood ratios were invalid" << endl
         << "#   satC: Mean SatuTe branch coherence statistic" << endl
         << "#   satVar: Variance estimate used to studentize satC" << endl
-        << "#     both formulas use the factorized saturated-null variance from left/right marginal second moments" << endl
-        << "#   satSE: Standard error of satC" << endl
-        << "#   satZ: One-sided normal test statistic" << endl
-        << "#   satP: One-sided p-value; low values indicate phylogenetic signal across the branch" << endl
+        << "#     homogeneous tests use factorized marginal covariances; pooled rate mixtures use the sample variance of the centred integrated site scores" << endl
+        << "#     hard-category moment estimates are diagnostic" << endl
+        << "#   satSE: Standard error of pooled satC; diagnostic scale for hard categories" << endl
+        << "#   satZ: Pooled one-sided normal test statistic; diagnostic standardized coherence for hard categories" << endl
+        << "#   satP: One-sided p-value; NA for hard-category diagnostics, which do not define independent null samples" << endl
         << "#   Alpha: Unadjusted significance level" << endl
         << "#   AlphaTaxonBonf: Alpha adjusted by LeftTaxa*RightTaxa" << endl
-        << "#   Decision: informative if satP <= Alpha, otherwise saturated" << endl
+        << "#   Decision: informative if satP <= Alpha, otherwise saturated; diagnostic for hard categories" << endl
         << "#   DecisionTaxonBonf: informative if satP <= AlphaTaxonBonf" << endl
         << "#   FDR_BY: Benjamini-Yekutieli adjusted p-value for pooled rows; dominant and eigenvalue_weighted are adjusted as separate branch families" << endl
         << "#   DecisionFDR: informative if FDR_BY <= Alpha; not_tested for rate-category rows" << endl
@@ -71,7 +72,7 @@ void ReportWriter::write(
         << "#   InformationFraction: Model-based non-stationary spectral energy I(t)/I(0), integrated over rate proportions for pooled rows" << endl
         << "#   SaturationIndex: Monotonic model-based scale 1-InformationFraction; 0 means no spectral decay and 1 means complete model saturation" << endl
         << "#   Split: Comma-separated taxa on the smaller side of the branch" << endl
-        << "#   Modes, Eigenvalues, Weights: spectral modes used by the formula; pooled hard-category rows use NA weights" << endl
+        << "#   Modes, Eigenvalues, Weights: spectral modes used by the formula; pooled mixture rows use NA weights" << endl
         << "# The annotated .sat.tree and .sat.tree.nex files use the pooled eigenvalue_weighted row and record both formula-specific FDR results" << endl
         << "ID\tFormula\tRateCategory\tRateMultiplier\tRateSites\tLeftTaxa\tRightTaxa\tValidSites\tSkippedSites\tsatC\tsatVar\tsatSE\tsatZ\tsatP\tAlpha\tAlphaTaxonBonf\tDecision\tDecisionTaxonBonf\tFDR_BY\tDecisionFDR\tLabel\tLength\tEffectiveLength\tInformationFraction\tSaturationIndex\tSplit\tModes\tEigenvalues\tWeights" << endl;
 
@@ -134,7 +135,7 @@ void ReportWriter::writeSiteSeries(
         << "#   ID: Branch ID (matches the ID column in .sat.stat)" << endl
         << "#   Formula: dominant or eigenvalue_weighted" << endl
         << "#   Site: 1-based alignment column" << endl
-        << "#   SiteCoherence: this site's centred, weighted contribution;" << endl
+        << "#   SiteCoherence: this site's centred contribution, homogeneous or integrated over rate categories;" << endl
         << "#     the frequency-weighted mean of these over valid sites equals" << endl
         << "#     the branch's pooled satC in .sat.stat" << endl
         << "# NOTE: sites sharing an alignment pattern carry identical values." << endl

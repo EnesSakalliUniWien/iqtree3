@@ -417,8 +417,7 @@ def jacobi_eigen_symmetric(matrix):
 
 
 def solve_enhanced_weights(noise_matrix, signal):
-    """w = M+ s via a truncated pseudo-inverse. Mirrors
-    tree/satute/satute_statistics.cpp::solveEnhancedWeights exactly."""
+    """Apply a truncated pseudoinverse to the model mean M a."""
     n = len(signal)
     if n == 1:
         m = noise_matrix[0][0]
@@ -504,14 +503,16 @@ def compute_reference(
 
     # dominant never sets eigenvalue_weighted, so it always takes this branch
     # unchanged: active_weights == mode_weights. eigenvalue_weighted solves
-    # w = M+ s via a truncated pseudo-inverse of the noise-covariance matrix
+    # w = M+ M a via a truncated pseudo-inverse of the noise-covariance matrix
     # M = Cov_L (Hadamard) Cov_R only when enhanced_weights is requested,
     # matching native's --satute-enhanced-weights (default off). Mirrors
     # tree/satute/satute_statistics.cpp::solveEnhancedWeights exactly.
     active_weights = list(mode_weights)
     if formula == "eigenvalue_weighted" and enhanced_weights:
         noise_matrix = [[left_cov[i][j] * right_cov[i][j] for j in range(nmodes)] for i in range(nmodes)]
-        active_weights = solve_enhanced_weights(noise_matrix, list(mode_weights))
+        model_mean = [sum(noise_matrix[i][j] * mode_weights[j] for j in range(nmodes))
+                      for i in range(nmodes)]
+        active_weights = solve_enhanced_weights(noise_matrix, model_mean)
 
     # Centre the cross-moment into a covariance, matching the native side.
     sat_c = sum(
@@ -571,16 +572,7 @@ def compute_gtr_reference(sequences, lengths, sites, rate_multiplier, model, for
 def assert_close(label, field, observed, expected, formula="dominant", enhanced_weights=False):
     if observed is None:
         raise AssertionError(f"{label}: native {field} is NA but Python reference is {expected}")
-    # Only widened when enhanced_weights is active: eigenvalue_weighted then
-    # solves w = M+ s (see solve_enhanced_weights), and for this file's
-    # GTR{1,2,1,1,2,1} model M inherits a genuinely repeated secondary
-    # eigenvalue, so the pseudo-inverse amplifies the usual (~1e-4 relative)
-    # cross-implementation floating-point difference between the two
-    # independently-computed M matrices. Observed range when active: 0.015%-
-    # 0.56% relative. dominant has no matrix solve and keeps the original,
-    # tighter bound regardless.
-    tolerance = max(NUMERIC_TOL, abs(expected) * 1e-2) \
-        if enhanced_weights and formula == "eigenvalue_weighted" else NUMERIC_TOL
+    tolerance = NUMERIC_TOL
     if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=tolerance):
         raise AssertionError(
             f"{label}: native {field}={observed} differs from Python reference {expected} "
@@ -641,8 +633,6 @@ def assert_jc_gamma_numeric_reference(alignment, prefix):
 
     category_refs = {}
     valid_total = 0
-    pooled_c = 0.0
-    pooled_var = 0.0
 
     for cat, count in rate_counts.items():
         sites = [site for site, site_cat in site_categories.items() if site_cat == cat]
@@ -664,21 +654,8 @@ def assert_jc_gamma_numeric_reference(alignment, prefix):
     if valid_total != sum(rate_counts.values()):
         raise AssertionError("gamma: pooled reference site count differs from IQ-TREE .rate count")
 
-    for reference in category_refs.values():
-        weight = reference["valid_sites"] / valid_total
-        pooled_c += weight * reference["satC"]
-        pooled_var += weight * reference["satVar"]
-    pooled_se = math.sqrt(pooled_var / valid_total)
-    pooled_z = pooled_c / pooled_se
-
-    pooled_expected = {
-        "satC": pooled_c,
-        "satVar": pooled_var,
-        "satSE": pooled_se,
-        "satZ": pooled_z,
-    }
-    for field, expected in pooled_expected.items():
-        assert_close("gamma pooled", field, float_or_none(pooled_row[field]), expected)
+    if int(pooled_row["ValidSites"]) != valid_total:
+        raise AssertionError("gamma: pooled mixture did not retain every valid site")
 
     return sorted(category_refs)
 
@@ -697,8 +674,6 @@ def assert_gtr_gamma_numeric_reference(alignment, prefix, model):
         )
         category_refs = {}
         valid_total = 0
-        pooled_c = 0.0
-        pooled_var = 0.0
 
         for cat, count in rate_counts.items():
             sites = [site for site, site_cat in site_categories.items() if site_cat == cat]
@@ -727,21 +702,8 @@ def assert_gtr_gamma_numeric_reference(alignment, prefix, model):
         if valid_total != sum(rate_counts.values()):
             raise AssertionError(f"gtr_gamma {formula}: pooled reference site count differs from IQ-TREE .rate count")
 
-        for reference in category_refs.values():
-            weight = reference["valid_sites"] / valid_total
-            pooled_c += weight * reference["satC"]
-            pooled_var += weight * reference["satVar"]
-        pooled_se = math.sqrt(pooled_var / valid_total)
-        pooled_z = pooled_c / pooled_se
-
-        pooled_expected = {
-            "satC": pooled_c,
-            "satVar": pooled_var,
-            "satSE": pooled_se,
-            "satZ": pooled_z,
-        }
-        for field, expected in pooled_expected.items():
-            assert_close(f"gtr_gamma {formula} pooled", field, float_or_none(pooled_row[field]), expected, formula=formula)
+        if int(pooled_row["ValidSites"]) != valid_total:
+            raise AssertionError(f"gtr_gamma {formula}: pooled mixture lost valid sites")
 
         checked[formula] = sorted(category_refs)
 

@@ -404,7 +404,7 @@ def formula_modes_and_weights(evals, formula, effective_branch_length):
     return modes, weights
 
 
-def side_partial(sequences, site, node, dad, transition_builder):
+def side_partial(sequences, site, node, dad, transition_builder, log_scale=None):
     if node.is_leaf():
         character = sequences[node.name][site]
         state = STATE_INDEX.get(character)
@@ -424,13 +424,14 @@ def side_partial(sequences, site, node, dad, transition_builder):
     for child, length in iter_neighbors(node):
         if child is dad:
             continue
-        child_partial = side_partial(sequences, site, child, node, transition_builder)
+        child_partial = side_partial(sequences, site, child, node, transition_builder, log_scale)
         transition = transition_builder(length)
         partial *= transition @ child_partial
-    # Rescale for parity with the native implementation; only posterior ratios
-    # of this vector are used downstream, so any positive factor cancels.
+    # Retain the scale when comparing likelihoods across rate categories.
     total = partial.sum()
     if total > 0.0 and np.isfinite(total):
+        if log_scale is not None:
+            log_scale[0] += math.log(total)
         partial /= total
     return partial
 
@@ -505,20 +506,11 @@ def compute_reference(sequences, split_edge, sites, model, formula, rate_multipl
     left_cov = left_second / valid_sites - np.outer(left_mean, left_mean)
     right_cov = right_second / valid_sites - np.outer(right_mean, right_mean)
 
-    # dominant never sets eigenvalue_weighted (see formula_modes_and_weights),
-    # so it always takes this branch unchanged: active_weights == weights.
-    # eigenvalue_weighted solves w = M+ s -- the Rayleigh-quotient-maximising
-    # combination of modes for signal shape s under noise covariance
-    # M = Cov_L (Hadamard) Cov_R, via a truncated (rcond=1e-8) pseudo-inverse
-    # -- only when enhanced_weights is requested, matching native's
-    # --satute-enhanced-weights (default off: mathematically valid but
-    # empirically inert/harmful at the branch lengths tested so far; see
-    # tests/native/validate_weighted_formula.py). Mirrors
-    # tree/satute/satute_statistics.cpp::solveEnhancedWeights exactly.
+    # The model mean is M a, so the optional weights are M+ M a.
     active_weights = weights
     if formula == "eigenvalue_weighted" and enhanced_weights:
         noise_matrix = left_cov * right_cov
-        active_weights = np.linalg.pinv(noise_matrix, rcond=1e-8) @ weights
+        active_weights = np.linalg.pinv(noise_matrix, rcond=1e-8) @ (noise_matrix @ weights)
 
     # Centre the cross-moment into a covariance. The raw form is only a valid
     # independence test when E[L]=E[R]=0, which fails under a misspecified
@@ -626,20 +618,81 @@ def parse_iqtree_rate_categories(path):
     return categories
 
 
-def pool_results(category_results, alpha):
-    valid_total = sum(result["valid_sites"] for result in category_results)
-    assigned_total = sum(result["assigned_sites"] for result in category_results)
-    sat_c = 0.0
-    sat_var = 0.0
-    for result in category_results:
-        weight = result["valid_sites"] / valid_total
-        sat_c += weight * result["satC"]
-        sat_var += weight * result["satVar"]
+def compute_mixture_reference(sequences, split_edge, categories, model, formula, alpha):
+    q, pi = build_q(model)
+    evals, eigenvectors, inverse = reversible_eigendecomposition(q, pi)
+    modes, _ = formula_modes_and_weights(evals, formula, 0.0)
+    dominant = max(evals[modes])
+    length = split_edge.branch_length
+    shift = max(dominant * c["rate"] * length for c in categories
+                if c["rate"] > 0.0 and c["proportion"] > 0.0)
+    nsites = len(next(iter(sequences.values())))
+    log_null = np.full(nsites, -np.inf)
+    scores = np.zeros(nsites)
+    for category in categories:
+        rate, proportion = category["rate"], category["proportion"]
+        if proportion <= 0.0:
+            continue
+        cache = {}
+
+        def build_transition(edge_length):
+            scaled = edge_length * rate
+            if scaled not in cache:
+                cache[scaled] = (np.eye(4) if scaled == 0.0 else
+                                 transition_matrix(evals, eigenvectors, inverse, scaled))
+            return cache[scaled]
+
+        weights = np.exp(evals[modes] * rate * length - shift) if rate > 0.0 else None
+        if rate > 0.0 and formula == "dominant":
+            weights = np.full(len(modes), math.exp(dominant * rate * length - shift))
+        # First pass: the category's densities and raw mode factors. The score
+        # is centred like the homogeneous statistic, so the marginal means have
+        # to be known before any contribution can be formed.
+        densities = {}
+        left_factors = {}
+        right_factors = {}
+        for site in range(nsites):
+            left_scale, right_scale = [0.0], [0.0]
+            left = side_partial(sequences, site, split_edge.left_node, split_edge.left_dad,
+                                build_transition, left_scale)
+            right = side_partial(sequences, site, split_edge.right_node, split_edge.right_dad,
+                                 build_transition, right_scale)
+            left_mass, right_mass = float(pi @ left), float(pi @ right)
+            if left_mass <= 0.0 or right_mass <= 0.0:
+                continue
+            density = math.log(proportion) + left_scale[0] + right_scale[0]
+            if rate == 0.0:
+                joint = float((pi * left) @ right)
+                if joint <= 0.0:
+                    continue
+                densities[site] = density + math.log(joint)
+            else:
+                densities[site] = density + math.log(left_mass) + math.log(right_mass)
+                left_factors[site] = eigenvectors[:, modes].T @ (pi * left / left_mass)
+                right_factors[site] = eigenvectors[:, modes].T @ (pi * right / right_mass)
+        left_mean = (np.mean(np.array(list(left_factors.values())), axis=0)
+                     if left_factors else np.zeros(len(modes)))
+        right_mean = (np.mean(np.array(list(right_factors.values())), axis=0)
+                      if right_factors else np.zeros(len(modes)))
+        for site in sorted(densities):
+            density = densities[site]
+            contribution = 0.0 if rate == 0.0 else float(
+                weights @ ((left_factors[site] - left_mean) * (right_factors[site] - right_mean)))
+            combined = float(np.logaddexp(log_null[site], density))
+            scores[site] = scores[site] * math.exp(log_null[site] - combined) + contribution * math.exp(density - combined)
+            log_null[site] = combined
+    valid = np.isfinite(log_null) & np.isfinite(scores)
+    scores = scores[valid]
+    valid_total = len(scores)
+    if valid_total < 2:
+        raise ValueError("Mixture reference requires at least two valid sites")
+    sat_c = float(scores.mean())
+    sat_var = float(scores.var(ddof=1))
     sat_se = math.sqrt(sat_var / valid_total)
     sat_z = sat_c / sat_se
     sat_p = 0.5 * math.erfc(sat_z / math.sqrt(2.0))
     return {
-        "assigned_sites": assigned_total,
+        "assigned_sites": nsites,
         "valid_sites": valid_total,
         "satC": sat_c,
         "satVar": sat_var,
@@ -647,8 +700,8 @@ def pool_results(category_results, alpha):
         "satZ": sat_z,
         "satP": sat_p,
         "Decision": "informative" if sat_p <= alpha else "saturated",
-        "Modes": category_results[0]["Modes"],
-        "Eigenvalues": category_results[0]["Eigenvalues"],
+        "Modes": ",".join(str(i) for i in modes),
+        "Eigenvalues": ",".join(format_float(float(evals[i])) for i in modes),
         "Weights": "NA",
     }
 
@@ -694,6 +747,7 @@ def compute_split_rows(
             }
             category_results.append(reference)
             if category != "pooled":
+                reference = {**reference, "satP": None, "Decision": "diagnostic"}
                 category_rows.append(
                     {
                         **split_metadata,
@@ -708,7 +762,7 @@ def compute_split_rows(
         pooled = (
             category_results[0]
             if list(categories) == ["pooled"]
-            else pool_results(category_results, alpha)
+            else compute_mixture_reference(sequences, split_edge, rate_categories_for_scale, model, formula, alpha)
         )
         pooled["InformationFraction"] = pooled_information_fraction
         pooled["SaturationIndex"] = 1.0 - pooled_information_fraction
@@ -780,7 +834,7 @@ def write_rows(path, rows):
                     format_float(row["satVar"]),
                     format_float(row["satSE"]),
                     format_float(row["satZ"]),
-                    format_float(row["satP"]),
+                    format_optional_float(row["satP"]),
                     format_float(row["Alpha"]),
                     format_float(row["AlphaTaxonBonf"]),
                     format_optional_float(row["PTaxonBonf"]),
@@ -882,17 +936,13 @@ def compare_native_rows(native_path, reference_rows, tolerance, split_labels, br
             "InformationFraction",
             "SaturationIndex",
         ):
+            if field == "satP" and reference[field] is None:
+                if native[field] != "NA":
+                    raise AssertionError(f"{key}: hard category reports a nominal p-value")
+                continue
             observed = float(native[field])
             expected = float(reference[field])
-            # Only widened when enhanced_weights is active: eigenvalue_weighted
-            # then solves w = M+ s (see solveEnhancedWeights in
-            # tree/satute/satute_statistics.cpp), and the pseudo-inverse
-            # amplifies the usual cross-implementation floating-point
-            # difference between the two independently-computed M matrices.
-            # Scaled per field: a Z-score ~40 and a p-value in [0,1] cannot
-            # share one absolute tolerance.
-            field_tolerance = max(tolerance, abs(expected) * 1e-2) \
-                if enhanced_weights and reference["Formula"] == "eigenvalue_weighted" else tolerance
+            field_tolerance = tolerance
             if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=field_tolerance):
                 raise AssertionError(
                     f"{key} {field}: native {observed} differs from reference {expected} "
@@ -948,12 +998,13 @@ def compare_native_all_rows(native_path, reference_rows, tolerance, enhanced_wei
             "InformationFraction",
             "SaturationIndex",
         ):
+            if field == "satP" and reference[field] is None:
+                if native[field] != "NA":
+                    raise AssertionError(f"{key}: hard category reports a nominal p-value")
+                continue
             observed = float(native[field])
             expected = float(reference[field])
-            # See the matching comment in compare_native_rows: only widened
-            # when enhanced_weights is active.
-            field_tolerance = max(tolerance, abs(expected) * 1e-2) \
-                if enhanced_weights and reference["Formula"] == "eigenvalue_weighted" else tolerance
+            field_tolerance = tolerance
             if not math.isclose(observed, expected, rel_tol=0.0, abs_tol=field_tolerance):
                 raise AssertionError(
                     f"{key} {field}: native {observed} differs from reference {expected} "
