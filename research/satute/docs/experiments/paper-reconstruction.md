@@ -130,7 +130,7 @@ with `SEQGEN_BIN` and, for the 16-taxon case, `EVONAPS_BRANCH_LENGTHS` pointing
 to the recovered EvoNAPS TSV.
 
 This is the Fig. 2 simulation design. The main paper simulations are
-JC-only: Seq-Gen v1.3.4 under JC, IQ-TREE/SatuTe under JC, 1,000 replicates per
+JC-only: Seq-Gen v1.3.4 under JC, IQ-TREE/SatuTe under JC, 500 replicates per
 point, site lengths `100,1000,10000`, the full 16-value branch grid, and the
 four analysis scenarios.
 

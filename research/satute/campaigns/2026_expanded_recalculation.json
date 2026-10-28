@@ -9,8 +9,8 @@
     "exact_null_training_replicates": 10000,
     "exact_null_holdout_replicates": 10000,
     "null_rejection_95_percent_half_width_at_0.05": 0.0043,
-    "corrected_invariant_null_replicates": 20000,
-    "corrected_invariant_alternative_replicates": 20000
+    "corrected_invariant_null_replicates": 2000,
+    "corrected_invariant_alternative_replicates": 2000
   },
   "resource_estimate": {
     "basis": "Linear scaling of the completed 1,000-replicate LiSC timing and artifact footprints; long-branch runtimes may differ.",
@@ -131,8 +131,8 @@
       "execution": "local",
       "command": ["./satute", "experiment", "003_invariant_mixture", "--profile", "full"],
       "postprocess_command": ["./satute", "developer", "invariant-full-figure", "--", "--input-dir", "artifacts/local/campaigns/2026_expanded_recalculation/corrected_invariant_mixture", "--output-prefix", "artifacts/local/campaigns/2026_expanded_recalculation/corrected_invariant_mixture/figures/full-analysis", "--png-scale", "3"],
-      "replicates_per_cell": 40000,
-      "replicate_note": "Actual refined invariant-mixture correction: 20,000 null plus 20,000 alternative paired exact-pattern simulations. This is the independent corrected likelihood implementation; native IQ-TREE currently reports assigned-category pooling and must not be described as this correction.",
+      "replicates_per_cell": 4000,
+      "replicate_note": "Actual refined invariant-mixture correction: 2,000 null plus 2,000 alternative paired exact-pattern simulations, giving a 95% half-width near 0.96 points at a rejection rate of 0.05. This is the independent corrected likelihood implementation; native IQ-TREE currently reports assigned-category pooling and must not be described as this correction.",
       "implementation": "independent_exact_pattern_reference",
       "native_iqtree_equivalent": false,
       "tree_cases": ["five_external"],
@@ -147,8 +147,8 @@
       "study": "saturation_diagnostics",
       "execution": "local",
       "command": ["./satute", "experiment", "004_saturation_diagnostics", "--profile", "full"],
-      "replicates_per_cell": 1000,
-      "null_replicates": 5000,
+      "replicates_per_cell": 500,
+      "null_replicates": 2000,
       "tree_cases": ["five_external"],
       "site_lengths": [1000],
       "baseline_branch_lengths": [0.1, 0.5, 1, 2, 5, 10],

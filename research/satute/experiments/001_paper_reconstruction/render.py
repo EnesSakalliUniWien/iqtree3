@@ -87,7 +87,7 @@ def panel(svg, rows, tree_case, title, left, top, width, height):
     svg.append("</g>")
 
 
-def legend(svg, x, y):
+def legend(svg, x, y, site_lengths):
     svg.append(f'<text x="{x}" y="{y}" font-size="14" font-weight="600">Scenario</text>')
     dy = 22
     for i, (_scenario, color, label) in enumerate(SCENARIOS):
@@ -96,8 +96,11 @@ def legend(svg, x, y):
         svg.append(f'<text x="{x + 44}" y="{yy + 4}" font-size="12">{label}</text>')
     y2 = y + 22 + len(SCENARIOS) * dy + 14
     svg.append(f'<text x="{x}" y="{y2}" font-size="14" font-weight="600">Sequence length</text>')
-    for i, (nsites, dash) in enumerate([("100", "6,4"), ("1000", "")]):
+    # The panels draw whatever lengths the run holds, so the legend reads them
+    # off the same rows instead of naming a fixed pair.
+    for i, nsites in enumerate(site_lengths):
         yy = y2 + 22 + i * dy
+        dash = SITE_STYLES.get(nsites, "")
         dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
         svg.append(f'<line x1="{x}" x2="{x + 34}" y1="{yy}" y2="{yy}" stroke="#222" stroke-width="2.4"{dash_attr}/>')
         svg.append(f'<text x="{x + 44}" y="{yy + 4}" font-size="12">{nsites} sites</text>')
@@ -128,8 +131,17 @@ def main():
     ]
     panel(svg, rows, "five_external", "a) five-taxon external branch", 78, 78, 390, 250)
     panel(svg, rows, "sixteen_internal", "b) 16-taxon internal branch", 555, 78, 390, 250)
-    legend(svg, 975, 92)
-    svg.append('<text x="78" y="445" font-size="11" fill="#555">Reduced run: 2 replicates per point; branch lengths 0.1, 1.0, 5.0; site lengths 100 and 1000. Use the reconstruction script with --paper-grid --reps 1000 for the full paper-scale grid.</text>')
+    # Describe the run that produced these rows rather than a fixed grid, so the
+    # caption cannot claim a smoke run when it is drawing the paper grid.
+    site_lengths = sorted({row["nsites"] for row in rows}, key=int)
+    grid = sorted({float(row["branch_length"]) for row in rows})
+    reps = max(int(row["evaluated"]) for row in rows)
+    legend(svg, 975, 92, site_lengths)
+    svg.append(
+        f'<text x="78" y="445" font-size="11" fill="#555">{reps} replicates per point; '
+        f'{len(grid)} branch lengths from {min(grid):g} to {max(grid):g}; '
+        f'site lengths {", ".join(site_lengths)}.</text>'
+    )
     svg.append("</svg>")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text("\n".join(svg) + "\n", encoding="utf-8")

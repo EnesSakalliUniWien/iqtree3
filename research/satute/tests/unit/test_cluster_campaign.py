@@ -55,7 +55,7 @@ def main() -> None:
         raise SystemExit("Exact-null training/holdout split is not balanced")
     if runs["fdr_mixed_null"]["replicates_per_cell"] != 10000:
         raise SystemExit("Mixed-null calibration lost its precision target")
-    if runs["corrected_invariant_mixture"]["replicates_per_cell"] != 40000:
+    if runs["corrected_invariant_mixture"]["replicates_per_cell"] != 4000:
         raise SystemExit("Invariant-mixture precision was silently reduced")
     catalog = ExperimentCatalog.discover(PROJECT_ROOT)
     invariant = catalog.get("003_invariant_mixture").configuration

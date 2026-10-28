@@ -62,8 +62,8 @@
       1000,
       10000
     ],
-    "null_replicates": 20000,
-    "alternative_replicates": 20000,
+    "null_replicates": 2000,
+    "alternative_replicates": 2000,
     "null_training_fraction": 0.5,
     "alpha": 0.05,
     "bootstrap_replicates": 4000,

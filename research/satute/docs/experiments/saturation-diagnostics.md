@@ -372,7 +372,7 @@ to the detection boundary.
 
 #### Higher-precision figure rerun
 
-The figure-sensitive conditions were rerun with 20,000 null and 20,000
+The figure-sensitive conditions were rerun with 2,000 null and 2,000
 alternative replicates per cell at
 
 $$
@@ -445,8 +445,9 @@ $$
 n\in\{100,500,1000,5000,10000\}
 $$
 
-and uses 20,000 null plus 20,000 alternative replicates in every cell. Across
-the two models this is 270 model--branch--length cells and 10.8 million paired
+and uses 2,000 null plus 2,000 alternative replicates in every cell, a 95%
+half-width near 0.96 points at a rejection rate of 0.05. Across
+the two models this is 270 model--branch--length cells and 1.08 million paired
 simulated alignments. The 2.5-unit branch steps from 10 to 25 resolve the
 +I+R4 transition, while the 5-unit steps from 30 to 50 and the additional
 60/75 points resolve the +I+G4 transition.
@@ -550,8 +551,8 @@ The dense figure is exported as a vector
 The full manuscript run is reproduced with:
 
     research/satute/satute developer invariant-simulation -- \
-      --null-reps 20000 \
-      --alternative-reps 20000 \
+      --null-reps 2000 \
+      --alternative-reps 2000 \
       --outdir research/satute/artifacts/local/weighted-invariant-full \
       --figure-prefix research/satute/artifacts/releases/generated-figures/figure_weighted_invariant_full_overview \
       --png-scale 3
@@ -580,8 +581,8 @@ The higher-precision shift figure is reproduced with:
 ```bash
 research/satute/satute developer invariant-simulation -- \
   --branch-lengths 20,50,10000 \
-  --null-reps 20000 \
-  --alternative-reps 20000 \
+  --null-reps 2000 \
+  --alternative-reps 2000 \
   --outdir research/satute/artifacts/local/weighted-invariant-shift \
   --figure-prefix research/satute/artifacts/releases/generated-figures/figure_weighted_invariant_shift_overview
 

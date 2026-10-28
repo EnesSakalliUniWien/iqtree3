@@ -279,6 +279,14 @@ def simple_n_line(svg, rows, left, top, width, height, ymin, ymax, value_key, co
 
 
 def render(summary, paired, output_prefix, png_scale):
+    # Read off the run rather than restating it, so the caption cannot drift
+    # from the replicate counts the manifest actually used.
+    null_reps = int(
+        max(row["replicates"] for row in paired if row["sample"] == "null_heldout") * 2
+    )
+    alternative_reps = int(
+        max(row["replicates"] for row in paired if row["sample"] == "alternative")
+    )
     width, height = 1600, 1400
     panel_w, panel_h = 620, 285
     lefts = (115, 865)
@@ -287,7 +295,7 @@ def render(summary, paired, output_prefix, png_scale):
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="#ffffff"/>',
         '<text x="800" y="40" text-anchor="middle" font-size="27" font-weight="700" fill="#202124">Full paired invariant-mixture analysis</text>',
-        '<text x="800" y="68" text-anchor="middle" font-size="12.5" fill="#5f6368">Dense branch grid; 20,000 null and 20,000 alternative replicates per model × branch × alignment-length cell</text>',
+        f'<text x="800" y="68" text-anchor="middle" font-size="12.5" fill="#5f6368">Dense branch grid; {null_reps:,} null and {alternative_reps:,} alternative replicates per model × branch × alignment-length cell</text>',
     ]
     branches = sorted({row["branch_length"] for row in summary})
     xmin, xmax = min(branches), max(branches)

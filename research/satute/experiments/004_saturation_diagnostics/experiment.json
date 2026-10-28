@@ -20,8 +20,8 @@
   "config": {
     "schema_version": 1,
     "sites": 1000,
-    "alternative_replicates": 1000,
-    "null_replicates": 5000,
+    "alternative_replicates": 500,
+    "null_replicates": 2000,
     "output": "artifacts/local/saturation-diagnostics"
   }
 }

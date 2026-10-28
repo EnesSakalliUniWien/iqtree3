@@ -34,7 +34,7 @@ def run(context, *, profile, figures, study):
             )
         )
     else:
-        arguments.extend(("--reps", 1000, "--paper-grid"))
+        arguments.extend(("--reps", 500, "--paper-grid"))
     context.run_python("run.py", *arguments)
 
 
