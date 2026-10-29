@@ -5359,7 +5359,18 @@ void runPhyloAnalysis(Params &params, Checkpoint *checkpoint, IQTree *&tree, Ali
         if (MPIHelper::getInstance().isMaster()) {
             reportPhyloAnalysis(params, *tree, *model_info);
             if (params.satute_analysis) {
-                tree->computeSatuTe(params.out_prefix, params.satute_alpha, params.satute_edges_file, params.satute_enhanced_weights, params.satute_sites, params.satute_sites_max);
+                // Without its own budget, SatuTe follows -mem rather than the
+                // machine: a user who caps IQ-TREE expects the cap to hold
+                // here too. Only the absolute form carries over; -mem 50% is a
+                // share of the likelihood requirement, which SatuTe does not
+                // share, so that case keeps the RAM-derived default.
+                size_t satute_cache_mem = params.satute_cache_mem;
+                if (satute_cache_mem == 0 && params.max_mem_size > 1.0) {
+                    satute_cache_mem = (size_t)(params.max_mem_size / 1048576.0);
+                    if (satute_cache_mem == 0)
+                        satute_cache_mem = 1;
+                }
+                tree->computeSatuTe(params.out_prefix, params.satute_alpha, params.satute_edges_file, params.satute_enhanced_weights, params.satute_sites, params.satute_sites_max, satute_cache_mem);
             }
         }
 

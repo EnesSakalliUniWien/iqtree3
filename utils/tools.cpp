@@ -1780,6 +1780,18 @@ void parseArg(int argc, char *argv[], Params &params) {
                     throw "SatuTe per-site branch cap must be >= 0";
                 continue;
             }
+            if (strcmp(argv[cnt], "--satute-cache-mem") == 0) {
+                params.satute_analysis = true;
+                params.ignore_identical_seqs = false;
+                cnt++;
+                if (cnt >= argc)
+                    throw "Use --satute-cache-mem <MB>";
+                int cache_mem = convert_int(argv[cnt]);
+                if (cache_mem < 0)
+                    throw "SatuTe cache budget must be >= 0";
+                params.satute_cache_mem = (size_t)cache_mem;
+                continue;
+            }
             if (strcmp(argv[cnt], "--qic") == 0) {
                 params.internode_certainty = 1;
                 continue;
@@ -7138,6 +7150,7 @@ void Params::setDefault() {
     satute_enhanced_weights = false;
     satute_sites = false;
     satute_sites_max = 0;
+    satute_cache_mem = 0;
     internode_certainty = 0;
     tree_weight_file = nullptr;
     consensus_type = CT_NONE;

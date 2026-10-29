@@ -18,6 +18,7 @@
 #include "satute/satute_rates.h"
 #include "satute/satute_results.h"
 #include "satute/satute_topology.h"
+#include "utils/timeutil.h"
 
 #include <algorithm>
 #include <cmath>
@@ -33,7 +34,7 @@
 using namespace std;
 using namespace satute;
 
-void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edges_file, bool enhanced_weights, bool write_sites, int sites_max) {
+void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edges_file, bool enhanced_weights, bool write_sites, int sites_max, size_t cache_mem_mb) {
     if (prefix == nullptr || strlen(prefix) == 0)
         outError("SatuTe requires a valid output prefix");
     if (alpha <= 0.0 || alpha >= 1.0)
@@ -141,8 +142,21 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
     }
 
     // Rate category is the outer loop below, so only one category's cache is
-    // ever resident and the budget covers a single category.
-    const size_t directional_cache_budget = (size_t)2 * 1024 * 1024 * 1024;
+    // ever resident and the budget covers a single category. The budget picks
+    // an algorithm rather than just an allocation, so it follows the machine:
+    // a quarter of RAM, never below the 2 GB this used to hardcode, and
+    // --satute-cache-mem overrides it outright. The mixture accumulators below
+    // are bounded by this same number and are resident at the same time, so a
+    // worst case holds twice it; in practice the accumulators are far smaller.
+    size_t directional_cache_budget = (size_t)2 * 1024 * 1024 * 1024;
+    if (cache_mem_mb > 0) {
+        directional_cache_budget = cache_mem_mb * (size_t)1024 * 1024;
+    } else {
+        const uint64_t system_memory = getMemorySize();
+        if (system_memory > 0)
+            directional_cache_budget =
+                max(directional_cache_budget, (size_t)(system_memory / 4));
+    }
     const size_t directional_cache_bytes = (max_degree > 0)
         ? satute::directionalCacheBytes(node_bound, max_degree, aln->size(), nstates, integrate_rates)
         : 0;
@@ -162,8 +176,12 @@ void PhyloTree::computeSatuTe(const char *prefix, double alpha, const char *edge
         !use_directional_cache && sweep_root != nullptr && !directional_cache_disabled) {
         cout << "  Directional partial-likelihood cache would need "
              << (directional_cache_bytes / (1024 * 1024))
-             << " MB per rate category; using the slower per-branch recursion"
-             << " instead." << endl;
+             << " MB per rate category but the budget is "
+             << (directional_cache_budget / (1024 * 1024))
+             << " MB; using the per-branch recursion instead, which is"
+             << " quadratic in taxa when every branch is analysed." << endl
+             << "  Raise it with --satute-cache-mem <MB>, or analyse fewer"
+             << " branches with --satute-edges." << endl;
     }
 
     vector<SatuTeBranchResult> results;

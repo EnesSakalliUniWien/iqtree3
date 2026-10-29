@@ -1490,6 +1490,16 @@ public:
      * Tree of Life produce a ~507 MB file. */
     int satute_sites_max;
 
+    /** Memory budget in MB for the SatuTe directional partial-likelihood
+     * cache, which holds one rate category at a time. The cache turns the
+     * per-branch recursion, O(n^2) in taxa, into a two-pass sweep that is
+     * O(n), so this number selects an algorithm rather than just an
+     * allocation: the 3083-taxon protein Tree of Life needs 7696 MB and takes
+     * over 30 minutes without it against seconds with it. 0 means auto: the
+     * -mem ceiling when one was given as an absolute size, otherwise a quarter
+     * of system RAM, never below the 2048 MB that used to be fixed. */
+    size_t satute_cache_mem;
+
     /** 1 to compute internode certainty */
     int internode_certainty;
     
