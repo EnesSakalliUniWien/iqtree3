@@ -214,6 +214,17 @@ def render_figure(summary_rows, paired_rows, output_prefix, png_scale=3.0):
             }
         )
 
+    # Read off the run rather than restating it, so the caption cannot drift
+    # from the replicate counts the manifest actually used. Only the held-out
+    # half of the null is tabulated, so doubling it recovers the configured
+    # total.
+    null_reps = int(
+        max(row["replicates"] for row in paired if row["sample"] == "null_heldout") * 2
+    )
+    alternative_reps = int(
+        max(row["replicates"] for row in paired if row["sample"] == "alternative")
+    )
+
     width, height = 1240, 850
     panel_w, panel_h = 480, 250
     panels = [(90, 155), (675, 155), (90, 545), (675, 545)]
@@ -221,7 +232,7 @@ def render_figure(summary_rows, paired_rows, output_prefix, png_scale=3.0):
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="100%" height="100%" fill="#ffffff"/>',
         '<text x="620" y="38" text-anchor="middle" font-size="24" font-weight="700" fill="#202124">Weighted +I correction: paired exact-pattern simulation</text>',
-        '<text x="620" y="64" text-anchor="middle" font-size="12" fill="#5f6368">Same multinomial alignment counts evaluated by both formulas; one-sided alpha = 0.05</text>',
+        f'<text x="620" y="64" text-anchor="middle" font-size="12" fill="#5f6368">Same multinomial alignment counts evaluated by both formulas; {null_reps:,} null and {alternative_reps:,} alternative replicates per cell; one-sided alpha = 0.05</text>',
     ]
 
     def axes(left, top, title, subtitle, xmin, xmax, ymin, ymax, xlabel, ylabel, log_x=False):
