@@ -2,6 +2,7 @@
 /artifacts/cluster/
 /artifacts/publication/power/*/rendered/
 /manuscript/build/
+/manuscript/main.pdf
 /tmp/
 /.venv/
 /src/*.egg-info/
