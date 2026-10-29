@@ -107,7 +107,9 @@ void ReportWriter::write(
             << '\t' << result.modes
             << '\t' << result.eigenvalues
             << '\t' << result.weights
-            << endl;
+            // '\n' not endl: this runs once per branch, formula and rate
+            // category, and endl flushes the whole file on every one of them.
+            << '\n';
     }
     out.close();
     cout << "SatuTe statistics per branch printed to " << filename << endl;
@@ -152,7 +154,8 @@ void ReportWriter::writeSiteSeries(
                 << '\t' << entry.formula
                 << '\t' << (site + 1)
                 << '\t' << format::formatDouble(entry.pattern_coherence[ptn])
-                << endl;
+                // '\n' not endl: millions of rows, and endl flushes each one.
+                << '\n';
         }
     }
     out.close();
