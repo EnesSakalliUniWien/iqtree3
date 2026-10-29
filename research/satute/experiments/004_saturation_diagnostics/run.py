@@ -534,10 +534,16 @@ def draw_axes(svg, left, top, width, height, title, subtitle, xmin, xmax, ymin, 
     svg.append(f'<text x="{left}" y="{top-28}" font-size="16" font-weight="700" fill="#202124">{escape(title)}</text>')
     svg.append(f'<text x="{left}" y="{top-10}" font-size="10.5" fill="#5f6368">{escape(subtitle)}</text>')
     svg.append(f'<rect x="{left}" y="{top}" width="{width}" height="{height}" fill="#ffffff" stroke="#3c4043" stroke-width="1"/>')
+    # A log axis spanning less than two decades rounds every tick exponent to
+    # the same integer, so a narrow one labels the value itself instead.
+    wide_log = log_y and (ymax - ymin) >= 2.0
     for fraction in (0.0, 0.25, 0.5, 0.75, 1.0):
         y = top + (1.0 - fraction) * height
         raw = ymin + fraction * (ymax - ymin)
-        label = f"10^{raw:.0f}" if log_y else f"{raw:.2g}"
+        if log_y:
+            label = f"10^{raw:.0f}" if wide_log else f"{10.0 ** raw:.3g}"
+        else:
+            label = f"{raw:.2g}"
         svg.append(f'<line x1="{left}" x2="{left+width}" y1="{y:.2f}" y2="{y:.2f}" stroke="#e8eaed"/>')
         svg.append(f'<text x="{left-7}" y="{y+4:.2f}" text-anchor="end" font-size="9.5" fill="#5f6368">{label}</text>')
     for tick in (0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0):
@@ -552,7 +558,16 @@ def draw_axes(svg, left, top, width, height, title, subtitle, xmin, xmax, ymin, 
     svg.append(f'<text x="{x}" y="{y}" text-anchor="middle" font-size="10.5" fill="#3c4043" transform="rotate(-90 {x} {y})">{escape(ylabel)}</text>')
 
 
-def render_figure(summary, theory, categories, sites, reps, null_reps, output_prefix):
+def render_figure(summary, theory, categories, sites, output_prefix):
+    # Read the replicate counts off the rows. Taking them from the arguments
+    # lets --plot-only caption the figure with the parser defaults instead of
+    # the run that produced the data.
+    descriptive = {
+        float(row["branch_length"]): int(row["descriptive_replicates"]) for row in summary
+    }
+    null_branch = max(descriptive)
+    null_reps = descriptive[null_branch]
+    reps = max(count for branch, count in descriptive.items() if branch != null_branch)
     by_formula = defaultdict(list)
     for row in summary:
         converted = {key: (float(value) if key not in {"formula"} else value) for key, value in row.items() if key not in {"descriptive_replicates", "decision_replicates"}}
@@ -710,6 +725,9 @@ def render_category_figure(category_summary, summary, output_prefix):
     )
     xmin = min(row["branch_length"] for row in rows)
     xmax = max(row["branch_length"] for row in rows)
+    # Panel B keeps its own lower bound: including the short branches doubles
+    # the y span and flattens the saturation region the panel exists to show.
+    # The subtitle states the bound so it cannot be read against panel A.
     contribution_xmin = 10.0
     width, height = 1180, 520
     panel_w, panel_h = 450, 300
@@ -730,7 +748,7 @@ def render_category_figure(category_summary, summary, output_prefix):
     padding = 0.08 * (ymax - ymin)
     ymin -= padding
     ymax += padding
-    draw_axes(svg, lefts[1], top, panel_w, panel_h, "B  Hard-category coherence diagnostics", "Diagnostic product = (valid sites / all sites) × category satC", contribution_xmin, xmax, ymin, ymax, "coherence", False)
+    draw_axes(svg, lefts[1], top, panel_w, panel_h, "B  Hard-category coherence diagnostics", f"Diagnostic product = (valid sites / all sites) × category satC; branch length ≥ {contribution_xmin:g}", contribution_xmin, xmax, ymin, ymax, "coherence", False)
     zero_y = scale_linear(0.0, ymin, ymax, top, panel_h, invert=True)
     svg.append(f'<line x1="{lefts[1]}" x2="{lefts[1]+panel_w}" y1="{zero_y:.2f}" y2="{zero_y:.2f}" stroke="#3c4043" stroke-dasharray="5,4"/>')
 
@@ -1078,7 +1096,7 @@ def main():
     theory = theoretical_rows(categories, eigenvalues, minimum, maximum)
     theory_fields = tuple(theory[0].keys())
     write_tsv(outdir / "model_saturation_curve.tsv", theory_fields, theory)
-    figure_paths = render_figure(summary, theory, categories, args.sites, args.reps, args.null_reps, Path(args.figure_prefix))
+    figure_paths = render_figure(summary, theory, categories, args.sites, Path(args.figure_prefix))
     category_figure_paths = render_category_figure(category_summary, summary, Path(args.category_figure_prefix))
     check_report(
         detail,

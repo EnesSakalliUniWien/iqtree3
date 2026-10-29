@@ -127,7 +127,7 @@ def main():
     svg = [
         '<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="470" viewBox="0 0 1160 470">',
         '<rect width="1160" height="470" fill="#ffffff"/>',
-        '<text x="580" y="28" text-anchor="middle" font-size="19" font-weight="700">Reduced reconstruction of the SatuTe simulation design</text>',
+        '<text x="580" y="28" text-anchor="middle" font-size="19" font-weight="700">Reconstruction of the SatuTe simulation design</text>',
     ]
     panel(svg, rows, "five_external", "a) five-taxon external branch", 78, 78, 390, 250)
     panel(svg, rows, "sixteen_internal", "b) 16-taxon internal branch", 555, 78, 390, 250)
